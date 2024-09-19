@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tankolási Napló</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+
+    <h1>Tankolási Napló</h1>
+
+
+    <!-- Adatbevitel űrlap -->
+    <form id="tankolasForm">
+        <label for="datum">Dátum és idő:</label>
+        <input type="datetime-local" id="datum" required> <!-- Valami fura hiba miatt szarakodik az év karakterszáma //FIXME -->
+
+        <label for="mennyiseg">Tankolt mennyiség (liter):</label>
+        <input type="number" id="mennyiseg" required>
+
+        <label for="osszeg">Fizetett összeg (Ft):</label>
+        <input type="number" id="osszeg" required>
+
+        <label for="kilometerora">Kilométeróra állás:</label>
+        <input type="number" id="kilometerora" required>
+
+        <button type="submit">Mentés</button>
+    </form>
+
+    <!-- Eddigi tankolások -->
+    <h2>Eddigi tankolások</h2>
+    <div id="tankolasAdatok"></div>
+
+    <!-- Törlés gomb -->
+    <div style="text-align: center; margin: 10px 0;">
+        <button id="törlésGomb">Összes adat törlése</button>
+    </div>
+
+    <!-- Összegzés -->
+    <h2>Összesítés</h2>
+    <div id="osszegzes">
+        <p>Összesen tankolt mennyiség: <span id="osszesMennyiseg">0</span> liter</p>
+        <p>Összes költség: <span id="osszesKoltseg">0</span> Ft</p>
+        <p>Legutóbbi kilométeróra állás: <span id="utolsoKilometerora">0</span> km</p>
+    </div>
+    <!-- Vissza gomb -->
+    <div style="text-align: right; margin: 10px 20px;">
+        <button id="visszaGomb">Vissza a főmenübe</button>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

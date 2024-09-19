@@ -1,0 +1,81 @@
+// Adatok betöltése a localStorage-ból
+let adatok = JSON.parse(localStorage.getItem('tankolasAdatok')) || [];
+
+// Adatok betöltése és megjelenítése
+document.addEventListener('DOMContentLoaded', () => {
+    megjelenitTankolasAdatok(adatok);
+    osszegzes(adatok);
+});
+
+// Adatbevitel kezelése
+document.getElementById('tankolasForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const datum = document.getElementById('datum').value;
+
+    // Év ellenőrzése
+    const ev = new Date(datum).getFullYear();
+    if (ev < 1000 || ev > 9999) {
+        alert("Az évnek 4 számjegyűnek kell lennie (1000-9999).");
+        return;
+    }
+
+    const mennyiseg = parseFloat(document.getElementById('mennyiseg').value);
+    const osszeg = parseFloat(document.getElementById('osszeg').value);
+    const kilometerora = parseFloat(document.getElementById('kilometerora').value);
+
+    const ujAdat = { 
+        datum, 
+        mennyiseg, 
+        osszeg, 
+        kilometerora 
+    };
+
+    // Új adat hozzáadása a listához
+    adatok.push(ujAdat);
+
+    // A frissített adatokat mentjük a localStorage-ba
+    localStorage.setItem('tankolasAdatok', JSON.stringify(adatok));
+
+    // Megjelenítés és összegzés frissítése
+    megjelenitTankolasAdatok(adatok);
+    osszegzes(adatok);
+});
+
+// Tankolási adatok megjelenítése
+function megjelenitTankolasAdatok(adatok) {
+    const tankolasAdatokElem = document.getElementById('tankolasAdatok');
+    tankolasAdatokElem.innerHTML = '';
+
+    adatok.forEach(adat => {
+        const datum = new Date(adat.datum);
+        const elem = document.createElement('div');
+        elem.textContent = `${datum.toLocaleString()} - ${adat.mennyiseg} liter - ${adat.osszeg} Ft - ${adat.kilometerora} km`;
+        tankolasAdatokElem.appendChild(elem);
+    });
+}
+
+// Összegzés
+function osszegzes(adatok) {
+    const osszesMennyiseg = adatok.reduce((acc, curr) => acc + curr.mennyiseg, 0);
+    const osszesKoltseg = adatok.reduce((acc, curr) => acc + curr.osszeg, 0);
+    const utolsoKilometerora = adatok.length > 0 ? adatok[adatok.length - 1].kilometerora : 0;
+
+    document.getElementById('osszesMennyiseg').textContent = osszesMennyiseg;
+    document.getElementById('osszesKoltseg').textContent = osszesKoltseg;
+    document.getElementById('utolsoKilometerora').textContent = utolsoKilometerora;
+}
+
+// Törlés gomb kezelése
+document.getElementById('törlésGomb').addEventListener('click', function() {
+    if (confirm("Biztosan törölni szeretnéd az összes adatot?")) {
+        adatok = [];
+        localStorage.removeItem('tankolasAdatok');
+        megjelenitTankolasAdatok(adatok);
+        osszegzes(adatok);
+    }
+});
+// Vissza gomb kezelése
+document.getElementById('visszaGomb').addEventListener('click', function() {
+    window.location.href = '../index.html'; 
+});
