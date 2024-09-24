@@ -15,7 +15,8 @@
     <!-- Adatbevitel űrlap -->
     <form id="tankolasForm">
         <label for="datum">Dátum és idő:</label>
-        <input type="datetime-local" id="datum" required> <!-- Valami fura hiba miatt szarakodik az év karakterszáma //FIXME -->
+        <input type="datetime-local" id="datum" required min="1000-01-01T00:00" max="9999-12-31T23:59">
+
 
         <label for="mennyiseg">Tankolt mennyiség (liter):</label>
         <input type="number" id="mennyiseg" required>
