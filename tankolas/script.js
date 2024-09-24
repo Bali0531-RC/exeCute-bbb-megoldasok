@@ -5,6 +5,20 @@ let adatok = JSON.parse(localStorage.getItem('tankolasAdatok')) || [];
 document.addEventListener('DOMContentLoaded', () => {
     megjelenitTankolasAdatok(adatok);
     osszegzes(adatok);
+
+    // Apply saved theme
+    const savedTheme = localStorage.getItem('theme');
+    const sunIcon = document.getElementById('sunIcon');
+    const moonIcon = document.getElementById('moonIcon');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
+    } else {
+        document.body.classList.remove('dark-theme');
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'block';
+    }
 });
 
 // Adatbevitel kezelése
@@ -54,6 +68,8 @@ function megjelenitTankolasAdatok(adatok) {
         tankolasAdatokElem.appendChild(elem);
     });
 }
+
+// Restrict year to 4 digits
 document.getElementById('datum').addEventListener('input', function(e) {
     const value = e.target.value;
     // Extract the year part
@@ -65,6 +81,7 @@ document.getElementById('datum').addEventListener('input', function(e) {
         e.target.value = parts.join('-') + (value.includes('T') ? 'T' + value.split('T')[1] : '');
     }
 });
+
 // Összegzés
 function osszegzes(adatok) {
     const osszesMennyiseg = adatok.reduce((acc, curr) => acc + curr.mennyiseg, 0);
@@ -85,7 +102,34 @@ document.getElementById('törlésGomb').addEventListener('click', function() {
         osszegzes(adatok);
     }
 });
+
 // Vissza gomb kezelése
 document.getElementById('visszaGomb').addEventListener('click', function() {
     window.location.href = '../index.html'; 
 });
+
+// Theme Toggle Logic
+const themeToggle = document.getElementById('themeToggle');
+const sunIcon = document.getElementById('sunIcon');
+const moonIcon = document.getElementById('moonIcon');
+
+// Function to switch themes
+function switchTheme() {
+    const body = document.body;
+    body.classList.toggle('dark-theme');
+    
+    // Toggle icons
+    if (body.classList.contains('dark-theme')) {
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
+    } else {
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'block';
+    }
+    
+    // Save theme preference
+    localStorage.setItem('theme', body.classList.contains('dark-theme') ? 'dark' : 'light');
+}
+
+// Event listener for the theme toggle button
+themeToggle.addEventListener('click', switchTheme);
