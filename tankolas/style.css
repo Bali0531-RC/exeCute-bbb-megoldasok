@@ -1,4 +1,4 @@
-/* Define CSS variables for light and dark themes */
+
 :root {
     --background-color: #ffffff;
     --text-color: #121212;
@@ -19,7 +19,7 @@ body.dark-theme {
     --hover-background: #555555;
 }
 
-/* Apply the variables */
+
 body {
     background-color: var(--background-color);
     color: var(--text-color);
