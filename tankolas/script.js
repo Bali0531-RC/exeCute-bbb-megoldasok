@@ -8,7 +8,10 @@ function switchTheme() {
 
     const sunIcon = document.getElementById('sunIcon');
     const moonIcon = document.getElementById('moonIcon');
-
+    if (!savedTheme) {
+        savedTheme = 'dark'; // Default to dark theme
+        localStorage.setItem('theme', 'dark');
+    }
     // Toggle icons
     if (body.classList.contains('dark-theme')) {
         sunIcon.style.display = 'block';
