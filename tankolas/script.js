@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     osszegzes(adatok);
 
     // Apply saved theme
-    const savedTheme = localStorage.getItem('theme');
+    let savedTheme = localStorage.getItem('theme');
 
     const sunIcon = document.getElementById('sunIcon');
     const moonIcon = document.getElementById('moonIcon');
