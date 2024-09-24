@@ -28,15 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
     osszegzes(adatok);
 
     // Apply saved theme
-    let savedTheme = localStorage.getItem('theme');
+    const savedTheme = localStorage.getItem('theme');
 
     const sunIcon = document.getElementById('sunIcon');
     const moonIcon = document.getElementById('moonIcon');
     const themeToggle = document.getElementById('themeToggle');
-    if (!savedTheme) {
-        savedTheme = 'dark'; // Default to dark theme
-        localStorage.setItem('theme', 'dark');
-    }
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-theme');
         sunIcon.style.display = 'block';
