@@ -54,7 +54,17 @@ function megjelenitTankolasAdatok(adatok) {
         tankolasAdatokElem.appendChild(elem);
     });
 }
-
+document.getElementById('datum').addEventListener('input', function(e) {
+    const value = e.target.value;
+    // Extract the year part
+    const parts = value.split('T')[0].split('-');
+    const year = parts[0];
+    if (year.length > 4) {
+        // Limit the year to 4 characters
+        parts[0] = year.slice(0, 4);
+        e.target.value = parts.join('-') + (value.includes('T') ? 'T' + value.split('T')[1] : '');
+    }
+});
 // Összegzés
 function osszegzes(adatok) {
     const osszesMennyiseg = adatok.reduce((acc, curr) => acc + curr.mennyiseg, 0);
