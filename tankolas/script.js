@@ -1,33 +1,46 @@
 // Adatok betöltése a localStorage-ból
 let adatok = JSON.parse(localStorage.getItem('tankolasAdatok')) || [];
 
+// Function to switch themes
 function switchTheme() {
     const body = document.body;
-    body.classList.toggle('light-theme');
+    body.classList.toggle('dark-theme');
+
+    const sunIcon = document.getElementById('sunIcon');
+    const moonIcon = document.getElementById('moonIcon');
+
+    // Toggle icons
+    if (body.classList.contains('dark-theme')) {
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
+    } else {
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'block';
+    }
 
     // Save theme preference
-    const newTheme = body.classList.contains('light-theme') ? 'light' : 'dark';
-    localStorage.setItem('theme', newTheme);
+    localStorage.setItem('theme', body.classList.contains('dark-theme') ? 'dark' : 'light');
 }
 
 // Adatok betöltése és megjelenítése
 document.addEventListener('DOMContentLoaded', () => {
     megjelenitTankolasAdatok(adatok);
     osszegzes(adatok);
-    // DOM elements
-    const themeToggle = document.getElementById('themeToggle');
 
     // Apply saved theme
-    let savedTheme = localStorage.getItem('theme');
-    if (!savedTheme) {
-        savedTheme = 'dark'; // Default to dark theme
-        localStorage.setItem('theme', 'dark');
-    }
+    const savedTheme = localStorage.getItem('theme');
+
+    const sunIcon = document.getElementById('sunIcon');
+    const moonIcon = document.getElementById('moonIcon');
+    const themeToggle = document.getElementById('themeToggle');
 
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-theme');
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
     } else {
-        document.body.classList.remove('dark-theme');
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'block';
     }
 
     // Event listener for the theme toggle button
