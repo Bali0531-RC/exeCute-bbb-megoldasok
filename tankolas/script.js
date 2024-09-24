@@ -1,6 +1,27 @@
 // Adatok betöltése a localStorage-ból
 let adatok = JSON.parse(localStorage.getItem('tankolasAdatok')) || [];
 
+// Function to switch themes
+function switchTheme() {
+    const body = document.body;
+    body.classList.toggle('dark-theme');
+
+    const sunIcon = document.getElementById('sunIcon');
+    const moonIcon = document.getElementById('moonIcon');
+
+    // Toggle icons
+    if (body.classList.contains('dark-theme')) {
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
+    } else {
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'block';
+    }
+
+    // Save theme preference
+    localStorage.setItem('theme', body.classList.contains('dark-theme') ? 'dark' : 'light');
+}
+
 // Adatok betöltése és megjelenítése
 document.addEventListener('DOMContentLoaded', () => {
     megjelenitTankolasAdatok(adatok);
@@ -8,52 +29,85 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Apply saved theme
     const savedTheme = localStorage.getItem('theme');
+
     const sunIcon = document.getElementById('sunIcon');
     const moonIcon = document.getElementById('moonIcon');
+    const themeToggle = document.getElementById('themeToggle');
+
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-theme');
         sunIcon.style.display = 'block';
         moonIcon.style.display = 'none';
     } else {
-        document.body.classList.remove('dark-theme');
         sunIcon.style.display = 'none';
         moonIcon.style.display = 'block';
     }
-});
 
-// Adatbevitel kezelése
-document.getElementById('tankolasForm').addEventListener('submit', function(event) {
-    event.preventDefault();
+    // Event listener for the theme toggle button
+    themeToggle.addEventListener('click', switchTheme);
 
-    const datum = document.getElementById('datum').value;
+    // Adatbevitel kezelése
+    document.getElementById('tankolasForm').addEventListener('submit', function(event) {
+        event.preventDefault();
 
-    // Év ellenőrzése
-    const ev = new Date(datum).getFullYear();
-    if (ev < 1000 || ev > 9999) {
-        alert("Az évnek 4 számjegyűnek kell lennie (1000-9999).");
-        return;
-    }
+        const datum = document.getElementById('datum').value;
 
-    const mennyiseg = parseFloat(document.getElementById('mennyiseg').value);
-    const osszeg = parseFloat(document.getElementById('osszeg').value);
-    const kilometerora = parseFloat(document.getElementById('kilometerora').value);
+        // Év ellenőrzése
+        const ev = new Date(datum).getFullYear();
+        if (ev < 1000 || ev > 9999) {
+            alert("Az évnek 4 számjegyűnek kell lennie (1000-9999).");
+            return;
+        }
 
-    const ujAdat = { 
-        datum, 
-        mennyiseg, 
-        osszeg, 
-        kilometerora 
-    };
+        const mennyiseg = parseFloat(document.getElementById('mennyiseg').value);
+        const osszeg = parseFloat(document.getElementById('osszeg').value);
+        const kilometerora = parseFloat(document.getElementById('kilometerora').value);
 
-    // Új adat hozzáadása a listához
-    adatok.push(ujAdat);
+        const ujAdat = { 
+            datum, 
+            mennyiseg, 
+            osszeg, 
+            kilometerora 
+        };
 
-    // A frissített adatokat mentjük a localStorage-ba
-    localStorage.setItem('tankolasAdatok', JSON.stringify(adatok));
+        // Új adat hozzáadása a listához
+        adatok.push(ujAdat);
 
-    // Megjelenítés és összegzés frissítése
-    megjelenitTankolasAdatok(adatok);
-    osszegzes(adatok);
+        // A frissített adatokat mentjük a localStorage-ba
+        localStorage.setItem('tankolasAdatok', JSON.stringify(adatok));
+
+        // Megjelenítés és összegzés frissítése
+        megjelenitTankolasAdatok(adatok);
+        osszegzes(adatok);
+    });
+
+    // Törlés gomb kezelése
+    document.getElementById('törlésGomb').addEventListener('click', function() {
+        if (confirm("Biztosan törölni szeretnéd az összes adatot?")) {
+            adatok = [];
+            localStorage.removeItem('tankolasAdatok');
+            megjelenitTankolasAdatok(adatok);
+            osszegzes(adatok);
+        }
+    });
+
+    // Vissza gomb kezelése
+    document.getElementById('visszaGomb').addEventListener('click', function() {
+        window.location.href = '../index.html'; 
+    });
+
+    // Restrict year to 4 digits
+    document.getElementById('datum').addEventListener('input', function(e) {
+        const value = e.target.value;
+        // Extract the year part
+        const parts = value.split('T')[0].split('-');
+        const year = parts[0];
+        if (year.length > 4) {
+            // Limit the year to 4 characters
+            parts[0] = year.slice(0, 4);
+            e.target.value = parts.join('-') + (value.includes('T') ? 'T' + value.split('T')[1] : '');
+        }
+    });
 });
 
 // Tankolási adatok megjelenítése
@@ -69,19 +123,6 @@ function megjelenitTankolasAdatok(adatok) {
     });
 }
 
-// Restrict year to 4 digits
-document.getElementById('datum').addEventListener('input', function(e) {
-    const value = e.target.value;
-    // Extract the year part
-    const parts = value.split('T')[0].split('-');
-    const year = parts[0];
-    if (year.length > 4) {
-        // Limit the year to 4 characters
-        parts[0] = year.slice(0, 4);
-        e.target.value = parts.join('-') + (value.includes('T') ? 'T' + value.split('T')[1] : '');
-    }
-});
-
 // Összegzés
 function osszegzes(adatok) {
     const osszesMennyiseg = adatok.reduce((acc, curr) => acc + curr.mennyiseg, 0);
@@ -92,44 +133,3 @@ function osszegzes(adatok) {
     document.getElementById('osszesKoltseg').textContent = osszesKoltseg;
     document.getElementById('utolsoKilometerora').textContent = utolsoKilometerora;
 }
-
-// Törlés gomb kezelése
-document.getElementById('törlésGomb').addEventListener('click', function() {
-    if (confirm("Biztosan törölni szeretnéd az összes adatot?")) {
-        adatok = [];
-        localStorage.removeItem('tankolasAdatok');
-        megjelenitTankolasAdatok(adatok);
-        osszegzes(adatok);
-    }
-});
-
-// Vissza gomb kezelése
-document.getElementById('visszaGomb').addEventListener('click', function() {
-    window.location.href = '../index.html'; 
-});
-
-// Theme Toggle Logic
-const themeToggle = document.getElementById('themeToggle');
-const sunIcon = document.getElementById('sunIcon');
-const moonIcon = document.getElementById('moonIcon');
-
-// Function to switch themes
-function switchTheme() {
-    const body = document.body;
-    body.classList.toggle('dark-theme');
-    
-    // Toggle icons
-    if (body.classList.contains('dark-theme')) {
-        sunIcon.style.display = 'block';
-        moonIcon.style.display = 'none';
-    } else {
-        sunIcon.style.display = 'none';
-        moonIcon.style.display = 'block';
-    }
-    
-    // Save theme preference
-    localStorage.setItem('theme', body.classList.contains('dark-theme') ? 'dark' : 'light');
-}
-
-// Event listener for the theme toggle button
-themeToggle.addEventListener('click', switchTheme);
