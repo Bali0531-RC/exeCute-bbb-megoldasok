@@ -68,6 +68,15 @@ button:hover {
     text-align: center; 
 }
 
+#haviOsszegzes, #tavolsagok {
+    text-align: center;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    width: 50%; /* Szélesség állítása, hogy jobban nézzen ki */
+}
+
 #osszegzes {
     text-align: center;
     margin-top: 20px;
