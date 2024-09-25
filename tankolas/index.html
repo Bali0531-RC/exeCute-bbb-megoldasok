@@ -64,15 +64,19 @@
     
     <!-- Dátumszűrés -->
     <h2>Szűrés dátum alapján</h2>
-    <label for="kezdoDatum">Kezdő dátum:</label>
-    <input type="date" id="kezdoDatum">
-    <label for="vegDatum">Vég dátum:</label>
-    <input type="date" id="vegDatum">
-    <button id="szuresGomb">Szűrés</button>
+    <div style="text-align: center;">
+        <label for="kezdoDatum">Kezdő dátum:</label>
+        <input type="date" id="kezdoDatum">
+        <label for="vegDatum">Vég dátum:</label>
+        <input type="date" id="vegDatum">
+        <button id="szuresGomb">Szűrés</button>
+        <button id="szuresTorlesGomb">Szűrés törlése</button>
+    </div>
     
     <!-- Hatékonysági rangsor -->
     <h2>Hatékonysági Rangsor</h2>
-    <div id="tavolsagok"></div>
+    <div id="tavolsagok" style="text-align: center;"></div>
+
 
     <!-- Vissza gomb -->
     <div style="text-align: right; margin: 10px 20px;">
