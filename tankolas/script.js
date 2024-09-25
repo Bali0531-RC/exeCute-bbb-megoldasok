@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     haviOsszegzes(adatok);
 
     const savedTheme = localStorage.getItem('theme') || 'dark';
-    
+
     // Dátumszűrés
     document.getElementById('szuresGomb').addEventListener('click', () => {
         const kezdoDatum = document.getElementById('kezdoDatum').value;
@@ -32,6 +32,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const szurtAdatok = szuresDatumSzerint(adatok, kezdoDatum, vegDatum);
         megjelenitTankolasAdatok(szurtAdatok);
         osszegzes(szurtAdatok);
+        haviOsszegzes(szurtAdatok);
+    });
+
+    // Szűrés törlése
+    document.getElementById('szuresTorlesGomb').addEventListener('click', () => {
+        document.getElementById('kezdoDatum').value = '';
+        document.getElementById('vegDatum').value = '';
+        megjelenitTankolasAdatok(adatok);
+        osszegzes(adatok);
+        haviOsszegzes(adatok);
     });
 
     // Távolságok számítása és hatékonyság megjelenítése
