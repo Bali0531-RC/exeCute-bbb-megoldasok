@@ -21,8 +21,22 @@ function switchTheme() {
 document.addEventListener('DOMContentLoaded', () => {
     megjelenitTankolasAdatok(adatok);
     osszegzes(adatok);
+    haviOsszegzes(adatok);
 
     const savedTheme = localStorage.getItem('theme') || 'dark';
+    
+    // Dátumszűrés
+    document.getElementById('szuresGomb').addEventListener('click', () => {
+        const kezdoDatum = document.getElementById('kezdoDatum').value;
+        const vegDatum = document.getElementById('vegDatum').value;
+        const szurtAdatok = szuresDatumSzerint(adatok, kezdoDatum, vegDatum);
+        megjelenitTankolasAdatok(szurtAdatok);
+        osszegzes(szurtAdatok);
+    });
+
+    // Távolságok számítása és hatékonyság megjelenítése
+    const tavolsagok = tavolsagokSzamitasa(adatok);
+    tavolsagokMegjelenitese(tavolsagok);
 
     const sunIcon = document.getElementById('sunIcon');
     const moonIcon = document.getElementById('moonIcon');
@@ -102,6 +116,60 @@ function megjelenitTankolasAdatok(adatok) {
         const elem = document.createElement('div');
         elem.textContent = `${datum.toLocaleString()} - ${adat.mennyiseg} liter - ${adat.osszeg} Ft - ${adat.kilometerora} km`;
         tankolasAdatokElem.appendChild(elem);
+    });
+}
+function haviOsszegzes(adatok) {
+    const haviAdatok = {};
+
+    adatok.forEach(adat => {
+        const datum = new Date(adat.datum);
+        const honap = `${datum.getFullYear()}-${datum.getMonth() + 1}`; // Formátum: ÉÉÉÉ-HH
+
+        if (!haviAdatok[honap]) {
+            haviAdatok[honap] = { osszesKoltseg: 0, osszesMennyiseg: 0 };
+        }
+
+        haviAdatok[honap].osszesKoltseg += adat.osszeg;
+        haviAdatok[honap].osszesMennyiseg += adat.mennyiseg;
+    });
+
+    const haviOsszegzesElem = document.getElementById('haviOsszegzes');
+    haviOsszegzesElem.innerHTML = ''; // Előző adatok törlése
+
+    for (const honap in haviAdatok) {
+        const div = document.createElement('div');
+        div.textContent = `Hónap: ${honap}, Összes költség: ${haviAdatok[honap].osszesKoltseg} Ft, Összes üzemanyag: ${haviAdatok[honap].osszesMennyiseg} liter`;
+        haviOsszegzesElem.appendChild(div);
+    }
+}
+
+function szuresDatumSzerint(adatok, kezdoDatum, vegDatum) {
+    return adatok.filter(adat => {
+        const datum = new Date(adat.datum);
+        return datum >= new Date(kezdoDatum) && datum <= new Date(vegDatum);
+    });
+}
+
+function tavolsagokSzamitasa(adatok) {
+    const tavolsagok = [];
+    for (let i = 1; i < adatok.length; i++) {
+        const tavolsag = adatok[i].kilometerora - adatok[i - 1].kilometerora;
+        const uzemanyag = adatok[i].mennyiseg;
+        const fogyasztas = tavolsag / uzemanyag; // km/liter
+        tavolsagok.push({ tavolsag, uzemanyag, fogyasztas, datum: adatok[i].datum });
+    }
+
+    return tavolsagok.sort((a, b) => b.fogyasztas - a.fogyasztas); // Rendezzük hatékonyság szerint
+}
+
+function tavolsagokMegjelenitese(tavolsagok) {
+    const tavolsagokElem = document.getElementById('tavolsagok');
+    tavolsagokElem.innerHTML = ''; // Előző adatok törlése
+
+    tavolsagok.forEach(t => {
+        const div = document.createElement('div');
+        div.textContent = `Dátum: ${new Date(t.datum).toLocaleString()}, Távolság: ${t.tavolsag} km, Üzemanyag: ${t.uzemanyag} liter, Hatékonyság: ${t.fogyasztas.toFixed(2)} km/l`;
+        tavolsagokElem.appendChild(div);
     });
 }
 
