@@ -3,8 +3,8 @@ body {
     text-align: center;
     margin: 0;
     padding: 0;
-    background-color: #181818; 
-    color: #f0f0f0
+    background-color: #191c2c; 
+    color: #b0b6e0
 }
 
 ul {
@@ -13,10 +13,12 @@ ul {
 }
 
 button {
+    font-family: "Kanit", sans-serif;
     margin-top: 5px;
-    color: #ffffff;
-    background-color: #333; 
-    border: 1px solid #4CAF50; 
+    color: #b0b6e0;
+    background-color: #383f6b;
+    border: 1px solid #43486e; 
+    border-radius: 10px;
     padding: 5px 10px;
     cursor: pointer;
 }
@@ -27,15 +29,15 @@ header {
     left: 0;
     width: 150px; 
     height: 100%;
-    background-color: #333; 
+    background-color: #383f6b;
     padding: 10px;
     text-align: left;
     color: white;
 }
 
 header button {
-    color: white;
-    background-color: #4CAF50;
+    color: #383f6b;
+    background-color: #b0b6e0;
     border: none;
     padding: 10px 20px;
     cursor: pointer;
@@ -43,7 +45,8 @@ header button {
 }
 
 header button:hover {
-    background-color: #45a049;
+    color: #b0b6e0;
+    background-color: #606692;
 }
 
 main {
@@ -52,7 +55,7 @@ main {
 }
 
 footer {
-    background-color: #242424; 
+    background-color: #43486e; 
     color: white;
     text-align: center;
     padding: 10px;
@@ -73,15 +76,15 @@ footer div {
     width: 100%;
 }
     
-.member-widget {
-    border: 1px solid #333; 
+.member-widget { 
     padding: 10px;
     margin: 10px;
+    border-radius: 15px;
     display: inline-block;
     width: 200px;
     vertical-align: top;
-    background-color: #2c2c2c; 
-    color: #f0f0f0; 
+    background-color: #606692; 
+    color: #b0b6e0; 
     text-align: center; 
 }
 
