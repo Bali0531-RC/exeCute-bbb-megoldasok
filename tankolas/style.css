@@ -1,29 +1,29 @@
 
 :root {
-    --background-color: #ffffff;
-    --text-color: #121212;
-    --primary-color: #f0f0f0;
+    --background-color: #b0b6e0;
+    --text-color: #ffffff;
+    --primary-color: #383f6b;
     --secondary-color: #e0e0e0;
-    --button-background: #cccccc;
-    --button-text-color: #121212;
-    --hover-background: #bbbbbb;
+    --button-background: #606692;
+    --button-text-color: #b0b6e0;
+    --hover-background: #43486e;
 }
 
 body.dark-theme {
-    --background-color: #121212;
-    --text-color: #ffffff;
-    --primary-color: #1e1e1e;
+    --background-color: #191c2c;
+    --text-color: #b0b6e0;
+    --primary-color: #606692;
     --secondary-color: #333333;
-    --button-background: #333333;
-    --button-text-color: #ffffff;
-    --hover-background: #555555;
+    --button-background: #383f6b;
+    --button-text-color: #b0b6e0;
+    --hover-background: #43486e;
 }
 
 
 body {
     background-color: var(--background-color);
     color: var(--text-color);
-    font-family: Arial, sans-serif;
+    font-family: "Kanit", sans-serif;
     margin: 0;
     padding: 20px;
 }
@@ -48,6 +48,7 @@ label, input, button {
 }
 
 input, button {
+    font-family: "Kanit", sans-serif;
     padding: 10px;
     border-radius: 5px;
     border: none;
