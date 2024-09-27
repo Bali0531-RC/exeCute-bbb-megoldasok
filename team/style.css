@@ -1,5 +1,5 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Kanit", sans-serif;
     text-align: center;
     margin: 0;
     padding: 0;
@@ -115,7 +115,7 @@ footer div {
 
 .overlay-content {
     position: relative;
-    background-color: #333;
+    background-color: #606692;
     padding: 20px;
     text-align: center;
 }
@@ -146,6 +146,6 @@ footer div {
     position: fixed;
     top: 10px;
     right: 10px;
-    color: #f0f0f0; 
+    color: #b0b6e0; 
     font-size: 1.2em;
 }
