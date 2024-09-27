@@ -74,7 +74,7 @@ button:hover {
     padding: 20px;
     background-color: var(--primary-color);
     border-radius: 10px;
-    width: 50%; /* Szélesség állítása, hogy jobban nézzen ki */
+    width: 50%; 
 }
 
 #osszegzes {
