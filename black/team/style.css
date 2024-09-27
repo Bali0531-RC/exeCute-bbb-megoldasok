@@ -35,7 +35,7 @@ header {
 
 header button {
     color: white;
-    background-color: #4CAF50;
+    background-color: #5a5a5a;
     border: none;
     padding: 10px 20px;
     cursor: pointer;
@@ -43,7 +43,7 @@ header button {
 }
 
 header button:hover {
-    background-color: #45a049;
+    background-color: #808080;
 }
 
 main {

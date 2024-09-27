@@ -18,8 +18,9 @@ function toggleIntro(id) {
 }
 
 // Képek kezelése
-let images = ["image1.jpg", "image2.jpg", "image3.jpg", "image4.jpg"];
+let images = ["N.png", "L.png", "G.png"];
 let currentIndex = 0;
+
 
 // Overlay megnyitása
 document.getElementById('openOverlay').addEventListener('click', function() {
