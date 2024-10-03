@@ -1,5 +1,5 @@
-const sorok = 4; // A sorok száma 4
-const oszlopok = 4; // Az oszlopok száma 4
+const sorok = 5; // A sorok száma 4
+const oszlopok = 5; // Az oszlopok száma 4
 let palya = [];
 let jatekosHelyzet = { x: 0, y: 0 };
 let osszesGyumolcs = 0;
@@ -52,13 +52,13 @@ function palyaLetrehozasa() {
     for (let i = 0; i < sorok; i++) {
         let sor = [];
         for (let j = 0; j < oszlopok; j++) {
-            const mezohivatas = Math.floor(Math.random() * 15) + 1; // 1-15 közötti szám generálása
+            const mezohivatas = Math.floor(Math.random() * 10) + 1; // 1-15 közötti szám generálása
             sor.push(mezohivatas);
 
             const mezok = document.createElement('div');
             mezok.className = 'mezohivatas gyumolcsfa';
             mezok.id = `mezohivatas-${i}-${j}`;
-            mezok.innerText = mezohivatas > 0 ? '📦' : '📬'; // Bezárt láda emoji (📦) vagy kinyitott láda emoji (📬)
+            mezok.innerText = mezohivatas > 0 ? mezohivatas : ''; // Csak a szám jelenjen meg, ha nem 0
             mezok.onclick = () => mezohivatasKattintas(i, j);
             palyaKontener.appendChild(mezok);
         }
@@ -115,7 +115,7 @@ function palyaFrissitese() {
             const mezok = document.getElementById(`mezohivatas-${i}-${j}`);
             mezok.classList.remove('jatekos', 'mozdithato', 'nem-mozdithato');
             
-            mezok.innerText = palya[i][j] > 0 ? '📦' : '📬'; // Bezárt láda emoji vagy kinyitott láda emoji
+            mezok.innerText = palya[i][j] > 0 ? palya[i][j] : ''; // Csak a szám jelenjen meg, ha nem 0
             
             if (i === jatekosHelyzet.x && j === jatekosHelyzet.y) {
                 mezok.classList.add('jatekos');
@@ -159,7 +159,7 @@ function teleportKepessegHasznalata() {
 function palyaUjratoltese() {
     for (let i = 0; i < sorok; i++) {
         for (let j = 0; j < oszlopok; j++) {
-            palya[i][j] = Math.floor(Math.random() * 15) + 1; // 1-15 közötti szám generálása
+            palya[i][j] = Math.floor(Math.random() * 10) + 1; // 1-15 közötti szám generálása
         }
     }
     resetHasznalt = true;
