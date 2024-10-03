@@ -33,11 +33,12 @@ h1 {
 }
 
 .cell.movable {
-    background-color: yellow; /* A mezők, ahova léphet */
+    background-color: yellow; /* Léphető mezők */
+    color: black; /* Fekete szöveg a sárga mezőkön */
 }
 
 .cell.not-movable {
-    background-color: red; /* A mezők, ahova nem léphet */
+    background-color: red; /* Nem léphető mezők */
 }
 
 .fruit-tree {

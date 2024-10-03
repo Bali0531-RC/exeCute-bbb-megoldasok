@@ -7,7 +7,7 @@ let stepsRemaining = 10;
 let bestScore = 0;
 let teleportUsed = false;
 let resetUsed = false;
-let isTeleportActive = false;  // Teleport aktív állapot jelzése
+let isTeleportActive = true;  // Kezdetben a teleport mód aktív
 
 // Create the game board
 function createBoard() {
@@ -31,6 +31,10 @@ function createBoard() {
         board.push(row);
         boardContainer.appendChild(document.createElement('br'));
     }
+
+    // Kezdéskor a teleport mód aktív, lehet bárhova lépni
+    isTeleportActive = true;
+    updateBoardDisplay();
 }
 
 // Kezeli a mezőre kattintást
@@ -98,6 +102,7 @@ function updateBoardDisplay() {
             }
         }
     }
+    document.getElementById(`cell-${playerPosition.x}-${playerPosition.y}`).classList.add('player');
 }
 
 // Játék vége és pontszám ellenőrzése
@@ -135,7 +140,7 @@ function resetGame() {
     playerPosition = { x: 0, y: 0 };
     teleportUsed = false;
     resetUsed = false;
-    isTeleportActive = false;
+    isTeleportActive = true;  // Új játék kezdésekor ismét aktív a teleport
     document.getElementById('fruit-count').innerText = totalFruits;
     document.getElementById('remaining-steps').innerText = stepsRemaining;
     document.getElementById('teleport-button').style.display = 'inline';
