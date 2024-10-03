@@ -4,7 +4,7 @@ let palya = [];
 let jatekosHelyzet = { x: 0, y: 0 };
 let osszesGyumolcs = 0;
 let hatraLevoLepesek = 10;
-let legjobbPontszam = parseInt(localStorage.getItem('legjobbPontszam')) || 0; // Betöltjük a legjobb pontszámot a localStorage-ból
+let legjobbPontszam = parseInt(localStorage.getItem('legjobbPontszam')) || 0; 
 let teleportHasznalt = false;
 let resetHasznalt = false;
 let teleportAktiv = true;
@@ -24,7 +24,7 @@ function jatekAllapotBetoltese() {
         palyaFrissitese();
         document.getElementById('gyumolcs-szam').innerText = osszesGyumolcs;
         document.getElementById('hatra-levo-lepesek').innerText = hatraLevoLepesek;
-        document.getElementById('legjobb-pontszam').innerText = legjobbPontszam; // Frissítjük a legjobb pontszámot
+        document.getElementById('legjobb-pontszam').innerText = legjobbPontszam;
     } else {
         palyaLetrehozasa();
     }
