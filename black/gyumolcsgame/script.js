@@ -4,7 +4,7 @@ let palya = [];
 let jatekosHelyzet = { x: 0, y: 0 };
 let osszesGyumolcs = 0;
 let hatraLevoLepesek = 10;
-let legjobbPontszam = 0;
+let legjobbPontszam = parseInt(localStorage.getItem('legjobbPontszam')) || 0; // Betöltjük a legjobb pontszámot a localStorage-ból
 let teleportHasznalt = false;
 let resetHasznalt = false;
 let teleportAktiv = true;
@@ -17,7 +17,6 @@ function jatekAllapotBetoltese() {
         jatekosHelyzet = mentettAllapot.jatekosHelyzet;
         osszesGyumolcs = mentettAllapot.osszesGyumolcs;
         hatraLevoLepesek = mentettAllapot.hatraLevoLepesek;
-        legjobbPontszam = mentettAllapot.legjobbPontszam;
         teleportHasznalt = mentettAllapot.teleportHasznalt;
         resetHasznalt = mentettAllapot.resetHasznalt;
         teleportAktiv = mentettAllapot.teleportAktiv;
@@ -25,7 +24,7 @@ function jatekAllapotBetoltese() {
         palyaFrissitese();
         document.getElementById('gyumolcs-szam').innerText = osszesGyumolcs;
         document.getElementById('hatra-levo-lepesek').innerText = hatraLevoLepesek;
-        document.getElementById('legjobb-pontszam').innerText = legjobbPontszam;
+        document.getElementById('legjobb-pontszam').innerText = legjobbPontszam; // Frissítjük a legjobb pontszámot
     } else {
         palyaLetrehozasa();
     }
@@ -37,7 +36,6 @@ function jatekAllapotMentese() {
         jatekosHelyzet,
         osszesGyumolcs,
         hatraLevoLepesek,
-        legjobbPontszam,
         teleportHasznalt,
         resetHasznalt,
         teleportAktiv,
@@ -60,7 +58,7 @@ function palyaLetrehozasa() {
             const mezok = document.createElement('div');
             mezok.className = 'mezohivatas gyumolcsfa';
             mezok.id = `mezohivatas-${i}-${j}`;
-            mezok.innerText = mezohivatas > 0 ? '📦' : '📬'; // Bezárt láda emoji (📦) vagy kinyitott láda emoji (📬)
+            mezok.innerText = mezohivatas > 0 ? '📦' : '📬'; 
             mezok.onclick = () => mezohivatasKattintas(i, j);
             palyaKontener.appendChild(mezok);
         }
@@ -100,7 +98,7 @@ function jatekosMozgatas(ujX, ujY) {
     palyaFrissitese();
     jatekAllapotMentese();
 
-    if (hatraLevoLepesek <= 0) { // Ha a lépések száma 0, befejezzük a játékot
+    if (hatraLevoLepesek <= 0) { 
         jatekVegeKezelese();
     }
 }
@@ -117,7 +115,7 @@ function palyaFrissitese() {
             const mezok = document.getElementById(`mezohivatas-${i}-${j}`);
             mezok.classList.remove('jatekos', 'mozdithato', 'nem-mozdithato');
             
-            mezok.innerText = palya[i][j] > 0 ? '📦' : '📬'; // Bezárt láda emoji vagy kinyitott láda emoji
+            mezok.innerText = palya[i][j] > 0 ? '📦' : '📬';
             
             if (i === jatekosHelyzet.x && j === jatekosHelyzet.y) {
                 mezok.classList.add('jatekos');
@@ -146,6 +144,7 @@ function jatekVegeKezelese() {
     if (osszesGyumolcs > legjobbPontszam) {
         legjobbPontszam = osszesGyumolcs;
         document.getElementById('legjobb-pontszam').innerText = legjobbPontszam;
+        localStorage.setItem('legjobbPontszam', legjobbPontszam);
     }
     jatekVege = true;
     jatekAllapotMentese();
