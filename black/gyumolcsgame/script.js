@@ -5,6 +5,8 @@ let playerPosition = { x: 0, y: 0 };
 let totalFruits = 0;
 let stepsRemaining = 10;
 let bestScore = 0;
+let teleportUsed = false;
+let resetUsed = false;
 
 // Create the game board
 function createBoard() {
@@ -47,7 +49,7 @@ function movePlayer(dx, dy) {
     
     playerPosition = { x: newX, y: newY };
     collectFruits(newX, newY);
-    stepsRemaining--;
+    if (!teleportUsed) stepsRemaining--; // Deduct step only if teleport not used
     document.getElementById('remaining-steps').innerText = stepsRemaining;
     updateBoardDisplay();
     
@@ -63,13 +65,29 @@ function collectFruits(x, y) {
     document.getElementById('fruit-count').innerText = totalFruits;
 }
 
-// Update the board to reflect player position and remaining fruits
 function updateBoardDisplay() {
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
             const cell = document.getElementById(`cell-${i}-${j}`);
-            cell.classList.remove('player');
+            cell.classList.remove('player', 'movable', 'not-movable');
             cell.innerText = board[i][j];
+            
+            // Jelöljük a játékos mezőjét zölddel
+            if (i === playerPosition.x && j === playerPosition.y) {
+                cell.classList.add('player');
+            }
+            // Jelöljük a léphető mezőket sárgával (fel, le, balra, jobbra)
+            else if (
+                (i === playerPosition.x && Math.abs(j - playerPosition.y) === 1) || 
+                (j === playerPosition.y && Math.abs(i - playerPosition.x) === 1)
+            ) {
+                cell.classList.add('movable');
+            }
+            // A többi mező piros, ahova nem léphet
+            else {
+                cell.classList.add('not-movable');
+            }
+
             if (board[i][j] === 0) {
                 cell.classList.remove('fruit-tree');
                 cell.classList.add('empty-tree');
@@ -82,6 +100,7 @@ function updateBoardDisplay() {
     document.getElementById(`cell-${playerPosition.x}-${playerPosition.y}`).classList.add('player');
 }
 
+
 // End game and check if the player has a new best score
 function endGame() {
     alert('Játék vége! Pontszámod: ' + totalFruits);
@@ -91,13 +110,36 @@ function endGame() {
     }
 }
 
+// Reset the board's fruits to new random values
+function resetBoard() {
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            board[i][j] = Math.floor(Math.random() * 11);
+        }
+    }
+    resetUsed = true;
+    document.getElementById('reset-board-button').style.display = 'none';
+    updateBoardDisplay();
+}
+
+// Use the teleport ability
+function useTeleport() {
+    teleportUsed = true;
+    alert('Teleportálhatsz bárhova egyszer!');
+    document.getElementById('teleport-button').style.display = 'none';
+}
+
 // Reset the game
 function resetGame() {
     totalFruits = 0;
     stepsRemaining = 10;
     playerPosition = { x: 0, y: 0 };
+    teleportUsed = false;
+    resetUsed = false;
     document.getElementById('fruit-count').innerText = totalFruits;
     document.getElementById('remaining-steps').innerText = stepsRemaining;
+    document.getElementById('teleport-button').style.display = 'inline';
+    document.getElementById('reset-board-button').style.display = 'inline';
     createBoard();
 }
 

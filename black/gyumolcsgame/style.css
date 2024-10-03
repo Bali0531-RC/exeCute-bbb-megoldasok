@@ -1,6 +1,12 @@
 body {
     font-family: Arial, sans-serif;
     text-align: center;
+    background-color: black;
+    color: white;
+}
+
+h1 {
+    color: orange;
 }
 
 #board-container {
@@ -13,26 +19,33 @@ body {
     height: 50px;
     display: inline-block;
     margin: 2px;
-    background-color: lightgreen;
+    background-color: grey;
     font-size: 18px;
     line-height: 50px;
     text-align: center;
     cursor: pointer;
+    color: white;
     position: relative;
 }
 
 .cell.player {
-    background-color: yellow;
+    background-color: green; /* Játékos mezője */
+}
+
+.cell.movable {
+    background-color: yellow; /* A mezők, ahova léphet */
+}
+
+.cell.not-movable {
+    background-color: red; /* A mezők, ahova nem léphet */
 }
 
 .fruit-tree {
-    background-image: url('tree-with-fruits.png');
-    background-size: cover;
+    background-color: grey;
 }
 
 .empty-tree {
-    background-image: url('empty-tree.png');
-    background-size: cover;
+    background-color: darkgrey;
 }
 
 #info-panel {
@@ -42,4 +55,14 @@ body {
 button {
     padding: 10px;
     font-size: 16px;
+    margin: 5px;
+    background-color: orange;
+    color: black;
+    border: none;
+    cursor: pointer;
+}
+
+button:disabled {
+    background-color: grey;
+    cursor: not-allowed;
 }
