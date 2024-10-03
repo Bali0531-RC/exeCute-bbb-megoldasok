@@ -90,15 +90,17 @@ function mozdithato(x, y) {
 function jatekosMozgatas(ujX, ujY) {
     jatekosHelyzet = { x: ujX, y: ujY };
     gyumolcsSzuletes(ujX, ujY);
+    
     if (!teleportHasznalt && !teleportAktiv) {
         hatraLevoLepesek--;
     }
+
     document.getElementById('hatra-levo-lepesek').innerText = hatraLevoLepesek;
     teleportAktiv = false;
     palyaFrissitese();
     jatekAllapotMentese();
 
-    if (hatraLevoLepszek === 0) {
+    if (hatraLevoLepesek <= 0) { // Ha a lépések száma 0, befejezzük a játékot
         jatekVegeKezelese();
     }
 }
