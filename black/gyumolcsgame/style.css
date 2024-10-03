@@ -9,12 +9,12 @@ h1 {
     color: orange;
 }
 
-#board-container {
+#palya-kontener {
     display: inline-block;
     margin: 20px auto;
 }
 
-.cell {
+.mezohivatas {
     width: 50px;
     height: 50px;
     display: inline-block;
@@ -28,24 +28,24 @@ h1 {
     position: relative;
 }
 
-.cell.player {
-    background-color: green; /* Játékos mezője */
+.mezohivatas.jatekos {
+    background-color: green;
 }
 
-.cell.movable {
-    background-color: yellow; /* Léphető mezők */
-    color: black; /* Fekete szöveg a sárga mezőkön */
+.mezohivatas.mozdithato {
+    background-color: yellow;
+    color: black;
 }
 
-.cell.not-movable {
-    background-color: red; /* Nem léphető mezők */
+.mezohivatas.nem-mozdithato {
+    background-color: red;
 }
 
-.fruit-tree {
+.gyumolcsfa {
     background-color: grey;
 }
 
-.empty-tree {
+.ures-fa {
     background-color: darkgrey;
 }
 

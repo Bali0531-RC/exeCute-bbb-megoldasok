@@ -1,223 +1,206 @@
-const rows = 5;
-const cols = 5;
-let board = [];
-let playerPosition = { x: 0, y: 0 };
-let totalFruits = 0;
-let stepsRemaining = 10;
-let bestScore = 0;
-let teleportUsed = false;
-let resetUsed = false;
-let isTeleportActive = true;  // Kezdetben a teleport mód aktív
-let isGameOver = false;  // A játék vége állapot jelzése
+const sorok = 5;
+const oszlopok = 5;
+let palya = [];
+let jatekosHelyzet = { x: 0, y: 0 };
+let osszesGyumolcs = 0;
+let hatraLevoLepesek = 10;
+let legjobbPontszam = 0;
+let teleportHasznalt = false;
+let resetHasznalt = false;
+let teleportAktiv = true;
+let jatekVege = false;
 
-// Load saved game state from localStorage
-function loadGameState() {
-    const savedState = JSON.parse(localStorage.getItem('gameState'));
-    if (savedState) {
-        board = savedState.board;
-        playerPosition = savedState.playerPosition;
-        totalFruits = savedState.totalFruits;
-        stepsRemaining = savedState.stepsRemaining;
-        bestScore = savedState.bestScore;
-        teleportUsed = savedState.teleportUsed;
-        resetUsed = savedState.resetUsed;
-        isTeleportActive = savedState.isTeleportActive;
-        isGameOver = savedState.isGameOver;
-        updateBoardDisplay();
-        document.getElementById('fruit-count').innerText = totalFruits;
-        document.getElementById('remaining-steps').innerText = stepsRemaining;
-        document.getElementById('best-score').innerText = bestScore;
+function jatekAllapotBetoltese() {
+    const mentettAllapot = JSON.parse(localStorage.getItem('jatekAllapot'));
+    if (mentettAllapot) {
+        palya = mentettAllapot.palya;
+        jatekosHelyzet = mentettAllapot.jatekosHelyzet;
+        osszesGyumolcs = mentettAllapot.osszesGyumolcs;
+        hatraLevoLepesek = mentettAllapot.hatraLevoLepesek;
+        legjobbPontszam = mentettAllapot.legjobbPontszam;
+        teleportHasznalt = mentettAllapot.teleportHasznalt;
+        resetHasznalt = mentettAllapot.resetHasznalt;
+        teleportAktiv = mentettAllapot.teleportAktiv;
+        jatekVege = mentettAllapot.jatekVege;
+        palyaFrissitese();
+        document.getElementById('gyumolcs-szam').innerText = osszesGyumolcs;
+        document.getElementById('hatra-levo-lepesek').innerText = hatraLevoLepesek;
+        document.getElementById('legjobb-pontszam').innerText = legjobbPontszam;
     } else {
-        createBoard();  // Generate the board if no saved state
+        palyaLetrehozasa();
     }
 }
 
-// Save game state to localStorage
-function saveGameState() {
-    const gameState = {
-        board,
-        playerPosition,
-        totalFruits,
-        stepsRemaining,
-        bestScore,
-        teleportUsed,
-        resetUsed,
-        isTeleportActive,
-        isGameOver
+function jatekAllapotMentese() {
+    const jatekAllapot = {
+        palya,
+        jatekosHelyzet,
+        osszesGyumolcs,
+        hatraLevoLepesek,
+        legjobbPontszam,
+        teleportHasznalt,
+        resetHasznalt,
+        teleportAktiv,
+        jatekVege
     };
-    localStorage.setItem('gameState', JSON.stringify(gameState));
+    localStorage.setItem('jatekAllapot', JSON.stringify(jatekAllapot));
 }
 
-// Create the game board
-function createBoard() {
-    const boardContainer = document.getElementById('board-container');
-    boardContainer.innerHTML = ''; // Clear the board first
+function palyaLetrehozasa() {
+    const palyaKontener = document.getElementById('palya-kontener');
+    palyaKontener.innerHTML = '';
 
-    board = [];
-    for (let i = 0; i < rows; i++) {
-        let row = [];
-        for (let j = 0; j < cols; j++) {
-            const cellValue = Math.floor(Math.random() * 11);
-            row.push(cellValue);
+    palya = [];
+    for (let i = 0; i < sorok; i++) {
+        let sor = [];
+        for (let j = 0; j < oszlopok; j++) {
+            const mezohivatas = Math.floor(Math.random() * 11);
+            sor.push(mezohivatas);
 
-            const cell = document.createElement('div');
-            cell.className = 'cell fruit-tree';
-            cell.id = `cell-${i}-${j}`;
-            cell.innerText = cellValue;
-            cell.onclick = () => handleCellClick(i, j);  // Csak itt történik lépés
-            boardContainer.appendChild(cell);
+            const mezok = document.createElement('div');
+            mezok.className = 'mezohivatas gyumolcsfa';
+            mezok.id = `mezohivatas-${i}-${j}`;
+            mezok.innerText = mezohivatas;
+            mezok.onclick = () => mezohivatasKattintas(i, j);
+            palyaKontener.appendChild(mezok);
         }
-        board.push(row);
-        boardContainer.appendChild(document.createElement('br'));
+        palya.push(sor);
+        palyaKontener.appendChild(document.createElement('br'));
     }
 
-    // Kezdéskor a teleport mód aktív, lehet bárhova lépni
-    isTeleportActive = true;
-    isGameOver = false;  // Reset game over state
-    updateBoardDisplay();
-    saveGameState();  // Save initial state
+    teleportAktiv = true;
+    jatekVege = false;
+    palyaFrissitese();
+    jatekAllapotMentese();
 }
 
-// Kezeli a mezőre kattintást
-function handleCellClick(x, y) {
-    if (!isGameOver && (isTeleportActive || isMovable(x, y))) {  // Csak ha a játék nem ért véget
-        movePlayer(x, y);
+function mezohivatasKattintas(x, y) {
+    if (!jatekVege && (teleportAktiv || mozdithato(x, y))) {
+        jatekosMozgatas(x, y);
     }
 }
 
-// Ellenőrzi, hogy a mező mozdítható-e a játékos helyzetéből
-function isMovable(x, y) {
+function mozdithato(x, y) {
     return (
-        (x === playerPosition.x && Math.abs(y - playerPosition.y) === 1) ||
-        (y === playerPosition.y && Math.abs(x - playerPosition.x) === 1)
+        (x === jatekosHelyzet.x && Math.abs(y - jatekosHelyzet.y) === 1) ||
+        (y === jatekosHelyzet.y && Math.abs(x - jatekosHelyzet.x) === 1)
     );
 }
 
-// Játékos mozgatása és gyümölcsök leszüretelése
-function movePlayer(newX, newY) {
-    playerPosition = { x: newX, y: newY };
-    collectFruits(newX, newY);
-    if (!teleportUsed && !isTeleportActive) {  // Csak akkor vonunk le lépést, ha nincs teleportálás
-        stepsRemaining--;
+function jatekosMozgatas(ujX, ujY) {
+    jatekosHelyzet = { x: ujX, y: ujY };
+    gyumolcsSzuletes(ujX, ujY);
+    if (!teleportHasznalt && !teleportAktiv) {
+        hatraLevoLepesek--;
     }
-    document.getElementById('remaining-steps').innerText = stepsRemaining;
-    isTeleportActive = false;  // Teleport deaktiválása lépés után
-    updateBoardDisplay();
-    saveGameState();  // Save game state after move
+    document.getElementById('hatra-levo-lepesek').innerText = hatraLevoLepesek;
+    teleportAktiv = false;
+    palyaFrissitese();
+    jatekAllapotMentese();
 
-    if (stepsRemaining === 0) {
-        endGame();
+    if (hatraLevoLepesek === 0) {
+        jatekVegeKezelese();
     }
 }
 
-// Gyümölcsök szüretelése az adott mezőn
-function collectFruits(x, y) {
-    totalFruits += board[x][y];
-    board[x][y] = 0; // Gyümölcs eltávolítása
-    document.getElementById('fruit-count').innerText = totalFruits;
+function gyumolcsSzuletes(x, y) {
+    osszesGyumolcs += palya[x][y];
+    palya[x][y] = 0;
+    document.getElementById('gyumolcs-szam').innerText = osszesGyumolcs;
 }
 
-// Frissíti a játékfelületet: színek és kattinthatóság beállítása
-function updateBoardDisplay() {
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-            const cell = document.getElementById(`cell-${i}-${j}`);
-            cell.classList.remove('player', 'movable', 'not-movable');
-            cell.innerText = board[i][j];
+function palyaFrissitese() {
+    for (let i = 0; i < sorok; i++) {
+        for (let j = 0; j < oszlopok; j++) {
+            const mezok = document.getElementById(`mezohivatas-${i}-${j}`);
+            mezok.classList.remove('jatekos', 'mozdithato', 'nem-mozdithato');
+            mezok.innerText = palya[i][j];
             
-            if (i === playerPosition.x && j === playerPosition.y) {
-                cell.classList.add('player');  // Zöld: ahol a játékos van
-            } else if (isTeleportActive || isMovable(i, j)) {
-                cell.classList.add('movable');  // Sárga: léphető mező vagy teleport módban minden mező
-                cell.onclick = () => handleCellClick(i, j);  // Kattintható, ha elérhető
+            if (i === jatekosHelyzet.x && j === jatekosHelyzet.y) {
+                mezok.classList.add('jatekos');
+            } else if (teleportAktiv || mozdithato(i, j)) {
+                mezok.classList.add('mozdithato');
+                mezok.onclick = () => mezohivatasKattintas(i, j);
             } else {
-                cell.classList.add('not-movable');  // Piros: nem léphető mező
-                cell.onclick = null;  // Nem kattintható
+                mezok.classList.add('nem-mozdithato');
+                mezok.onclick = null;
             }
 
-            if (board[i][j] === 0) {
-                cell.classList.remove('fruit-tree');
-                cell.classList.add('empty-tree');
+            if (palya[i][j] === 0) {
+                mezok.classList.remove('gyumolcsfa');
+                mezok.classList.add('ures-fa');
             } else {
-                cell.classList.add('fruit-tree');
-                cell.classList.remove('empty-tree');
+                mezok.classList.add('gyumolcsfa');
+                mezok.classList.remove('ures-fa');
             }
         }
     }
-    document.getElementById(`cell-${playerPosition.x}-${playerPosition.y}`).classList.add('player');
+    document.getElementById(`mezohivatas-${jatekosHelyzet.x}-${jatekosHelyzet.y}`).classList.add('jatekos');
 }
 
-// Játék vége és pontszám ellenőrzése
-function endGame() {
-    alert('Játék vége! Pontszámod: ' + totalFruits);
-    if (totalFruits > bestScore) {
-        bestScore = totalFruits;
-        document.getElementById('best-score').innerText = bestScore;
-        localStorage.setItem('bestScore', bestScore);  // Save best score to localStorage
+function jatekVegeKezelese() {
+    alert('Játék vége! Pontszámod: ' + osszesGyumolcs);
+    if (osszesGyumolcs > legjobbPontszam) {
+        legjobbPontszam = osszesGyumolcs;
+        document.getElementById('legjobb-pontszam').innerText = legjobbPontszam;
     }
-    isGameOver = true;  // Játék vége, pálya inaktív
-    saveGameState();  // Save game state after game over
+    jatekVege = true;
+    jatekAllapotMentese();
 }
 
-// Teleport képesség használata
-function useTeleport() {
-    isTeleportActive = true;
-    document.getElementById('teleport-button').style.display = 'none';
-    updateBoardDisplay();  // Minden mező kattintható
+function teleportKepessegHasznalata() {
+    teleportAktiv = true;
+    document.getElementById('teleport-gomb').style.display = 'none';
+    palyaFrissitese();
 }
 
-// Mezők újratöltése
-function resetBoard() {
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-            board[i][j] = Math.floor(Math.random() * 11);
+function palyaUjratoltese() {
+    for (let i = 0; i < sorok; i++) {
+        for (let j = 0; j < oszlopok; j++) {
+            palya[i][j] = Math.floor(Math.random() * 11);
         }
     }
-    resetUsed = true;
-    document.getElementById('reset-board-button').style.display = 'none';
-    updateBoardDisplay();
-    saveGameState();  // Save game state after board reset
+    resetHasznalt = true;
+    document.getElementById('reset-palya-gomb').style.display = 'none';
+    palyaFrissitese();
+    jatekAllapotMentese();
 }
 
-// Játék újraindítása
-function resetGame() {
-    totalFruits = 0;
-    stepsRemaining = 10;
-    playerPosition = { x: 0, y: 0 };
-    teleportUsed = false;
-    resetUsed = false;
-    isTeleportActive = true;  // Új játék kezdésekor ismét aktív a teleport
-    isGameOver = false;  // Reset game over state
-    document.getElementById('fruit-count').innerText = totalFruits;
-    document.getElementById('remaining-steps').innerText = stepsRemaining;
-    document.getElementById('teleport-button').style.display = 'inline';
-    document.getElementById('reset-board-button').style.display = 'inline';
-    createBoard();  // Generate the board
-    saveGameState();  // Save game state after game reset
+function jatekUjrainditasa() {
+    osszesGyumolcs = 0;
+    hatraLevoLepesek = 10;
+    jatekosHelyzet = { x: 0, y: 0 };
+    teleportHasznalt = false;
+    resetHasznalt = false;
+    teleportAktiv = true;
+    jatekVege = false;
+    document.getElementById('gyumolcs-szam').innerText = osszesGyumolcs;
+    document.getElementById('hatra-levo-lepesek').innerText = hatraLevoLepesek;
+    document.getElementById('teleport-gomb').style.display = 'inline';
+    document.getElementById('reset-palya-gomb').style.display = 'inline';
+    palyaLetrehozasa();
+    jatekAllapotMentese();
 }
 
-// Billentyűkkel való irányítás
 document.addEventListener('keydown', function(event) {
-    if (!isGameOver) {  // Csak akkor lehet lépni, ha nincs vége a játéknak
-        if (event.key === 'ArrowUp' && isMovable(playerPosition.x - 1, playerPosition.y)) {
-            movePlayer(playerPosition.x - 1, playerPosition.y);
-        } else if (event.key === 'ArrowDown' && isMovable(playerPosition.x + 1, playerPosition.y)) {
-            movePlayer(playerPosition.x + 1, playerPosition.y);
-        } else if (event.key === 'ArrowLeft' && isMovable(playerPosition.x, playerPosition.y - 1)) {
-            movePlayer(playerPosition.x, playerPosition.y - 1);
-        } else if (event.key === 'ArrowRight' && isMovable(playerPosition.x, playerPosition.y + 1)) {
-            movePlayer(playerPosition.x, playerPosition.y + 1);
+    if (!jatekVege) {
+        if (event.key === 'ArrowUp' && mozdithato(jatekosHelyzet.x - 1, jatekosHelyzet.y)) {
+            jatekosMozgatas(jatekosHelyzet.x - 1, jatekosHelyzet.y);
+        } else if (event.key === 'ArrowDown' && mozdithato(jatekosHelyzet.x + 1, jatekosHelyzet.y)) {
+            jatekosMozgatas(jatekosHelyzet.x + 1, jatekosHelyzet.y);
+        } else if (event.key === 'ArrowLeft' && mozdithato(jatekosHelyzet.x, jatekosHelyzet.y - 1)) {
+            jatekosMozgatas(jatekosHelyzet.x, jatekosHelyzet.y - 1);
+        } else if (event.key === 'ArrowRight' && mozdithato(jatekosHelyzet.x, jatekosHelyzet.y + 1)) {
+            jatekosMozgatas(jatekosHelyzet.x, jatekosHelyzet.y + 1);
         }
     }
 });
 
-// Load the game state when the page loads
-// Load the game state when the page loads
 window.onload = function() {
-    loadGameState();
-    const savedBestScore = localStorage.getItem('bestScore');
-    if (savedBestScore) {
-        bestScore = parseInt(savedBestScore);
-        document.getElementById('best-score').innerText = bestScore;
+    jatekAllapotBetoltese();
+    const mentettLegjobbPontszam = localStorage.getItem('legjobbPontszam');
+    if (mentettLegjobbPontszam) {
+        legjobbPontszam = parseInt(mentettLegjobbPontszam);
+        document.getElementById('legjobb-pontszam').innerText = legjobbPontszam;
     }
 };
