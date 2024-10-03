@@ -8,6 +8,45 @@ let bestScore = 0;
 let teleportUsed = false;
 let resetUsed = false;
 let isTeleportActive = true;  // Kezdetben a teleport mód aktív
+let isGameOver = false;  // A játék vége állapot jelzése
+
+// Load saved game state from localStorage
+function loadGameState() {
+    const savedState = JSON.parse(localStorage.getItem('gameState'));
+    if (savedState) {
+        board = savedState.board;
+        playerPosition = savedState.playerPosition;
+        totalFruits = savedState.totalFruits;
+        stepsRemaining = savedState.stepsRemaining;
+        bestScore = savedState.bestScore;
+        teleportUsed = savedState.teleportUsed;
+        resetUsed = savedState.resetUsed;
+        isTeleportActive = savedState.isTeleportActive;
+        isGameOver = savedState.isGameOver;
+        updateBoardDisplay();
+        document.getElementById('fruit-count').innerText = totalFruits;
+        document.getElementById('remaining-steps').innerText = stepsRemaining;
+        document.getElementById('best-score').innerText = bestScore;
+    } else {
+        createBoard();
+    }
+}
+
+// Save game state to localStorage
+function saveGameState() {
+    const gameState = {
+        board,
+        playerPosition,
+        totalFruits,
+        stepsRemaining,
+        bestScore,
+        teleportUsed,
+        resetUsed,
+        isTeleportActive,
+        isGameOver
+    };
+    localStorage.setItem('gameState', JSON.stringify(gameState));
+}
 
 // Create the game board
 function createBoard() {
@@ -34,12 +73,14 @@ function createBoard() {
 
     // Kezdéskor a teleport mód aktív, lehet bárhova lépni
     isTeleportActive = true;
+    isGameOver = false;  // Reset game over state
     updateBoardDisplay();
+    saveGameState();  // Save initial state
 }
 
 // Kezeli a mezőre kattintást
 function handleCellClick(x, y) {
-    if (isTeleportActive || isMovable(x, y)) {  // Csak ha a mező elérhető vagy teleportálás aktív
+    if (!isGameOver && (isTeleportActive || isMovable(x, y))) {  // Csak ha a játék nem ért véget
         movePlayer(x, y);
     }
 }
@@ -62,6 +103,7 @@ function movePlayer(newX, newY) {
     document.getElementById('remaining-steps').innerText = stepsRemaining;
     isTeleportActive = false;  // Teleport deaktiválása lépés után
     updateBoardDisplay();
+    saveGameState();  // Save game state after move
 
     if (stepsRemaining === 0) {
         endGame();
@@ -112,6 +154,8 @@ function endGame() {
         bestScore = totalFruits;
         document.getElementById('best-score').innerText = bestScore;
     }
+    isGameOver = true;  // Játék vége, pálya inaktív
+    saveGameState();  // Save game state after game over
 }
 
 // Teleport képesség használata
@@ -131,6 +175,7 @@ function resetBoard() {
     resetUsed = true;
     document.getElementById('reset-board-button').style.display = 'none';
     updateBoardDisplay();
+    saveGameState();  // Save game state after board reset
 }
 
 // Játék újraindítása
@@ -141,25 +186,29 @@ function resetGame() {
     teleportUsed = false;
     resetUsed = false;
     isTeleportActive = true;  // Új játék kezdésekor ismét aktív a teleport
+    isGameOver = false;  // Reset game over state
     document.getElementById('fruit-count').innerText = totalFruits;
     document.getElementById('remaining-steps').innerText = stepsRemaining;
     document.getElementById('teleport-button').style.display = 'inline';
     document.getElementById('reset-board-button').style.display = 'inline';
     createBoard();
+    saveGameState();  // Save game state after game reset
 }
 
 // Billentyűkkel való irányítás
 document.addEventListener('keydown', function(event) {
-    if (event.key === 'ArrowUp' && isMovable(playerPosition.x - 1, playerPosition.y)) {
-        movePlayer(playerPosition.x - 1, playerPosition.y);
-    } else if (event.key === 'ArrowDown' && isMovable(playerPosition.x + 1, playerPosition.y)) {
-        movePlayer(playerPosition.x + 1, playerPosition.y);
-    } else if (event.key === 'ArrowLeft' && isMovable(playerPosition.x, playerPosition.y - 1)) {
-        movePlayer(playerPosition.x, playerPosition.y - 1);
-    } else if (event.key === 'ArrowRight' && isMovable(playerPosition.x, playerPosition.y + 1)) {
-        movePlayer(playerPosition.x, playerPosition.y + 1);
+    if (!isGameOver) {  // Csak akkor lehet lépni, ha nincs vége a játéknak
+        if (event.key === 'ArrowUp' && isMovable(playerPosition.x - 1, playerPosition.y)) {
+            movePlayer(playerPosition.x - 1, playerPosition.y);
+        } else if (event.key === 'ArrowDown' && isMovable(playerPosition.x + 1, playerPosition.y)) {
+            movePlayer(playerPosition.x + 1, playerPosition.y);
+        } else if (event.key === 'ArrowLeft' && isMovable(playerPosition.x, playerPosition.y - 1)) {
+            movePlayer(playerPosition.x, playerPosition.y - 1);
+        } else if (event.key === 'ArrowRight' && isMovable(playerPosition.x, playerPosition.y + 1)) {
+            movePlayer(playerPosition.x, playerPosition.y + 1);
+        }
     }
 });
 
-// Játék elindítása
-createBoard();
+// Load the game state when the page loads
+window.onload = loadGameState;
