@@ -26,21 +26,19 @@ h1 {
     cursor: pointer;
     color: white;
     position: relative;
-    background-image: url('https://example.com/path/to/emoji/image.png'); /* Az emoji háttérképe */
-    background-size: cover; /* A háttérkép méretezése */
 }
 
 .mezohivatas.jatekos {
-    background-color: green; /* Játékos mezője */
+    background-color: green;
 }
 
 .mezohivatas.mozdithato {
-    background-color: yellow; /* Léphető mezők */
-    color: black; /* Fekete szöveg a sárga mezőkön */
+    background-color: yellow;
+    color: black;
 }
 
 .mezohivatas.nem-mozdithato {
-    background-color: red; /* Nem léphető mezők */
+    background-color: red;
 }
 
 .gyumolcsfa {

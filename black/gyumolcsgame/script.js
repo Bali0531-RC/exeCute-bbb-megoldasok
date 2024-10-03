@@ -58,7 +58,7 @@ function palyaLetrehozasa() {
             const mezok = document.createElement('div');
             mezok.className = 'mezohivatas gyumolcsfa';
             mezok.id = `mezohivatas-${i}-${j}`;
-            mezok.innerText = mezohivatas > 0 ? mezohivatas : ''; // Csak a szám jelenjen meg, ha nem 0
+            mezok.innerText = mezohivatas > 0 ? '📦' : '📬'; // Bezárt láda emoji (📦) vagy kinyitott láda emoji (📬)
             mezok.onclick = () => mezohivatasKattintas(i, j);
             palyaKontener.appendChild(mezok);
         }
@@ -115,7 +115,7 @@ function palyaFrissitese() {
             const mezok = document.getElementById(`mezohivatas-${i}-${j}`);
             mezok.classList.remove('jatekos', 'mozdithato', 'nem-mozdithato');
             
-            mezok.innerText = palya[i][j] > 0 ? palya[i][j] : ''; // Csak a szám jelenjen meg, ha nem 0
+            mezok.innerText = palya[i][j] > 0 ? '📦' : '📬'; // Bezárt láda emoji vagy kinyitott láda emoji
             
             if (i === jatekosHelyzet.x && j === jatekosHelyzet.y) {
                 mezok.classList.add('jatekos');
