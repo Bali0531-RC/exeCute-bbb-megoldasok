@@ -1,10 +1,10 @@
-const sorok = 5;
-const oszlopok = 5;
+const sorok = 4; // A sorok száma 4
+const oszlopok = 4; // Az oszlopok száma 4
 let palya = [];
 let jatekosHelyzet = { x: 0, y: 0 };
 let osszesGyumolcs = 0;
 let hatraLevoLepesek = 10;
-let legjobbPontszam = parseInt(localStorage.getItem('legjobbPontszam')) || 0; 
+let legjobbPontszam = parseInt(localStorage.getItem('legjobbPontszam')) || 0; // Betöltjük a legjobb pontszámot a localStorage-ból
 let teleportHasznalt = false;
 let resetHasznalt = false;
 let teleportAktiv = true;
@@ -24,7 +24,7 @@ function jatekAllapotBetoltese() {
         palyaFrissitese();
         document.getElementById('gyumolcs-szam').innerText = osszesGyumolcs;
         document.getElementById('hatra-levo-lepesek').innerText = hatraLevoLepesek;
-        document.getElementById('legjobb-pontszam').innerText = legjobbPontszam;
+        document.getElementById('legjobb-pontszam').innerText = legjobbPontszam; // Frissítjük a legjobb pontszámot
     } else {
         palyaLetrehozasa();
     }
@@ -52,13 +52,13 @@ function palyaLetrehozasa() {
     for (let i = 0; i < sorok; i++) {
         let sor = [];
         for (let j = 0; j < oszlopok; j++) {
-            const mezohivatas = Math.floor(Math.random() * 11);
+            const mezohivatas = Math.floor(Math.random() * 15) + 1; // 1-15 közötti szám generálása
             sor.push(mezohivatas);
 
             const mezok = document.createElement('div');
             mezok.className = 'mezohivatas gyumolcsfa';
             mezok.id = `mezohivatas-${i}-${j}`;
-            mezok.innerText = mezohivatas > 0 ? '📦' : '📬'; 
+            mezok.innerText = mezohivatas > 0 ? '📦' : '📬'; // Bezárt láda emoji (📦) vagy kinyitott láda emoji (📬)
             mezok.onclick = () => mezohivatasKattintas(i, j);
             palyaKontener.appendChild(mezok);
         }
@@ -98,7 +98,7 @@ function jatekosMozgatas(ujX, ujY) {
     palyaFrissitese();
     jatekAllapotMentese();
 
-    if (hatraLevoLepesek <= 0) { 
+    if (hatraLevoLepesek <= 0) { // Ha a lépések száma 0, befejezzük a játékot
         jatekVegeKezelese();
     }
 }
@@ -115,7 +115,7 @@ function palyaFrissitese() {
             const mezok = document.getElementById(`mezohivatas-${i}-${j}`);
             mezok.classList.remove('jatekos', 'mozdithato', 'nem-mozdithato');
             
-            mezok.innerText = palya[i][j] > 0 ? '📦' : '📬';
+            mezok.innerText = palya[i][j] > 0 ? '📦' : '📬'; // Bezárt láda emoji vagy kinyitott láda emoji
             
             if (i === jatekosHelyzet.x && j === jatekosHelyzet.y) {
                 mezok.classList.add('jatekos');
@@ -144,7 +144,7 @@ function jatekVegeKezelese() {
     if (osszesGyumolcs > legjobbPontszam) {
         legjobbPontszam = osszesGyumolcs;
         document.getElementById('legjobb-pontszam').innerText = legjobbPontszam;
-        localStorage.setItem('legjobbPontszam', legjobbPontszam);
+        localStorage.setItem('legjobbPontszam', legjobbPontszam); // Elmentjük a legjobb pontszámot
     }
     jatekVege = true;
     jatekAllapotMentese();
@@ -159,7 +159,7 @@ function teleportKepessegHasznalata() {
 function palyaUjratoltese() {
     for (let i = 0; i < sorok; i++) {
         for (let j = 0; j < oszlopok; j++) {
-            palya[i][j] = Math.floor(Math.random() * 11);
+            palya[i][j] = Math.floor(Math.random() * 15) + 1; // 1-15 közötti szám generálása
         }
     }
     resetHasznalt = true;
