@@ -28,7 +28,7 @@ function loadGameState() {
         document.getElementById('remaining-steps').innerText = stepsRemaining;
         document.getElementById('best-score').innerText = bestScore;
     } else {
-        createBoard();
+        createBoard();  // Generate the board if no saved state
     }
 }
 
@@ -153,6 +153,7 @@ function endGame() {
     if (totalFruits > bestScore) {
         bestScore = totalFruits;
         document.getElementById('best-score').innerText = bestScore;
+        localStorage.setItem('bestScore', bestScore);  // Save best score to localStorage
     }
     isGameOver = true;  // Játék vége, pálya inaktív
     saveGameState();  // Save game state after game over
@@ -191,7 +192,7 @@ function resetGame() {
     document.getElementById('remaining-steps').innerText = stepsRemaining;
     document.getElementById('teleport-button').style.display = 'inline';
     document.getElementById('reset-board-button').style.display = 'inline';
-    createBoard();
+    createBoard();  // Generate the board
     saveGameState();  // Save game state after game reset
 }
 
@@ -211,4 +212,12 @@ document.addEventListener('keydown', function(event) {
 });
 
 // Load the game state when the page loads
-window.onload = loadGameState;
+// Load the game state when the page loads
+window.onload = function() {
+    loadGameState();
+    const savedBestScore = localStorage.getItem('bestScore');
+    if (savedBestScore) {
+        bestScore = parseInt(savedBestScore);
+        document.getElementById('best-score').innerText = bestScore;
+    }
+};
