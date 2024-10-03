@@ -1,0 +1,45 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+#board-container {
+    display: inline-block;
+    margin: 20px auto;
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    display: inline-block;
+    margin: 2px;
+    background-color: lightgreen;
+    font-size: 18px;
+    line-height: 50px;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+}
+
+.cell.player {
+    background-color: yellow;
+}
+
+.fruit-tree {
+    background-image: url('tree-with-fruits.png');
+    background-size: cover;
+}
+
+.empty-tree {
+    background-image: url('empty-tree.png');
+    background-size: cover;
+}
+
+#info-panel {
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px;
+    font-size: 16px;
+}
