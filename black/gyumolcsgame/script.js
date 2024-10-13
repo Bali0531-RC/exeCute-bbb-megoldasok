@@ -220,5 +220,7 @@ function jatekUjrainditasa() {
 }
 
 window.onload = function() {
+    legjobbPontszam = parseInt(localStorage.getItem('legjobbPontszam')) || 0;
+    document.getElementById('legjobb-pontszam').innerText = legjobbPontszam;
     jatekAllapotBetoltese();
 };
