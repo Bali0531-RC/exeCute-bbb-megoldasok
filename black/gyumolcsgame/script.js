@@ -31,7 +31,7 @@ function palyaLetrehozasa() {
             const mezo = document.createElement('div');
             mezo.className = 'mezohivatas gyumolcsfa kezdo-mezo';
             mezo.id = `mezohivatas-${i}-${j}`;
-            mezo.style.backgroundImage = gyumolcsSzam > 0 ? "url('https://cdn-icons-png.flaticon.com/512/415/415733.png')" : "url('https://cdn-icons-png.flaticon.com/512/415/415724.png')";
+            mezo.style.backgroundImage = gyumolcsSzam > 0 ? "url('https://cdn-icons-png.flaticon.com/512/415/415733.png')" : "url('https://cdn-icons-png.flaticon.com/512/489/489969.png')";
             mezo.innerText = '';
             if (gyumolcsSzam > 0) {
                 const gyumolcsErtekElem = document.createElement('div');
@@ -92,7 +92,7 @@ function palyaFrissitese() {
         for (let j = 0; j < oszlopok; j++) {
             const mezo = document.getElementById(`mezohivatas-${i}-${j}`);
             mezo.classList.remove('jatekos', 'mozdithato', 'kezdo-mezo');
-            mezo.style.backgroundImage = palya[i][j] > 0 ? "url('https://cdn-icons-png.flaticon.com/512/415/415733.png')" : "url('https://cdn-icons-png.flaticon.com/512/415/415724.png')";
+            mezo.style.backgroundImage = palya[i][j] > 0 ? "url('https://cdn-icons-png.flaticon.com/512/415/415733.png')" : "url('https://cdn-icons-png.flaticon.com/512/489/489969.png')";
             mezo.innerText = '';
             mezo.onclick = null; // Minden mezőről eltávolítjuk az onclick eseményt
 
