@@ -69,7 +69,6 @@ function palyaUjraprobalkozas() {
     document.getElementById('teleport-gomb').disabled = false;
     document.getElementById('gyumolcs-szuret-gomb').disabled = false;
     palyaFrissitese();
-    kezdoPozicioValasztasa(0, 0);
 }
 function kezdoPozicioValasztasa(x, y) {
     if (!kezdoPozicioValasztva) {
