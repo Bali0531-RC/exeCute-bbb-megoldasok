@@ -69,7 +69,13 @@ function palyaUjraprobalkozas() {
     document.getElementById('teleport-gomb').disabled = false;
     document.getElementById('gyumolcs-szuret-gomb').disabled = false;
     palyaFrissitese();
+    mezo.onclick = () => {
+        if (!jatekosHelyzet || (jatekosHelyzet.x === i && jatekosHelyzet.y === j)) {
+            kezdoPozicioValasztasa(i, j);
+        }
+    };
 }
+
 function kezdoPozicioValasztasa(x, y) {
     if (!kezdoPozicioValasztva) {
         jatekosHelyzet = { x, y };
@@ -85,7 +91,6 @@ function gyumolcsSzuletes(x, y) {
     palya[x][y] = 0;
     document.getElementById('gyumolcs-szam').innerText = osszesGyumolcs;
 }
-
 function palyaFrissitese() {
     for (let i = 0; i < sorok; i++) {
         for (let j = 0; j < oszlopok; j++) {
@@ -111,9 +116,8 @@ function palyaFrissitese() {
 
     if (jatekosHelyzet && !jatekVege) {
         const mozdithatoMezok = [];
-        
+
         if (teleportAktiv) {
-            // Teleport képesség esetén minden mező mozdítható, kivéve a játékos jelenlegi helyzete
             for (let i = 0; i < sorok; i++) {
                 for (let j = 0; j < oszlopok; j++) {
                     if (!(jatekosHelyzet && i === jatekosHelyzet.x && j === jatekosHelyzet.y)) {
@@ -122,7 +126,6 @@ function palyaFrissitese() {
                 }
             }
         } else {
-            // Normál lépés esetén csak a közvetlen szomszédos mezők mozdíthatók
             mozdithatoMezok.push(
                 { x: jatekosHelyzet.x - 1, y: jatekosHelyzet.y },
                 { x: jatekosHelyzet.x + 1, y: jatekosHelyzet.y },
