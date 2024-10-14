@@ -112,3 +112,18 @@ button:disabled {
     border-radius: 4px;
     font-size: 12px;
 }
+#vissza-gomb {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 10px 20px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+#vissza-gomb:hover {
+    background-color: #e0e0e0;
+}
