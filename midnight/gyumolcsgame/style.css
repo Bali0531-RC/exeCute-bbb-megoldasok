@@ -124,3 +124,19 @@ button:disabled {
     font-size: 12px;
     color: #191c2c;
 }
+/* New styles for the Vissza button */
+#vissza-gomb {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 10px 20px;
+    background-color: #b0b6e0;
+    border: 1px solid #43486e;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #191c2c;
+    font-weight: bold;
+}
+#vissza-gomb:hover {
+    background-color: #a0a6d0;
+}
