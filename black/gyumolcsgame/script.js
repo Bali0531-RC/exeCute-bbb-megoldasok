@@ -68,12 +68,8 @@ function palyaUjraprobalkozas() {
     document.getElementById('hatra-levo-lepesek').innerText = hatraLevoLepesek;
     document.getElementById('teleport-gomb').disabled = false;
     document.getElementById('gyumolcs-szuret-gomb').disabled = false;
-    palyaFrissitese();
-    mezo.onclick = () => {
-        if (!jatekosHelyzet || (jatekosHelyzet.x === i && jatekosHelyzet.y === j)) {
-            kezdoPozicioValasztasa(i, j);
-        }
-    };
+    palyaLetrehozasa();
+    palyaFrissitese(); // Hozzáadva a kattinthatóság visszaállításához
 }
 
 function kezdoPozicioValasztasa(x, y) {
@@ -111,6 +107,13 @@ function palyaFrissitese() {
             } else if (!kezdoPozicioValasztva) {
                 mezo.classList.add('kezdo-mezo');
             }
+
+            // Visszaállítjuk az onclick eseményt
+            mezo.onclick = () => {
+                if (!jatekosHelyzet || (jatekosHelyzet.x === i && jatekosHelyzet.y === j)) {
+                    kezdoPozicioValasztasa(i, j);
+                }
+            };
         }
     }
 
