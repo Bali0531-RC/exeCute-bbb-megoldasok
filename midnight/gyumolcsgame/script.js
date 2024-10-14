@@ -93,7 +93,7 @@ function palyaFrissitese() {
             mezo.classList.remove('jatekos', 'mozdithato', 'kezdo-mezo');
             mezo.style.backgroundImage = palya[i][j] > 0 ? "url('https://cdn-icons-png.flaticon.com/512/415/415733.png')" : "url('https://cdn-icons-png.flaticon.com/512/489/489969.png')";
             mezo.innerText = '';
-            mezo.onclick = null; // Minden mezőről eltávolítjuk az onclick eseményt
+            mezo.onclick = null;
 
             if (palya[i][j] > 0) {
                 const gyumolcsErtekElem = document.createElement('div');
@@ -107,7 +107,7 @@ function palyaFrissitese() {
                 mezo.classList.add('kezdo-mezo');
             }
 
-            // Visszaállítjuk az onclick eseményt
+            
             mezo.onclick = () => {
                 if (!jatekosHelyzet || (jatekosHelyzet.x === i && jatekosHelyzet.y === j)) {
                     kezdoPozicioValasztasa(i, j);
@@ -147,7 +147,7 @@ function palyaFrissitese() {
 }
 function jatekosMozgatas(x, y) {
     if (kezdoPozicioValasztva && !jatekVege && hatraLevoLepesek > 0) {
-        // Ellenőrizzük, hogy a célpont mozdítható-e
+        
         const mezo = document.getElementById(`mezohivatas-${x}-${y}`);
         if (mezo.classList.contains('mozdithato')) {
             jatekosHelyzet = { x, y };
@@ -155,7 +155,7 @@ function jatekosMozgatas(x, y) {
             hatraLevoLepesek--;
             document.getElementById('hatra-levo-lepesek').innerText = hatraLevoLepesek;
 
-            // Képességek deaktiválása a használat után
+            
             if (teleportAktiv) {
                 teleportAktiv = false;
                 document.getElementById('teleport-gomb').disabled = true;
@@ -182,7 +182,7 @@ function jatekVegeKezelese() {
 function teleportKepessegHasznalata() {
     if (!jatekVege) {
         teleportAktiv = true;
-        palyaFrissitese(); // Frissítjük a mezők állapotát, hogy minden mező mozdítható legyen
+        palyaFrissitese(); 
     }
 }
 
