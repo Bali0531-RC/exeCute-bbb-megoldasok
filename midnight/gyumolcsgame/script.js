@@ -31,7 +31,7 @@ function palyaLetrehozasa() {
             const mezo = document.createElement('div');
             mezo.className = 'mezohivatas gyumolcsfa kezdo-mezo';
             mezo.id = `mezohivatas-${i}-${j}`;
-            mezo.style.backgroundImage = gyumolcsSzam > 0 ? "url('https://cdn-icons-png.flaticon.com/512/415/415733.png')" : "url('https://cdn-icons-png.flaticon.com/512/415/415724.png')";
+            mezo.style.backgroundImage = gyumolcsSzam > 0 ? "url('https://cdn-icons-png.flaticon.com/512/415/415733.png')" : "url('https://cdn-icons-png.flaticon.com/512/489/489969.png')";
             mezo.innerText = '';
             if (gyumolcsSzam > 0) {
                 const gyumolcsErtekElem = document.createElement('div');
@@ -69,8 +69,8 @@ function palyaUjraprobalkozas() {
     document.getElementById('teleport-gomb').disabled = false;
     document.getElementById('gyumolcs-szuret-gomb').disabled = false;
     palyaFrissitese();
-    kezdoPozicioValasztasa(0, 0);
 }
+
 function kezdoPozicioValasztasa(x, y) {
     if (!kezdoPozicioValasztva) {
         jatekosHelyzet = { x, y };
@@ -86,13 +86,12 @@ function gyumolcsSzuletes(x, y) {
     palya[x][y] = 0;
     document.getElementById('gyumolcs-szam').innerText = osszesGyumolcs;
 }
-
 function palyaFrissitese() {
     for (let i = 0; i < sorok; i++) {
         for (let j = 0; j < oszlopok; j++) {
             const mezo = document.getElementById(`mezohivatas-${i}-${j}`);
             mezo.classList.remove('jatekos', 'mozdithato', 'kezdo-mezo');
-            mezo.style.backgroundImage = palya[i][j] > 0 ? "url('https://cdn-icons-png.flaticon.com/512/415/415733.png')" : "url('https://cdn-icons-png.flaticon.com/512/415/415724.png')";
+            mezo.style.backgroundImage = palya[i][j] > 0 ? "url('https://cdn-icons-png.flaticon.com/512/415/415733.png')" : "url('https://cdn-icons-png.flaticon.com/512/489/489969.png')";
             mezo.innerText = '';
             mezo.onclick = null; // Minden mezőről eltávolítjuk az onclick eseményt
 
@@ -107,14 +106,20 @@ function palyaFrissitese() {
             } else if (!kezdoPozicioValasztva) {
                 mezo.classList.add('kezdo-mezo');
             }
+
+            // Visszaállítjuk az onclick eseményt
+            mezo.onclick = () => {
+                if (!jatekosHelyzet || (jatekosHelyzet.x === i && jatekosHelyzet.y === j)) {
+                    kezdoPozicioValasztasa(i, j);
+                }
+            };
         }
     }
 
     if (jatekosHelyzet && !jatekVege) {
         const mozdithatoMezok = [];
-        
+
         if (teleportAktiv) {
-            // Teleport képesség esetén minden mező mozdítható, kivéve a játékos jelenlegi helyzete
             for (let i = 0; i < sorok; i++) {
                 for (let j = 0; j < oszlopok; j++) {
                     if (!(jatekosHelyzet && i === jatekosHelyzet.x && j === jatekosHelyzet.y)) {
@@ -123,7 +128,6 @@ function palyaFrissitese() {
                 }
             }
         } else {
-            // Normál lépés esetén csak a közvetlen szomszédos mezők mozdíthatók
             mozdithatoMezok.push(
                 { x: jatekosHelyzet.x - 1, y: jatekosHelyzet.y },
                 { x: jatekosHelyzet.x + 1, y: jatekosHelyzet.y },
@@ -220,5 +224,7 @@ function jatekUjrainditasa() {
 }
 
 window.onload = function() {
+    legjobbPontszam = parseInt(localStorage.getItem('legjobbPontszam')) || 0;
+    document.getElementById('legjobb-pontszam').innerText = legjobbPontszam;
     jatekAllapotBetoltese();
 };
