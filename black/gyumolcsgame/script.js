@@ -68,8 +68,7 @@ function palyaUjraprobalkozas() {
     document.getElementById('hatra-levo-lepesek').innerText = hatraLevoLepesek;
     document.getElementById('teleport-gomb').disabled = false;
     document.getElementById('gyumolcs-szuret-gomb').disabled = false;
-    palyaLetrehozasa();
-    palyaFrissitese(); // Hozzáadva a kattinthatóság visszaállításához
+    palyaFrissitese();
 }
 
 function kezdoPozicioValasztasa(x, y) {
