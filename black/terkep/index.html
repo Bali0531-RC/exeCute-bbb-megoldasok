@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akkumulátor Csere Játék</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <canvas id="gameCanvas" width="600" height="600"></canvas>
+    
+    <div class="task-buttons">
+        <button id="task1">Feladat 1 (Könnyű)</button>
+        <button id="task2">Feladat 2 (Közepes)</button>
+        <button id="task3">Feladat 3 (Nehéz)</button>
+        <button id="reset">Reset</button>
+    </div>
+</div>
+
+<div class="factory-buttons">
+    <button id="chooseA">A típusú gyár</button> <span id="countA">0</span>
+    <button id="chooseB">B típusú gyár</button> <span id="countB">0</span>
+    <button id="chooseC">C típusú gyár</button> <span id="countC">0</span>
+</div>
+
+<div id="overlay">
+    <div id="taskForm">
+        <h2 id="taskTitle">Kérdés</h2>
+        <form id="questionForm">
+            <p id="taskQuestion">Itt jelenik meg a kérdés...</p>
+            <input type="text" id="answer" placeholder="Válasz" required>
+            <button type="submit">Válasz</button>
+        </form>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
