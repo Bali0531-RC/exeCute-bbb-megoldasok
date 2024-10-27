@@ -1,7 +1,7 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #121212; /* Sötét háttér */
-    color: #ffffff; /* Fehér szöveg */
+    background-color: #121212;
+    color: #ffffff;
     margin: 0;
     padding: 0;
     display: flex;
@@ -21,8 +21,8 @@ h1 {
 }
 
 canvas {
-    border: 1px solid #ffffff; /* Fehér keret */
-    background-color: #1e1e1e; /* Fekete canvas */
+    border: 1px solid #ffffff;
+    background-color: #1e1e1e;
 }
 
 .controls {

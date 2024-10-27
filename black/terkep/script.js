@@ -3,9 +3,8 @@ const ctx = canvas.getContext('2d');
 let workshops = [];
 let selectedBatteryType = null;
 const serviceRadius = 100;
-let availableFactories = { A: 3, B: 3, C: 3 };  // Kezdetben 3 gyár típusonként
+let availableFactories = { A: 3, B: 3, C: 3 };
 
-// Előre meghatározott pályák
 const levels = [
     {
         name: '1. pálya',
@@ -43,11 +42,9 @@ const levels = [
     }
 ];
 
+let currentLevel = 0;
+let cities = levels[currentLevel].cities;
 
-let currentLevel = 0;  // Kezdésként az első pálya
-let cities = levels[currentLevel].cities;  // Az aktuális pálya városai
-
-// Városok kiszolgáltságának ellenőrzése
 function checkCitySatisfaction() {
     let allCitiesSatisfied = true;
 
@@ -60,7 +57,7 @@ function checkCitySatisfaction() {
             }
         });
 
-        city.satisfied = citySatisfied;  // Város kiszolgáltságát mentjük
+        city.satisfied = citySatisfied;
         if (!citySatisfied) {
             allCitiesSatisfied = false;
         }
@@ -69,28 +66,25 @@ function checkCitySatisfaction() {
     return allCitiesSatisfied;
 }
 
-// Városok kirajzolása
 function drawCities() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);  // Töröljük a canvas tartalmát
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     cities.forEach(city => {
         ctx.beginPath();
         ctx.arc(city.x, city.y, 10, 0, 2 * Math.PI);
         ctx.fillStyle = city.batteryType === 'A' ? 'red' : city.batteryType === 'B' ? 'green' : 'blue';
         ctx.fill();
-        ctx.strokeStyle = city.satisfied ? '#ffffff' : 'red';  // Fehér körvonal, ha kiszolgált, piros, ha nem
+        ctx.strokeStyle = city.satisfied ? '#ffffff' : 'red';
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // Akkumulátor típus mindig középen legyen
-        ctx.fillStyle = '#ffffff';  // Fehér szöveg a város közepén
+        ctx.fillStyle = '#ffffff';
         ctx.font = '12px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(city.batteryType, city.x, city.y);  // Akkumulátor típus szövege középen
+        ctx.fillText(city.batteryType, city.x, city.y);
     });
 }
 
-// Műhelyek kirajzolása
 function drawWorkshops() {
     workshops.forEach(workshop => {
         ctx.beginPath();
@@ -98,20 +92,19 @@ function drawWorkshops() {
         ctx.fillStyle = 'gray';
         ctx.fill();
         ctx.stroke();
-        ctx.fillStyle = '#ffffff';  // Fehér szöveg a műhely közepén
+        ctx.fillStyle = '#ffffff';
         ctx.font = '12px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(workshop.batteryType, workshop.x, workshop.y);
 
         ctx.beginPath();
-        ctx.arc(workshop.x, workshop.y, serviceRadius, 0, 2 * Math.PI);  // A kiszolgálási sugár
+        ctx.arc(workshop.x, workshop.y, serviceRadius, 0, 2 * Math.PI);
         ctx.strokeStyle = 'lightgray';
         ctx.stroke();
     });
 }
 
-// Játék kirajzolása
 function drawGame() {
     drawCities();
     drawWorkshops();
@@ -122,14 +115,12 @@ function drawGame() {
     }
 }
 
-// Gyárak elérhetőségének frissítése
 function updateFactoryCount() {
     document.getElementById('countA').textContent = availableFactories.A;
     document.getElementById('countB').textContent = availableFactories.B;
     document.getElementById('countC').textContent = availableFactories.C;
 }
 
-// Műhely lerakása a canvas-ra kattintva
 canvas.addEventListener('click', (event) => {
     if (selectedBatteryType && availableFactories[selectedBatteryType] > 0) {
         const rect = canvas.getBoundingClientRect();
@@ -146,30 +137,25 @@ canvas.addEventListener('click', (event) => {
     }
 });
 
-// Pályaválasztás logika
 document.getElementById('levelSelect').addEventListener('change', (event) => {
-    currentLevel = parseInt(event.target.value);  // Kiválasztott pálya indexe
-    cities = levels[currentLevel].cities;  // Aktuális pálya városai
-    resetGame();  // Játék újraindítása
+    currentLevel = parseInt(event.target.value);
+    cities = levels[currentLevel].cities;
+    resetGame();
 });
 
-// Játék újraindítása gomb logika
 document.getElementById('reset').addEventListener('click', () => {
-    resetGame();  // Helyesen hozzuk működésbe a gombot
+    resetGame();
 });
 
 function resetGame() {
-    workshops = [];  // Törli az összes meglévő műhelyt
-    availableFactories = { ...levels[currentLevel].factories };  // Az aktuális szint gyárainak számát állítja be
-    updateFactoryCount();  // Frissíti a gyárak számának megjelenítését
-    drawGame();  // Újrarajzolja a játékot az aktuális beállításokkal
+    workshops = [];
+    availableFactories = { ...levels[currentLevel].factories };
+    updateFactoryCount();
+    drawGame();
 }
 
-
-// Gyárak kiválasztása
 document.getElementById('chooseA').addEventListener('click', () => selectedBatteryType = 'A');
 document.getElementById('chooseB').addEventListener('click', () => selectedBatteryType = 'B');
 document.getElementById('chooseC').addEventListener('click', () => selectedBatteryType = 'C');
 
-// Kezdeti kirajzolás
 resetGame();
