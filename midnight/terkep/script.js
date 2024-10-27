@@ -10,34 +10,39 @@ const levels = [
     {
         name: '1. pálya',
         cities: [
-            {x: 100, y: 100, batteryType: 'A'},
-            {x: 200, y: 300, batteryType: 'B'},
-            {x: 400, y: 150, batteryType: 'C'},
-            {x: 500, y: 400, batteryType: 'A'},
-            {x: 350, y: 500, batteryType: 'B'}
-        ]
+            { x: 100, y: 100, batteryType: 'A' },
+            { x: 220, y: 220, batteryType: 'A' },
+            { x: 400, y: 150, batteryType: 'C' },
+            { x: 500, y: 200, batteryType: 'C' },
+            { x: 200, y: 400, batteryType: 'B' },
+            { x: 450, y: 500, batteryType: 'B' }
+        ],
+        factories: { A: 1, B: 2, C: 1 } 
     },
     {
         name: '2. pálya',
         cities: [
-            {x: 150, y: 150, batteryType: 'A'},
-            {x: 450, y: 150, batteryType: 'B'},
-            {x: 150, y: 450, batteryType: 'C'},
-            {x: 450, y: 450, batteryType: 'A'},
-            {x: 300, y: 300, batteryType: 'B'}
-        ]
+            { x: 150, y: 150, batteryType: 'A' },
+            { x: 450, y: 450, batteryType: 'A' },
+            { x: 450, y: 150, batteryType: 'B' },
+            { x: 300, y: 300, batteryType: 'B' },
+            { x: 150, y: 450, batteryType: 'C' }
+        ],
+        factories: { A: 2, B: 2, C: 1 }
     },
     {
         name: '3. pálya',
         cities: [
-            {x: 100, y: 100, batteryType: 'B'},
-            {x: 500, y: 100, batteryType: 'A'},
-            {x: 300, y: 400, batteryType: 'C'},
-            {x: 200, y: 500, batteryType: 'B'},
-            {x: 400, y: 500, batteryType: 'C'}
-        ]
+            { x: 500, y: 100, batteryType: 'A' },
+            { x: 100, y: 100, batteryType: 'B' },
+            { x: 200, y: 500, batteryType: 'B' },
+            { x: 300, y: 400, batteryType: 'C' },
+            { x: 400, y: 500, batteryType: 'C' }
+        ],
+        factories: { A: 1, B: 2, C: 1 }
     }
 ];
+
 
 let currentLevel = 0;  // Kezdésként az első pálya
 let cities = levels[currentLevel].cities;  // Az aktuális pálya városai
@@ -134,9 +139,10 @@ canvas.addEventListener('click', (event) => {
         workshops.push({ x, y, batteryType: selectedBatteryType });
         availableFactories[selectedBatteryType]--;
         updateFactoryCount();
+        checkCitySatisfaction(); 
         drawGame();
     } else {
-        alert('Nincs elérhető gyár ebből a típusból.');
+        alert('Nincs elérhető műhely ebből a típusból.');
     }
 });
 
@@ -153,11 +159,12 @@ document.getElementById('reset').addEventListener('click', () => {
 });
 
 function resetGame() {
-    workshops = [];  // Műhelyek törlése
-    availableFactories = { A: 3, B: 3, C: 3 };  // Gyárak visszaállítása
-    updateFactoryCount();
-    drawGame();  // Játék újrarajzolása
+    workshops = [];  // Törli az összes meglévő műhelyt
+    availableFactories = { ...levels[currentLevel].factories };  // Az aktuális szint gyárainak számát állítja be
+    updateFactoryCount();  // Frissíti a gyárak számának megjelenítését
+    drawGame();  // Újrarajzolja a játékot az aktuális beállításokkal
 }
+
 
 // Gyárak kiválasztása
 document.getElementById('chooseA').addEventListener('click', () => selectedBatteryType = 'A');
