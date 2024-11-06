@@ -26,18 +26,28 @@
             margin: 5px 0;
         }
         .chat-box img {
-            max-width: 100%;
+            max-width: 50%;
             border-radius: 8px;
             margin-top: 5px;
         }
         .input-container {
             display: flex;
+            justify-content: center;
             align-items: center;
             padding: 10px;
             background-color: #1e1e1e;
             border-top: 1px solid #333;
         }
-        .input-container textarea {
+        .input-bubble {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #2e2e2e;
+            border-radius: 20px;
+            padding: 10px;
+            width: 60%;
+        }
+        .input-bubble textarea {
             flex: 1;
             padding: 10px;
             border: none;
@@ -49,18 +59,18 @@
             max-height: 100px;
             overflow-y: auto;
         }
-        .input-container input[type="file"] {
+        .input-bubble input[type="file"] {
             display: none;
         }
-        .input-container label {
+        .input-bubble label {
             margin-left: 10px;
             cursor: pointer;
         }
-        .input-container label img {
+        .input-bubble label img {
             width: 24px;
             height: 24px;
         }
-        .input-container button {
+        .input-bubble button {
             padding: 10px;
             border: none;
             border-radius: 20px;
@@ -69,8 +79,27 @@
             cursor: pointer;
             margin-left: 10px;
         }
-        .input-container button:hover {
+        .input-bubble button:hover {
             background-color: #3700b3;
+        }
+        .file-preview {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            background-color: #2e2e2e;
+            border-radius: 8px;
+            padding: 5px;
+            color: #ffffff;
+        }
+        .file-preview span {
+            flex: 1;
+            margin-left: 10px;
+        }
+        .file-preview button {
+            background: none;
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
         }
         .model-selector {
             position: absolute;
@@ -96,16 +125,21 @@
     </div>
     <div class="chat-box" id="chat-box"></div>
     <div class="input-container">
-        <textarea id="user-input" rows="1" placeholder="Type your message here..." oninput="autoGrow(this)"></textarea>
-        <input type="file" id="file-input" accept="image/png, image/jpeg">
-        <label for="file-input"><img src="https://img.icons8.com/ios-filled/50/000000/link.png" alt="Upload"></label>
-        <button onclick="sendMessage()">Send</button>
+        <div class="input-bubble">
+            <div style="display: flex; align-items: center; width: 100%;">
+                <label for="file-input"><img src="https://img.icons8.com/ios-filled/50/000000/link.png" alt="Upload"></label>
+                <textarea id="user-input" rows="1" placeholder="Type your message here..." oninput="autoGrow(this)"></textarea>
+                <input type="file" id="file-input" accept="image/png, image/jpeg">
+                <button onclick="sendMessage()">➤</button>
+            </div>
+            <div id="file-preview-container"></div>
+        </div>
     </div>
 
     <script type="module">
         import OpenAI from "https://cdn.skypack.dev/openai";
 
-        const token = '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'; // Replace with your actual token
+        const tokens = ['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', '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'];
         const endpoint = "https://models.inference.ai.azure.com";
         const modelName = "gpt-4o";
 
@@ -129,6 +163,25 @@
             }
         });
 
+        document.getElementById('file-input').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const filePreviewContainer = document.getElementById('file-preview-container');
+                const filePreview = document.createElement('div');
+                filePreview.className = 'file-preview';
+                filePreview.innerHTML = `
+                    <span>${file.name}</span>
+                    <button onclick="removeFile()">x</button>
+                `;
+                filePreviewContainer.appendChild(filePreview);
+            }
+        });
+
+        window.removeFile = function() {
+            document.getElementById('file-input').value = '';
+            document.getElementById('file-preview-container').innerHTML = '';
+        }
+
         async function uploadImage(file) {
             const chatBox = document.getElementById('chat-box');
             const reader = new FileReader();
@@ -141,7 +194,7 @@
             reader.readAsDataURL(file);
         }
 
-        async function sendMessage() {
+        window.sendMessage = async function() {
             const chatBox = document.getElementById('chat-box');
             const userInput = document.getElementById('user-input').value;
             const fileInput = document.getElementById('file-input').files[0];
@@ -177,44 +230,59 @@
                     };
                     conversationHistory.push(imageMessage);
 
-                    callGitHubAI(conversationHistory, model);
+                    callGitHubAI(conversationHistory, model, 0);
                 };
                 reader.readAsDataURL(fileInput);
             } else {
-                callGitHubAI(conversationHistory, model);
+                callGitHubAI(conversationHistory, model, 0);
             }
 
             document.getElementById('user-input').value = '';
-            document.getElementById('file-input').value = '';
+            removeFile();
         }
 
-        async function callGitHubAI(messages, model) {
+        async function callGitHubAI(messages, model, tokenIndex) {
             const chatBox = document.getElementById('chat-box');
-            const client = new OpenAI({ baseURL: endpoint, apiKey: token, dangerouslyAllowBrowser: true});
+            const client = new OpenAI({ baseURL: endpoint, apiKey: tokens[tokenIndex], dangerouslyAllowBrowser: true });
 
-            const stream = await client.chat.completions.create({
-                messages: messages,
-                model: model,
-                stream: true
-            });
+            try {
+                const stream = await client.chat.completions.create({
+                    messages: messages,
+                    model: model,
+                    stream: true
+                });
 
-            const botMessageElement = document.createElement('p');
-            botMessageElement.textContent = 'Bot: ';
-            chatBox.appendChild(botMessageElement);
+                const botMessageElement = document.createElement('p');
+                botMessageElement.textContent = 'Bot: ';
+                chatBox.appendChild(botMessageElement);
 
-            let botMessageContent = '';
+                let botMessageContent = '';
 
-            for await (const part of stream) {
-                botMessageContent += part.choices[0]?.delta?.content || '';
-                botMessageElement.textContent = `Bot: ${botMessageContent}`;
-                chatBox.scrollTop = chatBox.scrollHeight;
+                for await (const part of stream) {
+                    botMessageContent += part.choices[0]?.delta?.content || '';
+                    botMessageElement.textContent = `Bot: ${botMessageContent}`;
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+
+                const botMessage = { role: "assistant", content: botMessageContent };
+                conversationHistory.push(botMessage);
+            } catch (error) {
+                if (error.status === 429 && tokenIndex < tokens.length - 1) {
+                    callGitHubAI(messages, model, tokenIndex + 1);
+                } else if (error.status === 429) {
+                    const retryAfter = error.headers.get('Retry-After');
+                    const retryMessage = `Rate limit exceeded. Please wait ${retryAfter} seconds before retrying.`;
+                    const errorMessageElement = document.createElement('p');
+                    errorMessageElement.textContent = `Bot: ${retryMessage}`;
+                    chatBox.appendChild(errorMessageElement);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                } else {
+                    console.error('Error:', error);
+                }
             }
-
-            const botMessage = { role: "assistant", content: botMessageContent };
-            conversationHistory.push(botMessage);
         }
 
-        function autoGrow(element) {
+        window.autoGrow = function(element) {
             element.style.height = "5px";
             element.style.height = (element.scrollHeight) + "px";
         }
