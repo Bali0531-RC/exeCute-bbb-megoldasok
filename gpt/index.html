@@ -185,7 +185,7 @@
         async function callGitHubAI(messages, model) {
             const chatBox = document.getElementById('chat-box');
 
-            const response = await fetch(`${ENDPOINT}/v1/completions`, {
+            const response = await fetch(ENDPOINT, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
