@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with GPT-4o</title>
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #1e1e1e;
+        }
+        .chat-box p {
+            margin: 5px 0;
+        }
+        .chat-box img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 5px;
+        }
+        .input-container {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #1e1e1e;
+            border-top: 1px solid #333;
+        }
+        .input-container textarea {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            background-color: #2e2e2e;
+            color: #ffffff;
+            resize: none;
+            outline: none;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        .input-container input[type="file"] {
+            display: none;
+        }
+        .input-container label {
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .input-container label img {
+            width: 24px;
+            height: 24px;
+        }
+        .input-container button {
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            background-color: #6200ea;
+            color: #ffffff;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .input-container button:hover {
+            background-color: #3700b3;
+        }
+        .model-selector {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #2e2e2e;
+            color: #ffffff;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="model-selector">
+        <label for="model-select">Select Model:</label>
+        <select id="model-select">
+            <option value="gpt-4o">GPT-4o</option>
+            <option value="gpt-4o-mini">GPT-4o-mini</option>
+            <option value="o1-preview">O1-preview</option>
+            <option value="o1-mini">O1-mini</option>
+        </select>
+    </div>
+    <div class="chat-box" id="chat-box"></div>
+    <div class="input-container">
+        <textarea id="user-input" rows="1" placeholder="Type your message here..." oninput="autoGrow(this)"></textarea>
+        <input type="file" id="file-input" accept="image/png, image/jpeg">
+        <label for="file-input"><img src="https://img.icons8.com/ios-filled/50/000000/link.png" alt="Upload"></label>
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        const ENDPOINT = 'https://models.inference.ai.azure.com';
+        const TOKEN = '$TOKEN'; // This will be replaced by GitHub Actions
+
+        document.addEventListener('paste', function(event) {
+            const items = event.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const file = items[i].getAsFile();
+                    uploadImage(file);
+                }
+            }
+        });
+
+        document.getElementById('user-input').addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        async function uploadImage(file) {
+            const chatBox = document.getElementById('chat-box');
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgElement = document.createElement('img');
+                imgElement.src = e.target.result;
+                chatBox.appendChild(imgElement);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function sendMessage() {
+            const chatBox = document.getElementById('chat-box');
+            const userInput = document.getElementById('user-input').value;
+            const fileInput = document.getElementById('file-input').files[0];
+            const model = document.getElementById('model-select').value;
+
+            if (!userInput && !fileInput) {
+                alert('Please enter a message or upload a file.');
+                return;
+            }
+
+            const messageElement = document.createElement('p');
+            messageElement.textContent = `You: ${userInput}`;
+            chatBox.appendChild(messageElement);
+
+            const messages = [
+                { role: "system", content: "You are a helpful assistant." },
+                { role: "user", content: userInput }
+            ];
+
+            if (fileInput) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = e.target.result;
+                    chatBox.appendChild(imgElement);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+
+                    const imageDataUrl = e.target.result;
+                    messages.push({
+                        role: "user",
+                        content: [
+                            { type: "text", text: userInput },
+                            { type: "image_url", image_url: { url: imageDataUrl, details: "low" } }
+                        ]
+                    });
+
+                    callGitHubAI(messages, model);
+                };
+                reader.readAsDataURL(fileInput);
+            } else {
+                callGitHubAI(messages, model);
+            }
+
+            document.getElementById('user-input').value = '';
+            document.getElementById('file-input').value = '';
+        }
+
+        async function callGitHubAI(messages, model) {
+            const chatBox = document.getElementById('chat-box');
+
+            const response = await fetch(`${ENDPOINT}/v1/completions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${TOKEN}`
+                },
+                body: JSON.stringify({
+                    model: model,
+                    messages: messages,
+                    stream: true
+                })
+            });
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder('utf-8');
+            let result = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                result += decoder.decode(value, { stream: true });
+                const botMessageElement = document.createElement('p');
+                botMessageElement.textContent = `Bot: ${result}`;
+                chatBox.appendChild(botMessageElement);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+
+        function autoGrow(element) {
+            element.style.height = "5px";
+            element.style.height = (element.scrollHeight) + "px";
+        }
+    </script>
+</body>
+</html>
