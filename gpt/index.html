@@ -102,9 +102,16 @@
         <button onclick="sendMessage()">Send</button>
     </div>
 
-    <script>
-        const ENDPOINT = 'https://models.inference.ai.azure.com';
-        const TOKEN = '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'; // This will be replaced by GitHub Actions
+    <script type="module">
+        import OpenAI from "https://cdn.skypack.dev/openai";
+
+        const token = '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'; // Replace with your actual token
+        const endpoint = "https://models.inference.ai.azure.com";
+        const modelName = "gpt-4o";
+
+        let conversationHistory = [
+            { role: "system", content: "You are a helpful assistant." }
+        ];
 
         document.addEventListener('paste', function(event) {
             const items = event.clipboardData.items;
@@ -145,14 +152,12 @@
                 return;
             }
 
+            const userMessage = { role: "user", content: userInput };
+            conversationHistory.push(userMessage);
+
             const messageElement = document.createElement('p');
             messageElement.textContent = `You: ${userInput}`;
             chatBox.appendChild(messageElement);
-
-            const messages = [
-                { role: "system", content: "You are a helpful assistant." },
-                { role: "user", content: userInput }
-            ];
 
             if (fileInput) {
                 const reader = new FileReader();
@@ -163,19 +168,20 @@
                     chatBox.scrollTop = chatBox.scrollHeight;
 
                     const imageDataUrl = e.target.result;
-                    messages.push({
+                    const imageMessage = {
                         role: "user",
                         content: [
                             { type: "text", text: userInput },
                             { type: "image_url", image_url: { url: imageDataUrl, details: "low" } }
                         ]
-                    });
+                    };
+                    conversationHistory.push(imageMessage);
 
-                    callGitHubAI(messages, model);
+                    callGitHubAI(conversationHistory, model);
                 };
                 reader.readAsDataURL(fileInput);
             } else {
-                callGitHubAI(messages, model);
+                callGitHubAI(conversationHistory, model);
             }
 
             document.getElementById('user-input').value = '';
@@ -184,33 +190,28 @@
 
         async function callGitHubAI(messages, model) {
             const chatBox = document.getElementById('chat-box');
+            const client = new OpenAI({ baseURL: endpoint, apiKey: token});
 
-            const response = await fetch(ENDPOINT, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${TOKEN}`
-                },
-                body: JSON.stringify({
-                    model: model,
-                    messages: messages,
-                    stream: true
-                })
+            const stream = await client.chat.completions.create({
+                messages: messages,
+                model: model,
+                stream: true
             });
 
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder('utf-8');
-            let result = '';
+            const botMessageElement = document.createElement('p');
+            botMessageElement.textContent = 'Bot: ';
+            chatBox.appendChild(botMessageElement);
 
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                result += decoder.decode(value, { stream: true });
-                const botMessageElement = document.createElement('p');
-                botMessageElement.textContent = `Bot: ${result}`;
-                chatBox.appendChild(botMessageElement);
+            let botMessageContent = '';
+
+            for await (const part of stream) {
+                botMessageContent += part.choices[0]?.delta?.content || '';
+                botMessageElement.textContent = `Bot: ${botMessageContent}`;
                 chatBox.scrollTop = chatBox.scrollHeight;
             }
+
+            const botMessage = { role: "assistant", content: botMessageContent };
+            conversationHistory.push(botMessage);
         }
 
         function autoGrow(element) {
