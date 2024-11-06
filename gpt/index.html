@@ -190,7 +190,7 @@
 
         async function callGitHubAI(messages, model) {
             const chatBox = document.getElementById('chat-box');
-            const client = new OpenAI({ baseURL: endpoint, apiKey: token});
+            const client = new OpenAI({ baseURL: endpoint, apiKey: token, dangerouslyAllowBrowser: true});
 
             const stream = await client.chat.completions.create({
                 messages: messages,
