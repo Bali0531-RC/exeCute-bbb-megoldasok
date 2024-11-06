@@ -104,7 +104,7 @@
 
     <script>
         const ENDPOINT = 'https://models.inference.ai.azure.com';
-        const TOKEN = '$TOKEN'; // This will be replaced by GitHub Actions
+        const TOKEN = process.env.TOKEN; // This will be replaced by GitHub Actions
 
         document.addEventListener('paste', function(event) {
             const items = event.clipboardData.items;
