@@ -250,7 +250,7 @@
             // Format newlines
             content = content.replace(/\\n/g, '\n');
 
-            // Format lists and bullet points
+            // Format lists and bullet points (only outside code blocks)
             content = content.replace(/^(?!.*```[\s\S]*?)[-+*] (.*$)/gm, '<li>$1</li>').replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
             content = content.replace(/^(?!.*```[\s\S]*?)(\d+\.) (.*$)/gm, '<li>$2</li>').replace(/(<li>.*<\/li>\n?)+/g, '<ol>$&</ol>');
 
@@ -259,12 +259,12 @@
                 return `<code>${code}</code>`;
             });
 
-            // Format italics, bold, strikethrough and headings
-            content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');  // Bold
-            content = content.replace(/\*(.*?)\*/g, '<em>$1</em>');  // Italics
-            content = content.replace(/_(.*?)_/g, '<em>$1</em>');  // Alternate italics
-            content = content.replace(/_{3}(.*?)_{3}/g, '<del>$1</del>');  // Strikethrough
-            content = content.replace(/-#\s*(.*?)$/gm, '<span class="heading">$1</span>');  // Custom heading
+            // Format italics, bold, strikethrough and headings (only outside code blocks)
+            content = content.replace(/(?!.*```[\s\S]*?)\*\*(.*?)\*\*/g, '<strong>$1</strong>');  // Bold
+            content = content.replace(/(?!.*```[\s\S]*?)\*(.*?)\*/g, '<em>$1</em>');  // Italics
+            content = content.replace(/(?!.*```[\s\S]*?)_(.*?)_/g, '<em>$1</em>');  // Alternate italics
+            content = content.replace(/(?!.*```[\s\S]*?)_{3}(.*?)_{3}/g, '<del>$1</del>');  // Strikethrough
+            content = content.replace(/(?!.*```[\s\S]*?)-#\s*(.*?)$/gm, '<span class="heading">$1</span>');  // Custom heading
 
             return content;
         }
