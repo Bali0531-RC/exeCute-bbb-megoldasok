@@ -80,6 +80,10 @@
         .chat-box li {
             margin: 0.3em 0;
         }
+        .chat-box em { font-style: italic; }
+        .chat-box strong { font-weight: bold; }
+        .chat-box del { text-decoration: line-through; }
+        .chat-box .heading { font-weight: bold; }
         .input-container {
             display: flex;
             justify-content: center;
@@ -255,6 +259,13 @@
                 return `<code>${code}</code>`;
             });
 
+            // Format italics, bold, strikethrough and headings
+            content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');  // Bold
+            content = content.replace(/\*(.*?)\*/g, '<em>$1</em>');  // Italics
+            content = content.replace(/_(.*?)_/g, '<em>$1</em>');  // Alternate italics
+            content = content.replace(/_{3}(.*?)_{3}/g, '<del>$1</del>');  // Strikethrough
+            content = content.replace(/-#\s*(.*?)$/gm, '<span class="heading">$1</span>');  // Custom heading
+
             return content;
         }
 
@@ -323,7 +334,11 @@
                         "- Use $$ for math expressions\n" +
                         "- Use \\frac{}{} for fractions\n" +
                         "- Use - or + for bullet points\n" +
-                        "- Use numbers followed by dots for ordered lists";
+                        "- Use numbers followed by dots for ordered lists\n" +
+                        "- Use * or _ for italics\n" +
+                        "- Use ** for bold\n" +
+                        "- Use ___ for strikethrough\n" +
+                        "- Use -# for custom headings";
 
             const userMessage = { role: "user", content: userInput + formatInstructions };
             conversationHistory.push(userMessage);
