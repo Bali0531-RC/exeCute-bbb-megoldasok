@@ -23,12 +23,62 @@
             background-color: #1e1e1e;
         }
         .chat-box p {
-            margin: 5px 0;
+            margin: 15px 0;
+            white-space: pre-wrap;
         }
         .chat-box img {
             max-width: 50%;
             border-radius: 8px;
             margin-top: 5px;
+        }
+        .chat-box pre {
+            position: relative;
+            background-color: #2e2e2e;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .chat-box code {
+            display: block;
+            font-family: monospace;
+            white-space: pre;
+        }
+        .copy-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            padding: 5px;
+            background-color: #3700b3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .chat-box h1 { font-size: 1.8em; margin: 0.5em 0; }
+        .chat-box h2 { font-size: 1.5em; margin: 0.5em 0; }
+        .chat-box h3 { font-size: 1.3em; margin: 0.5em 0; }
+        .chat-box .math {
+            font-family: "Times New Roman", serif;
+            font-style: italic;
+        }
+        .chat-box .fraction {
+            display: inline-block;
+            vertical-align: middle;
+            text-align: center;
+        }
+        .chat-box .fraction > span {
+            display: block;
+            padding: 0.1em;
+        }
+        .chat-box .fraction span.denominator {
+            border-top: thin solid;
+        }
+        .chat-box ul, .chat-box ol {
+            margin: 0.5em 0;
+            padding-left: 2em;
+        }
+        .chat-box li {
+            margin: 0.3em 0;
         }
         .input-container {
             display: flex;
@@ -111,6 +161,32 @@
             border-radius: 8px;
             padding: 5px;
         }
+        /* Temporarily disabled syntax highlighting styles */
+        /*
+        .language-python .keyword { color: #ff79c6 !important; }
+        .language-python .function { color: #50fa7b !important; }
+        .language-python .string { color: #f1fa8c !important; }
+        .language-python .number { color: #bd93f9 !important; }
+        .language-python .comment { color: #6272a4 !important; }
+        
+        .language-javascript .keyword { color: #ff79c6 !important; }
+        .language-javascript .function { color: #50fa7b !important; }
+        .language-javascript .string { color: #f1fa8c !important; }
+        .language-javascript .number { color: #bd93f9 !important; }
+        .language-javascript .comment { color: #6272a4 !important; }
+        
+        .language-html .tag { color: #ff79c6 !important; }
+        .language-html .attribute { color: #50fa7b !important; }
+        .language-html .string { color: #f1fa8c !important; }
+        
+        .language-css .property { color: #ff79c6 !important; }
+        .language-css .value { color: #50fa7b !important; }
+        
+        code .keyword { color: #ff79c6 !important; }
+        code .number { color: #bd93f9 !important; }
+        code .string { color: #f1fa8c !important; }
+        code .comment { color: #6272a4 !important; }
+        */
     </style>
 </head>
 <body>
@@ -140,12 +216,47 @@
         import OpenAI from "https://cdn.skypack.dev/openai";
 
         const tokens = ['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', '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'];
+        const o1Token = "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";
         const endpoint = "https://models.inference.ai.azure.com";
-        const modelName = "gpt-4o";
 
-        let conversationHistory = [
-            { role: "system", content: "You are a helpful assistant." }
-        ];
+        let conversationHistory = [];
+
+        function formatMessage(content) {
+            // Format code blocks with copy button and syntax highlighting
+            content = content.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+                const uniqueId = 'code-' + Math.random().toString(36).substr(2, 9);
+                return `<pre><button class="copy-button" onclick="navigator.clipboard.writeText(document.getElementById('${uniqueId}').textContent)">Copy</button><code id="${uniqueId}" class="language-${lang}">${code}</code></pre>`;
+            });
+
+            // Format headers (only outside code blocks)
+            content = content.replace(/^(?!.*```[\s\S]*?)# (.*$)/gm, '<h1>$1</h1>');
+            content = content.replace(/^(?!.*```[\s\S]*?)## (.*$)/gm, '<h2>$1</h2>');
+            content = content.replace(/^(?!.*```[\s\S]*?)### (.*$)/gm, '<h3>$1</h3>');
+
+            // Format math expressions
+            content = content.replace(/\$\$(.*?)\$\$/g, (match, math) => {
+                return `<span class="math">${math}</span>`;
+            });
+
+            // Format fractions
+            content = content.replace(/\\frac{(.*?)}{(.*?)}/g, (match, num, den) => {
+                return `<span class="fraction"><span class="numerator">${num}</span><span class="denominator">${den}</span></span>`;
+            });
+
+            // Format newlines
+            content = content.replace(/\\n/g, '\n');
+
+            // Format lists and bullet points
+            content = content.replace(/^(?!.*```[\s\S]*?)[-+*] (.*$)/gm, '<li>$1</li>').replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+            content = content.replace(/^(?!.*```[\s\S]*?)(\d+\.) (.*$)/gm, '<li>$2</li>').replace(/(<li>.*<\/li>\n?)+/g, '<ol>$&</ol>');
+
+            // Format inline code without syntax highlighting
+            content = content.replace(/`([^`]+)`/g, (match, code) => {
+                return `<code>${code}</code>`;
+            });
+
+            return content;
+        }
 
         document.addEventListener('paste', function(event) {
             const items = event.clipboardData.items;
@@ -196,7 +307,7 @@
 
         window.sendMessage = async function() {
             const chatBox = document.getElementById('chat-box');
-            const userInput = document.getElementById('user-input').value;
+            let userInput = document.getElementById('user-input').value;
             const fileInput = document.getElementById('file-input').files[0];
             const model = document.getElementById('model-select').value;
 
@@ -205,7 +316,16 @@
                 return;
             }
 
-            const userMessage = { role: "user", content: userInput };
+            const formatInstructions = "\n\nPlease format your response using these conventions when appropriate:\n" +
+                        "- Use \\n for new lines\n" +
+                        "- Use ``` for code blocks\n" +
+                        "- Use # for headers\n" +
+                        "- Use $$ for math expressions\n" +
+                        "- Use \\frac{}{} for fractions\n" +
+                        "- Use - or + for bullet points\n" +
+                        "- Use numbers followed by dots for ordered lists";
+
+            const userMessage = { role: "user", content: userInput + formatInstructions };
             conversationHistory.push(userMessage);
 
             const messageElement = document.createElement('p');
@@ -224,21 +344,56 @@
                     const imageMessage = {
                         role: "user",
                         content: [
-                            { type: "text", text: userInput },
+                            { type: "text", text: userInput + formatInstructions },
                             { type: "image_url", image_url: { url: imageDataUrl, details: "low" } }
                         ]
                     };
                     conversationHistory.push(imageMessage);
 
-                    callGitHubAI(conversationHistory, model, 0);
+                    if (model.startsWith('o1-')) {
+                        callO1AI(conversationHistory, model);
+                    } else {
+                        callGitHubAI(conversationHistory, model, 0);
+                    }
                 };
                 reader.readAsDataURL(fileInput);
             } else {
-                callGitHubAI(conversationHistory, model, 0);
+                if (model.startsWith('o1-')) {
+                    callO1AI(conversationHistory, model);
+                } else {
+                    callGitHubAI(conversationHistory, model, 0);
+                }
             }
 
             document.getElementById('user-input').value = '';
             removeFile();
+        }
+
+        async function callO1AI(messages, model) {
+            const chatBox = document.getElementById('chat-box');
+            const client = new OpenAI({ baseURL: endpoint, apiKey: o1Token, dangerouslyAllowBrowser: true });
+
+            try {
+                const response = await client.chat.completions.create({
+                    messages: messages,
+                    model: model
+                });
+
+                const botMessageElement = document.createElement('p');
+                const botMessageContent = response.choices[0].message.content;
+                botMessageElement.innerHTML = `Bot: ${formatMessage(botMessageContent)}`;
+                chatBox.appendChild(botMessageElement);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                const botMessage = { role: "assistant", content: botMessageContent };
+                conversationHistory.push(botMessage);
+            } catch (error) {
+                console.error('Error:', error);
+                const errorMessageElement = document.createElement('p');
+                errorMessageElement.textContent = `Bot: An error occurred. Please try again.`;
+                chatBox.appendChild(errorMessageElement);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
         }
 
         async function callGitHubAI(messages, model, tokenIndex) {
@@ -260,7 +415,7 @@
 
                 for await (const part of stream) {
                     botMessageContent += part.choices[0]?.delta?.content || '';
-                    botMessageElement.textContent = `Bot: ${botMessageContent}`;
+                    botMessageElement.innerHTML = `Bot: ${formatMessage(botMessageContent)}`;
                     chatBox.scrollTop = chatBox.scrollHeight;
                 }
 
