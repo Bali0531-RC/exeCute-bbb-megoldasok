@@ -49,7 +49,7 @@
                             <span class="button-icon">▼</span>
                         </button>
                         <div id="intro1" class="member-intro">
-                            <p>Zsiros Márton vagyok, a csapat UI/UX designere. A feladatköröm a felhasználói felületek tervezése és a felhasználói élmény optimalizálása. Különös figyelmet fordítok a modern, intuitív design elemekre.</p>
+                            <p>A csapatban a vizuális tervezésért és felhasználói felületek kialakításáért felelős vagyok. Modern, könnyen használható weboldalakat tervezek.</p>
                         </div>
                     </div>
                 </article>
@@ -66,7 +66,7 @@
                             <span class="button-icon">▼</span>
                         </button>
                         <div id="intro2" class="member-intro">
-                            <p>Én Balázs vagyok, 13 éves koromban kezdtem el programozással foglalkozni, és azóta fejlesztem magam. A csapatban én vagyok a főfejlesztő és koordinátor.</p>
+                            <p>A csapat vezetője és főfejlesztő vagyok. Koordinálom a projekteket és végzem a fő fejlesztési feladatokat. Webes felületekkel és scripteléssel foglalkozok.</p>
                         </div>
                     </div>
                 </article>
@@ -77,13 +77,13 @@
                     </div>
                     <div class="member-info">
                         <h3 class="member-name">Horváth Marcell</h3>
-                        <span class="member-role">QA Tesztelő & Analyst</span>
+                        <span class="member-role">QA Tesztelő</span>
                         <button class="intro-toggle" data-target="intro3">
                             <span class="button-text">Bemutatkozás</span>
                             <span class="button-icon">▼</span>
                         </button>
                         <div id="intro3" class="member-intro">
-                            <p>Üdv, Horváth Marcell vagyok. A csapatban QA tesztelőként és analystként dolgozom. Felelős vagyok a minőségbiztosításért és a hibák felderítéséért.</p>
+                            <p>A csapatban a tesztelésért vagyok felelős. Hibák felderítése és a projektek megbízható működésének ellenőrzése a feladatom.</p>
                         </div>
                     </div>
                 </article>
@@ -102,17 +102,23 @@
                 </button>
             </div>
             <div class="modal-body">
-                <img id="overlayImage" src="" alt="Galéria kép" class="gallery-image"/>
-                <div class="image-counter">
-                    <span id="imageCounter">1 / 3</span>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="prevImage" class="gallery-btn" aria-label="Előző kép">
-                    <span>◀ Előző</span>
+                <button id="prevImage" class="nav-arrow nav-prev" aria-label="Előző kép">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </button>
-                <button id="nextImage" class="gallery-btn" aria-label="Következő kép">
-                    <span>Következő ▶</span>
+                
+                <div class="image-container">
+                    <img id="overlayImage" src="" alt="Galéria kép" class="gallery-image"/>
+                    <div class="image-counter">
+                        <span id="imageCounter">1 / 3</span>
+                    </div>
+                </div>
+                
+                <button id="nextImage" class="nav-arrow nav-next" aria-label="Következő kép">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </button>
             </div>
         </div>

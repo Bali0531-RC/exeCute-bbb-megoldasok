@@ -2,6 +2,7 @@ class TeamWebsite {
     constructor() {
         this.images = ["N.png", "L.png", "G.png"];
         this.currentImageIndex = 0;
+        this.isTransitioning = false;
         this.theme = localStorage.getItem('theme') || 'dark';
         
         this.init();
@@ -54,16 +55,14 @@ class TeamWebsite {
         // Keyboard navigation
         document.addEventListener('keydown', (e) => {
             if (modal.classList.contains('show')) {
-                switch(e.key) {
-                    case 'Escape':
-                        this.closeGallery();
-                        break;
-                    case 'ArrowRight':
-                        this.nextImage();
-                        break;
-                    case 'ArrowLeft':
-                        this.prevImage();
-                        break;
+                if (e.key === 'Escape') {
+                    this.closeGallery();
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    this.nextImage();
+                } else if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    this.prevImage();
                 }
             }
         });
@@ -85,11 +84,13 @@ class TeamWebsite {
     }
 
     nextImage() {
+        if (this.isTransitioning) return; // Prevent multiple clicks during transition
         this.currentImageIndex = (this.currentImageIndex + 1) % this.images.length;
         this.showCurrentImage();
     }
 
     prevImage() {
+        if (this.isTransitioning) return; // Prevent multiple clicks during transition
         this.currentImageIndex = (this.currentImageIndex - 1 + this.images.length) % this.images.length;
         this.showCurrentImage();
     }
@@ -98,8 +99,29 @@ class TeamWebsite {
         const imgElement = document.getElementById('overlayImage');
         const counter = document.getElementById('imageCounter');
         
-        imgElement.src = this.images[this.currentImageIndex];
-        counter.textContent = `${this.currentImageIndex + 1} / ${this.images.length}`;
+        // Set transitioning flag
+        this.isTransitioning = true;
+        
+        // Create new image element to preload
+        const newImg = new Image();
+        newImg.onload = () => {
+            // Quick fade transition
+            imgElement.style.opacity = '0';
+            
+            setTimeout(() => {
+                imgElement.src = newImg.src;
+                counter.textContent = `${this.currentImageIndex + 1} / ${this.images.length}`;
+                imgElement.style.opacity = '1';
+                
+                // Reset transitioning flag after animation
+                setTimeout(() => {
+                    this.isTransitioning = false;
+                }, 200);
+            }, 100);
+        };
+        
+        // Start loading the new image
+        newImg.src = this.images[this.currentImageIndex];
     }
 
     // Enhanced member card interactions

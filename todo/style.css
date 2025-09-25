@@ -73,6 +73,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
+    position: relative;
 }
 
 .app-title {
@@ -82,6 +83,9 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .nav-btn {
