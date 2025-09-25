@@ -3,106 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Téma Választó</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #121212; 
-            color: #ffffff; 
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .container {
-            text-align: center;
-            padding: 0 20px; 
-        }
-
-        h1 {
-            font-size: 4em;
-            margin-bottom: 20px;
-        }
-
-        p {
-            font-size: 1.2em;
-            margin-bottom: 40px;
-            color: #cccccc; 
-            max-width: 600px; 
-            margin-left: auto;
-            margin-right: auto;
-            line-height: 1.5; 
-        }
-
-        .button-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap; 
-        }
-
-        .theme-button {
-            display: inline-block;
-            padding: 15px 30px;
-            font-size: 1em;
-            color: #ffffff;
-            background-color: #1f1f1f; 
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            text-decoration: none;
-            transition: transform 0.2s, box-shadow 0.2s;
-            width: 150px; 
-            text-align: center;
-        }
-
-        .theme-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.5);
-        }
-
-        /* Különböző gomb színek */
-        .midnight {
-            background-color: #2c3e50; 
-        }
-
-        .obsidian {
-            background-color: #34495e;
-        }
-
-        /* Reszponzív design */
-        @media (max-width: 500px) {
-            .theme-button {
-                width: 100px;
-                padding: 10px 20px;
-                font-size: 0.9em;
-            }
-
-            h1 {
-                font-size: 3em;
-            }
-
-            p {
-                font-size: 1em;
-                max-width: 100%;
-            }
-        }
-    </style>
+    <title>ExE Cute - 2025 Verseny</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>TÉMA VÁLASZTÓ</h1>
-        <p>
-            Csapatunk, nem csak egy, hanem két dizájnt is készített a feladathoz. Az alábbiakban választhat, hogy a fekete színű Obsidián, vagy a sötétkékes Midnight témát szeretné választani. Tartalmilag mindkettő ugyanaz, csak a kinézetük más!
-        </p>
-        <div class="button-container">
-            <a href="./midnight/index.html" class="theme-button midnight">Midnight</a>
-            <a href="./black/index.html" class="theme-button obsidian">Obsidian</a>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h1>ExE Cute</h1>
+                <span class="year-badge">2025</span>
+            </div>
+            <div class="nav-links">
+                <a href="#features" class="nav-link">Feladatok</a>
+                <a href="team/" class="nav-link">Csapat</a>
+                <a href="todo/" class="nav-link">TODO App</a>
+            </div>
         </div>
-    </div>
+    </nav>
+
+    <main class="main">
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">ExE Cute Csapat</h1>
+                <p class="hero-subtitle">2025-ös verseny weboldalunk</p>
+                <div class="hero-buttons">
+                    <a href="team/" class="btn-primary">Csapat</a>
+                    <a href="todo/" class="btn-secondary">TODO App</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <div class="features-container">
+                <h2 class="section-title">Verseny Feladatok</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>Csapat Bemutatkozó</h3>
+                        <p>Modern weboldal a csapattagok bemutatásával</p>
+                        <a href="team/" class="feature-link">Megtekintés →</a>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>TODO Lista Alkalmazás</h3>
+                        <p>Feladatok kezelése drag & drop funkcióval</p>
+                        <a href="todo/" class="feature-link">Megtekintés →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 ExE Cute Csapat. Minden jog fenntartva.</p>
+        </div>
+    </footer>
 </body>
 </html>

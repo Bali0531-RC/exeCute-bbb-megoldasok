@@ -1,0 +1,494 @@
+class TodoApp {
+    constructor() {
+        this.todos = JSON.parse(localStorage.getItem('todos')) || [];
+        this.currentFilter = 'all';
+        this.selectedTodos = new Set();
+        this.theme = localStorage.getItem('theme') || 'dark';
+        this.draggedElement = null;
+        this.dropZones = [];
+
+        this.init();
+    }
+
+    init() {
+        this.initTheme();
+        this.bindEvents();
+        this.render();
+        this.updateStats();
+    }
+
+    // Theme management
+    initTheme() {
+        this.applyTheme(this.theme);
+        
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle?.addEventListener('click', () => {
+            this.theme = this.theme === 'dark' ? 'light' : 'dark';
+            this.applyTheme(this.theme);
+            localStorage.setItem('theme', this.theme);
+        });
+    }
+
+    applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const themeIcon = document.querySelector('#themeToggle .icon');
+        if (themeIcon) {
+            themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+    }
+
+    // Event binding
+    bindEvents() {
+        // Add todo
+        const todoInput = document.getElementById('todoInput');
+        const addButton = document.getElementById('addButton');
+        
+        addButton.addEventListener('click', () => this.addTodo());
+        todoInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.addTodo();
+        });
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.currentFilter = btn.dataset.filter;
+                this.updateFilterButtons();
+                this.render();
+            });
+        });
+
+        // Back button
+        document.getElementById('backButton')?.addEventListener('click', () => {
+            window.location.href = '../index.html';
+        });
+
+        // Bulk actions
+        document.getElementById('completeSelected')?.addEventListener('click', () => {
+            this.completeSelectedTodos();
+        });
+
+        document.getElementById('deleteSelected')?.addEventListener('click', () => {
+            this.showConfirmModal('Biztosan törölni szeretnéd a kiválasztott feladatokat?', () => {
+                this.deleteSelectedTodos();
+            });
+        });
+
+        // Modal events
+        document.getElementById('cancelAction')?.addEventListener('click', () => {
+            this.hideConfirmModal();
+        });
+
+        document.getElementById('confirmAction')?.addEventListener('click', () => {
+            if (this.pendingAction) {
+                this.pendingAction();
+                this.hideConfirmModal();
+            }
+        });
+
+        // Click outside modal to close
+        document.getElementById('confirmModal')?.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-backdrop')) {
+                this.hideConfirmModal();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'a') {
+                e.preventDefault();
+                this.selectAllTodos();
+            }
+            if (e.key === 'Escape') {
+                this.clearSelection();
+            }
+        });
+    }
+
+    // Todo management
+    addTodo() {
+        const input = document.getElementById('todoInput');
+        const text = input.value.trim();
+        
+        if (!text) return;
+
+        const todo = {
+            id: Date.now().toString(),
+            text: text,
+            completed: false,
+            createdAt: new Date().toISOString(),
+            order: this.todos.length
+        };
+
+        this.todos.push(todo);
+        this.saveTodos();
+        this.render();
+        this.updateStats();
+        
+        input.value = '';
+        input.focus();
+
+        // Animation for new todo
+        setTimeout(() => {
+            const newTodoElement = document.querySelector(`[data-id="${todo.id}"]`);
+            if (newTodoElement) {
+                newTodoElement.style.animation = 'slideInLeft 0.3s ease';
+            }
+        }, 100);
+    }
+
+    toggleTodo(id) {
+        const todo = this.todos.find(t => t.id === id);
+        if (todo) {
+            todo.completed = !todo.completed;
+            this.saveTodos();
+            this.render();
+            this.updateStats();
+        }
+    }
+
+    deleteTodo(id) {
+        this.showConfirmModal('Biztosan törölni szeretnéd ezt a feladatot?', () => {
+            this.todos = this.todos.filter(t => t.id !== id);
+            this.saveTodos();
+            this.render();
+            this.updateStats();
+        });
+    }
+
+    moveTodoUp(id) {
+        const index = this.todos.findIndex(t => t.id === id);
+        if (index > 0) {
+            [this.todos[index], this.todos[index - 1]] = [this.todos[index - 1], this.todos[index]];
+            this.saveTodos();
+            this.render();
+        }
+    }
+
+    moveTodoDown(id) {
+        const index = this.todos.findIndex(t => t.id === id);
+        if (index < this.todos.length - 1) {
+            [this.todos[index], this.todos[index + 1]] = [this.todos[index + 1], this.todos[index]];
+            this.saveTodos();
+            this.render();
+        }
+    }
+
+    // Selection management
+    toggleSelection(id) {
+        if (this.selectedTodos.has(id)) {
+            this.selectedTodos.delete(id);
+        } else {
+            this.selectedTodos.add(id);
+        }
+        
+        this.updateBulkActions();
+        this.updateTodoSelection();
+    }
+
+    selectAllTodos() {
+        const visibleTodos = this.getFilteredTodos();
+        visibleTodos.forEach(todo => this.selectedTodos.add(todo.id));
+        this.updateBulkActions();
+        this.updateTodoSelection();
+    }
+
+    clearSelection() {
+        this.selectedTodos.clear();
+        this.updateBulkActions();
+        this.updateTodoSelection();
+    }
+
+    completeSelectedTodos() {
+        this.selectedTodos.forEach(id => {
+            const todo = this.todos.find(t => t.id === id);
+            if (todo) todo.completed = true;
+        });
+        
+        this.clearSelection();
+        this.saveTodos();
+        this.render();
+        this.updateStats();
+    }
+
+    deleteSelectedTodos() {
+        this.todos = this.todos.filter(t => !this.selectedTodos.has(t.id));
+        this.clearSelection();
+        this.saveTodos();
+        this.render();
+        this.updateStats();
+    }
+
+    // Drag and drop
+    initDragAndDrop() {
+        const todoItems = document.querySelectorAll('.todo-item');
+        
+        todoItems.forEach(item => {
+            item.draggable = true;
+            
+            item.addEventListener('dragstart', (e) => {
+                this.draggedElement = item;
+                item.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+            
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+                this.clearDropZones();
+                this.draggedElement = null;
+            });
+            
+            item.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                
+                if (this.draggedElement && this.draggedElement !== item) {
+                    const rect = item.getBoundingClientRect();
+                    const midY = rect.top + rect.height / 2;
+                    const insertAfter = e.clientY > midY;
+                    
+                    this.showDropZone(item, insertAfter);
+                }
+            });
+            
+            item.addEventListener('drop', (e) => {
+                e.preventDefault();
+                
+                if (this.draggedElement && this.draggedElement !== item) {
+                    const draggedId = this.draggedElement.dataset.id;
+                    const targetId = item.dataset.id;
+                    
+                    this.reorderTodos(draggedId, targetId, e.clientY > item.getBoundingClientRect().top + item.getBoundingClientRect().height / 2);
+                }
+            });
+        });
+    }
+
+    showDropZone(item, insertAfter) {
+        this.clearDropZones();
+        
+        const dropZone = document.createElement('div');
+        dropZone.className = 'drop-zone active';
+        
+        if (insertAfter) {
+            item.parentNode.insertBefore(dropZone, item.nextSibling);
+        } else {
+            item.parentNode.insertBefore(dropZone, item);
+        }
+        
+        this.dropZones.push(dropZone);
+    }
+
+    clearDropZones() {
+        this.dropZones.forEach(zone => zone.remove());
+        this.dropZones = [];
+    }
+
+    reorderTodos(draggedId, targetId, insertAfter) {
+        const draggedIndex = this.todos.findIndex(t => t.id === draggedId);
+        const targetIndex = this.todos.findIndex(t => t.id === targetId);
+        
+        if (draggedIndex === -1 || targetIndex === -1) return;
+        
+        const [draggedTodo] = this.todos.splice(draggedIndex, 1);
+        const newTargetIndex = draggedIndex < targetIndex ? targetIndex - 1 : targetIndex;
+        const insertIndex = insertAfter ? newTargetIndex + 1 : newTargetIndex;
+        
+        this.todos.splice(insertIndex, 0, draggedTodo);
+        
+        this.saveTodos();
+        this.render();
+    }
+
+    // Filtering
+    getFilteredTodos() {
+        switch (this.currentFilter) {
+            case 'completed':
+                return this.todos.filter(todo => todo.completed);
+            case 'pending':
+                return this.todos.filter(todo => !todo.completed);
+            default:
+                return this.todos;
+        }
+    }
+
+    updateFilterButtons() {
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.filter === this.currentFilter);
+        });
+    }
+
+    // UI Updates
+    render() {
+        const todoList = document.getElementById('todoList');
+        const emptyState = document.getElementById('emptyState');
+        const filteredTodos = this.getFilteredTodos();
+        
+        if (filteredTodos.length === 0) {
+            todoList.style.display = 'none';
+            emptyState.style.display = 'block';
+            return;
+        }
+        
+        todoList.style.display = 'flex';
+        emptyState.style.display = 'none';
+        
+        todoList.innerHTML = filteredTodos.map(todo => this.createTodoHTML(todo)).join('');
+        
+        // Bind events for new elements
+        this.bindTodoEvents();
+        this.initDragAndDrop();
+        this.updateTodoSelection();
+    }
+
+    createTodoHTML(todo) {
+        return `
+            <div class="todo-item ${todo.completed ? 'completed' : ''}" data-id="${todo.id}">
+                <div class="todo-content">
+                    <div class="todo-checkbox ${todo.completed ? 'checked' : ''}" data-id="${todo.id}">
+                        ${todo.completed ? '✓' : ''}
+                    </div>
+                    <span class="todo-text">${this.escapeHtml(todo.text)}</span>
+                    <div class="todo-actions">
+                        <button class="todo-btn move-btn move-up" data-id="${todo.id}" title="Fel">
+                            ▲
+                        </button>
+                        <button class="todo-btn move-btn move-down" data-id="${todo.id}" title="Le">
+                            ▼
+                        </button>
+                        <button class="todo-btn delete-btn" data-id="${todo.id}" title="Törlés">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    bindTodoEvents() {
+        // Checkbox events
+        document.querySelectorAll('.todo-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', (e) => {
+                const id = e.target.dataset.id;
+                this.toggleTodo(id);
+            });
+        });
+
+        // Move buttons
+        document.querySelectorAll('.move-up').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = e.target.dataset.id;
+                this.moveTodoUp(id);
+            });
+        });
+
+        document.querySelectorAll('.move-down').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = e.target.dataset.id;
+                this.moveTodoDown(id);
+            });
+        });
+
+        // Delete buttons
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = e.target.dataset.id;
+                this.deleteTodo(id);
+            });
+        });
+
+        // Item selection (Ctrl+click)
+        document.querySelectorAll('.todo-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    const id = item.dataset.id;
+                    this.toggleSelection(id);
+                }
+            });
+        });
+    }
+
+    updateStats() {
+        const total = this.todos.length;
+        const completed = this.todos.filter(t => t.completed).length;
+        const pending = total - completed;
+
+        document.getElementById('totalTasks').textContent = total;
+        document.getElementById('completedTasks').textContent = completed;
+        document.getElementById('pendingTasks').textContent = pending;
+    }
+
+    updateBulkActions() {
+        const bulkActions = document.getElementById('bulkActions');
+        const selectedCount = document.getElementById('selectedCount');
+        
+        if (this.selectedTodos.size > 0) {
+            bulkActions.style.display = 'block';
+            selectedCount.textContent = `${this.selectedTodos.size} kiválasztva`;
+        } else {
+            bulkActions.style.display = 'none';
+        }
+    }
+
+    updateTodoSelection() {
+        document.querySelectorAll('.todo-item').forEach(item => {
+            const isSelected = this.selectedTodos.has(item.dataset.id);
+            item.style.transform = isSelected ? 'translateX(8px) scale(0.98)' : '';
+            item.style.background = isSelected ? 'var(--shadow-light)' : '';
+        });
+    }
+
+    // Modal management
+    showConfirmModal(message, action) {
+        const modal = document.getElementById('confirmModal');
+        const messageElement = document.getElementById('confirmMessage');
+        
+        messageElement.textContent = message;
+        modal.classList.add('show');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        
+        this.pendingAction = action;
+    }
+
+    hideConfirmModal() {
+        const modal = document.getElementById('confirmModal');
+        modal.classList.remove('show');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        
+        this.pendingAction = null;
+    }
+
+    // Utility methods
+    saveTodos() {
+        localStorage.setItem('todos', JSON.stringify(this.todos));
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+}
+
+// Initialize the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    new TodoApp();
+});
+
+// Service Worker registration for offline functionality
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+                console.log('SW registered: ', registration);
+            })
+            .catch(registrationError => {
+                console.log('SW registration failed: ', registrationError);
+            });
+    });
+}
