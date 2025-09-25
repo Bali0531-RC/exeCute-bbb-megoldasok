@@ -3,73 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exe cute csapat weboldal</title>
+    <title>ExE Cute - Csapat Weboldal</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .role-description {
-            font-size: 0.8em;
-            color: gray;
-        }
-        .member-widget {
-            margin-top: 20px; /* Adjust this value as needed */
-        }
-        .member-widget.adjusted {
-            margin-top: 0; /* Adjust this value as needed */
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <button id="openOverlay">Képek</button>
-        <button id="visszaGomb">Vissza</button>
-    </header>
+    <nav class="sidebar">
+        <button id="openOverlay" class="nav-btn">
+            <span class="icon">📸</span>
+            Galéria
+        </button>
+        <button id="visszaGomb" class="nav-btn">
+            <span class="icon">🏠</span>
+            Vissza
+        </button>
+        <button id="themeToggle" class="nav-btn">
+            <span class="icon">🌙</span>
+            Téma
+        </button>
+    </nav>
 
-    <main>
-        <h1>ExE Cute</h1>
+    <main class="main-content">
+        <header class="page-header">
+            <h1 class="team-title">ExE Cute</h1>
+            <div class="clock-widget">
+                <span class="clock-label">Aktuális idő:</span>
+                <div id="current-time" class="current-time"></div>
+            </div>
+        </header>
         
-        <!-- Tagok -->
-        <h2>Tagok:</h2>
-        <div class="member-widget">
-            <img src="./zsir.png" alt="Tag 1 képe">
-            <strong>Zsiros Márton</strong>
-            <p class="role-description">Szobanövény</p>
-            <button onclick="toggleIntro('intro1')">Bemutatkozás</button>
-            <p id="intro1" style="display: none;">Zsiros Márton vagyok, a csapat központi egysége. A feladatköröm, hogy dísz legyek. Általában szobanövényt alakítok, de a jelenlegi versenyben más biodíszlet leszek</p>
-        </div>
-        <div class="member-widget adjusted">
-            <img src="./bali.png" alt="Tag 2 képe">
-            <strong>Turi Balázs</strong>
-            <p class="role-description">Fejlesztő</p>
-            <button onclick="toggleIntro('intro2')">Bemutatkozás</button>
-            <p id="intro2" style="display: none;">Szia! Én Balázs vagyok, 13 éves koromban kezdtem el programozással foglalkozni, és azóta fejlesztem magam. A csapatban egyedül én tudok programozni...</p>
-        </div>
-        <div class="member-widget">
-            <img src="./fules.png" alt="Tag 3 képe">
-            <strong>Horváth Marcell</strong>
-            <p class="role-description">Lelki Support</p>
-            <button onclick="toggleIntro('intro3')">Bemutatkozás</button>
-            <p id="intro3" style="display: none;">Üdv, H. Marcell vagyok. Én a csapat supportja vagyok. Az én feladatom az, hogy mondjam: "Ne Úgy" és emellett hogy meglegyen a létszám.</p>
-        </div>
+        <section class="team-section">
+            <h2 class="section-title">Csapattagok</h2>
+            <div class="members-grid">
+                <article class="member-card">
+                    <div class="member-avatar">
+                        <img src="./zsir.png" alt="Zsiros Márton profilképe" loading="lazy">
+                    </div>
+                    <div class="member-info">
+                        <h3 class="member-name">Zsiros Márton</h3>
+                        <span class="member-role">Szobanövény</span>
+                        <button class="intro-toggle" data-target="intro1">
+                            <span class="button-text">Bemutatkozás</span>
+                            <span class="button-icon">▼</span>
+                        </button>
+                        <div id="intro1" class="member-intro">
+                            <p>Zsiros Márton vagyok, a csapat központi egysége. A feladatköröm, hogy dísz legyek. Általában szobanövényt alakítok, de a jelenlegi versenyben más biodíszlet leszek.</p>
+                        </div>
+                    </div>
+                </article>
+                
+                <article class="member-card">
+                    <div class="member-avatar">
+                        <img src="./bali.png" alt="Turi Balázs profilképe" loading="lazy">
+                    </div>
+                    <div class="member-info">
+                        <h3 class="member-name">Turi Balázs</h3>
+                        <span class="member-role">Fejlesztő</span>
+                        <button class="intro-toggle" data-target="intro2">
+                            <span class="button-text">Bemutatkozás</span>
+                            <span class="button-icon">▼</span>
+                        </button>
+                        <div id="intro2" class="member-intro">
+                            <p>Szia! Én Balázs vagyok, 13 éves koromban kezdtem el programozással foglalkozni, és azóta fejlesztem magam. A csapatban egyedül én tudok programozni...</p>
+                        </div>
+                    </div>
+                </article>
+                
+                <article class="member-card">
+                    <div class="member-avatar">
+                        <img src="./fules.png" alt="Horváth Marcell profilképe" loading="lazy">
+                    </div>
+                    <div class="member-info">
+                        <h3 class="member-name">Horváth Marcell</h3>
+                        <span class="member-role">Lelki Support</span>
+                        <button class="intro-toggle" data-target="intro3">
+                            <span class="button-text">Bemutatkozás</span>
+                            <span class="button-icon">▼</span>
+                        </button>
+                        <div id="intro3" class="member-intro">
+                            <p>Üdv, H. Marcell vagyok. Én a csapat supportja vagyok. Az én feladatom az, hogy mondjam: "Ne Úgy" és emellett hogy meglegyen a létszám.</p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
     </main>
     
-    <!-- Overlay a képek megjelenítéséhez -->
-    <div id="imageOverlay" class="overlay" style="display: none;">
-        <div class="overlay-content">
-            <button id="closeOverlay" class="close-button">X</button>
-            <img id="overlayImage" src="" alt="Kép" style="width: 300px; height: auto;"/>
-            <button id="nextImage">Következő kép</button>
+    <!-- Modern képgaléria modal -->
+    <div id="imageOverlay" class="image-modal">
+        <div class="modal-backdrop" id="modalBackdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Galéria</h3>
+                <button id="closeOverlay" class="modal-close" aria-label="Bezárás">
+                    <span>✕</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <img id="overlayImage" src="" alt="Galéria kép" class="gallery-image"/>
+                <div class="image-counter">
+                    <span id="imageCounter">1 / 3</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="prevImage" class="gallery-btn" aria-label="Előző kép">
+                    <span>◀ Előző</span>
+                </button>
+                <button id="nextImage" class="gallery-btn" aria-label="Következő kép">
+                    <span>Következő ▶</span>
+                </button>
+            </div>
         </div>
     </div>
 
-    
-    <footer>
-        <div>
-            <span>Felkészítő tanár: Kovács Árpád</span>
-            <span>Iskola: Szombathelyi Nagy Lajos Gimnázium</span>
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-item">
+                <span class="footer-label">Felkészítő tanár:</span>
+                <span class="footer-value">Kovács Árpád</span>
+            </div>
+            <div class="footer-item">
+                <span class="footer-label">Iskola:</span>
+                <span class="footer-value">Szombathelyi Nagy Lajos Gimnázium</span>
+            </div>
         </div>
     </footer>
-    
-    <div id="current-time"></div>
     
     <script src="script.js"></script>
 </body>
