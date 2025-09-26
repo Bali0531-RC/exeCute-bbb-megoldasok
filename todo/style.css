@@ -30,13 +30,16 @@
     --text-primary: #0f172a;
     --text-secondary: #1f2937;
     --text-muted: #4b5563;
-    --bg-primary: #f5f7fb;
-    --bg-secondary: #e8edf7;
-    --bg-card: #ffffff;
-    --border-color: #d4d9e3;
+    --bg-primary: #f1f5f9;
+    --bg-secondary: #e2e8f0;
+    --bg-card: #f8fafc;
+    --border-color: #cbd5e1;
     --shadow-light: rgba(15, 118, 110, 0.08);
     --shadow-medium: rgba(15, 23, 42, 0.12);
     --shadow-heavy: rgba(15, 23, 42, 0.18);
+    --accent-color: #16a34a;
+    --gradient-primary: linear-gradient(135deg, #67e8f9 0%, #22d3ee 45%, #0ea5e9 100%);
+    --gradient-accent: linear-gradient(135deg, #bbf7d0 0%, #4ade80 50%, #16a34a 100%);
 }
 
 /* Reset and base styles */
