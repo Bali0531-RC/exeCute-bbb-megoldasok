@@ -20,20 +20,64 @@ class TeamWebsite {
     // Modern clock with better formatting
     initClock() {
         const clockElement = document.getElementById('current-time');
-        
+        if (!clockElement) return;
+
+    this.clockBases = [2, 10];
+    this.clockBaseIndex = 0;
+
+        clockElement.setAttribute('role', 'button');
+        clockElement.setAttribute('tabindex', '0');
+
         const updateTime = () => {
-            const now = new Date();
-            const options = {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            };
-            clockElement.textContent = now.toLocaleTimeString('hu-HU', options);
+            const base = this.clockBases[this.clockBaseIndex];
+            const formatted = this.formatClockTime(base);
+            const baseLabel = this.getBaseLabel(base);
+            clockElement.textContent = formatted;
+            clockElement.dataset.baseLabel = `${baseLabel}`;
+            clockElement.title = `Kattints a számrendszer váltásához (aktuális: ${baseLabel})`;
+            clockElement.setAttribute('aria-label', `Aktuális idő: ${formatted} – ${baseLabel}. Kattints vagy nyomd meg az Enter / Szóköz billentyűt a váltáshoz.`);
         };
+
+        clockElement.addEventListener('click', () => {
+            this.clockBaseIndex = (this.clockBaseIndex + 1) % this.clockBases.length;
+            updateTime();
+        });
+
+        clockElement.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                this.clockBaseIndex = (this.clockBaseIndex + 1) % this.clockBases.length;
+                updateTime();
+            }
+        });
 
         updateTime();
         setInterval(updateTime, 1000);
+    }
+
+    formatClockTime(base) {
+        const now = new Date();
+        const hours = this.formatClockComponent(now.getHours(), base, 24);
+        const minutes = this.formatClockComponent(now.getMinutes(), base, 60);
+        const seconds = this.formatClockComponent(now.getSeconds(), base, 60);
+        return `${hours} : ${minutes} : ${seconds}`;
+    }
+
+    formatClockComponent(value, base, maxValue) {
+        if (base === 2) {
+            const length = Math.ceil(Math.log2(maxValue));
+            return value.toString(2).padStart(length, '0');
+        }
+
+        return value.toString(10).padStart(2, '0');
+    }
+
+    getBaseLabel(base) {
+        if (base === 2) {
+            return '2-es (bináris)';
+        }
+
+        return '10-es';
     }
 
     // Enhanced image gallery with better UX
