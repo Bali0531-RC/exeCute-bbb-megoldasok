@@ -1,21 +1,23 @@
 :root {
-    --primary-color: #667eea;
-    --secondary-color: #764ba2;
-    --accent-color: #f093fb;
-    --text-primary: #ffffff;
-    --text-secondary: #b8c5d6;
-    --text-muted: #8892b0;
-    --bg-primary: #0a0e1a;
-    --bg-secondary: #1a1f36;
-    --bg-card: #1e2749;
-    --border-color: #2a3441;
-    --shadow-light: rgba(102, 126, 234, 0.1);
-    --shadow-heavy: rgba(0, 0, 0, 0.3);
-    --primary-gradient: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    --gradient-accent: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+    --primary-color: #0f766e;
+    --secondary-color: #22d3ee;
+    --accent-color: #a3ff12;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5f5;
+    --text-muted: #8b97b5;
+    --bg-primary: #050b1a;
+    --bg-secondary: #0f172a;
+    --bg-card: #15233d;
+    --border-color: #223352;
+    --shadow-light: rgba(34, 211, 238, 0.12);
+    --shadow-heavy: rgba(4, 12, 28, 0.7);
+    --shadow-lg: 0 12px 30px rgba(5, 18, 38, 0.45);
+    --primary-gradient: linear-gradient(140deg, #0f172a 0%, #0f766e 45%, #22d3ee 100%);
+    --gradient-primary: linear-gradient(140deg, #0f172a 0%, #0f766e 45%, #22d3ee 100%);
+    --gradient-accent: linear-gradient(140deg, #d4ff5e 0%, #7fff45 45%, #4ade80 100%);
     --border-radius: 16px;
-    --border-radius-small: 8px;
-    --transition-fast: 0.2s ease;
+    --border-radius-small: 10px;
+    --transition-fast: 0.18s ease;
     --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -144,14 +146,15 @@ body {
 }
 
 .btn-primary {
-    background: white;
-    color: var(--primary-color);
+    background: var(--gradient-accent);
+    color: #0b1120;
+    border: none;
 }
 
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(34, 211, 238, 0.12);
+    color: var(--secondary-color);
+    border: 1px solid rgba(34, 211, 238, 0.35);
 }
 
 .btn-primary:hover, .btn-secondary:hover {
@@ -186,6 +189,7 @@ body {
     background: var(--bg-card);
     border-radius: 0.75rem;
     padding: 0;
+    padding-bottom: 2rem;
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-heavy);
     transition: transform 0.3s, box-shadow 0.3s;
@@ -229,7 +233,7 @@ body {
 }
 
 .coming-soon .card-header {
-    background: linear-gradient(135deg, var(--text-muted), var(--border-color));
+    background: linear-gradient(140deg, rgba(203, 213, 225, 0.15), rgba(34, 51, 82, 0.6));
 }
 
 .feature-link.disabled {
@@ -258,7 +262,7 @@ body {
 }
 
 .feature-link:hover {
-    color: var(--secondary-color);
+    color: var(--accent-color);
 }
 
 .footer {
