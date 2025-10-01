@@ -1,11 +1,30 @@
 class TeamWebsite {
     constructor() {
-        this.images = ["N.png", "L.png", "G.png"];
+        this.images = [];
         this.currentImageIndex = 0;
         this.isTransitioning = false;
         this.theme = localStorage.getItem('theme') || 'dark';
         
+        this.loadImages();
         this.init();
+    }
+
+    loadImages() {
+        let imageIndex = 1;
+        const testImage = (index) => {
+            const img = new Image();
+            img.onload = () => {
+                this.images.push(`img${index}.jpeg`);
+                testImage(index + 1);
+            };
+            img.onerror = () => {
+                if (this.images.length === 0) {
+                    this.images = ["bali.png", "fules.png", "zsir.png"];
+                }
+            };
+            img.src = `img${index}.jpeg`;
+        };
+        testImage(imageIndex);
     }
 
     init() {
