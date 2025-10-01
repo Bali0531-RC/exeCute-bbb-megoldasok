@@ -229,12 +229,25 @@ class TodoApp {
                 this.draggedElement = item;
                 item.classList.add('dragging');
                 e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', item.innerHTML);
             });
             
-            item.addEventListener('dragend', () => {
+            item.addEventListener('dragend', (e) => {
                 item.classList.remove('dragging');
+                document.querySelectorAll('.todo-item').forEach(i => i.classList.remove('drag-over'));
                 this.clearDropZones();
                 this.draggedElement = null;
+            });
+            
+            item.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                if (this.draggedElement && this.draggedElement !== item) {
+                    item.classList.add('drag-over');
+                }
+            });
+            
+            item.addEventListener('dragleave', (e) => {
+                item.classList.remove('drag-over');
             });
             
             item.addEventListener('dragover', (e) => {
@@ -252,14 +265,35 @@ class TodoApp {
             
             item.addEventListener('drop', (e) => {
                 e.preventDefault();
+                e.stopPropagation();
+                
+                item.classList.remove('drag-over');
                 
                 if (this.draggedElement && this.draggedElement !== item) {
                     const draggedId = this.draggedElement.dataset.id;
                     const targetId = item.dataset.id;
                     
-                    this.reorderTodos(draggedId, targetId, e.clientY > item.getBoundingClientRect().top + item.getBoundingClientRect().height / 2);
+                    const rect = item.getBoundingClientRect();
+                    const midY = rect.top + rect.height / 2;
+                    const insertAfter = e.clientY > midY;
+                    
+                    this.reorderTodos(draggedId, targetId, insertAfter);
                 }
+                
+                this.clearDropZones();
             });
+        });
+        
+        // Also handle drop on the container
+        const todoList = document.getElementById('todoList');
+        todoList.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        });
+        
+        todoList.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
         });
     }
 
@@ -287,12 +321,19 @@ class TodoApp {
         const draggedIndex = this.todos.findIndex(t => t.id === draggedId);
         const targetIndex = this.todos.findIndex(t => t.id === targetId);
         
-        if (draggedIndex === -1 || targetIndex === -1) return;
+        if (draggedIndex === -1 || targetIndex === -1 || draggedIndex === targetIndex) return;
         
+        // Remove the dragged item
         const [draggedTodo] = this.todos.splice(draggedIndex, 1);
-        const newTargetIndex = draggedIndex < targetIndex ? targetIndex - 1 : targetIndex;
-        const insertIndex = insertAfter ? newTargetIndex + 1 : newTargetIndex;
         
+        // Calculate new target index after removal
+        let newTargetIndex = targetIndex;
+        if (draggedIndex < targetIndex) {
+            newTargetIndex = targetIndex - 1;
+        }
+        
+        // Insert at the correct position
+        const insertIndex = insertAfter ? newTargetIndex + 1 : newTargetIndex;
         this.todos.splice(insertIndex, 0, draggedTodo);
         
         this.saveTodos();
