@@ -1,0 +1,666 @@
+:root {
+    --primary-color: #0f766e;
+    --secondary-color: #22d3ee;
+    --accent-color: #a3ff12;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5f5;
+    --text-muted: #8b97b5;
+    --bg-primary: #050b1a;
+    --bg-secondary: #0f172a;
+    --bg-card: #15233d;
+    --border-color: #223352;
+    --shadow-light: rgba(34, 211, 238, 0.12);
+    --shadow-heavy: rgba(4, 12, 28, 0.7);
+    --shadow-lg: 0 12px 30px rgba(5, 18, 38, 0.45);
+    --primary-gradient: linear-gradient(140deg, #0f172a 0%, #0f766e 45%, #22d3ee 100%);
+    --gradient-primary: linear-gradient(140deg, #0f172a 0%, #0f766e 45%, #22d3ee 100%);
+    --gradient-accent: linear-gradient(140deg, #d4ff5e 0%, #7fff45 45%, #4ade80 100%);
+    --border-radius: 16px;
+    --border-radius-small: 10px;
+    --transition-fast: 0.18s ease;
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+}
+
+.navbar {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-logo h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.year-badge {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-link:hover {
+    color: var(--primary-color);
+}
+
+.main {
+    min-height: calc(100vh - 200px);
+}
+
+.hero {
+    background: var(--primary-gradient);
+    color: white;
+    text-align: center;
+    padding: 4rem 0;
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.hero-competition {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--accent-color);
+    opacity: 0.9;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.8;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 600;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.btn-primary {
+    background: var(--gradient-accent);
+    color: #0b1120;
+    border: none;
+}
+
+.btn-secondary {
+    background: rgba(34, 211, 238, 0.12);
+    color: var(--secondary-color);
+    border: 1px solid rgba(34, 211, 238, 0.35);
+}
+
+.btn-primary:hover, .btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.features {
+    padding: 4rem 0;
+}
+
+.features-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 3rem;
+}
+
+.timeline-progress {
+    max-width: 600px;
+    margin: 0 auto 4rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--border-color);
+    border-radius: 2px;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--gradient-primary);
+    border-radius: 2px;
+    transition: width 0.5s ease;
+}
+
+.progress-stages {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+}
+
+.stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stage-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 3px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.stage.active .stage-dot {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 20px var(--shadow-light);
+}
+
+.stage.completed .stage-dot {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.stage-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.stage.active .stage-label {
+    color: var(--primary-color);
+}
+
+.stage.completed .stage-label {
+    color: var(--accent-color);
+}
+
+.round-section {
+    margin-bottom: 4rem;
+}
+
+.round-title {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.round-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.round-name {
+    font-size: 2rem;
+    font-weight: 700;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.round-subtitle {
+    font-size: 1rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-left: auto;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.feature-card {
+    background: var(--bg-card);
+    border-radius: 0.75rem;
+    padding: 0;
+    padding-bottom: 2rem;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-heavy);
+    transition: transform 0.3s, box-shadow 0.3s;
+    overflow: hidden;
+    position: relative;
+}
+
+.feature-card:hover:not(.coming-soon):not(.upcoming):not(.locked) {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-light);
+}
+
+.feature-card.completed {
+    border-color: rgba(163, 255, 18, 0.3);
+}
+
+.feature-card.completed::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-accent);
+}
+
+.feature-card.upcoming {
+    opacity: 0.85;
+}
+
+.feature-card.locked {
+    opacity: 0.6;
+}
+
+.card-header {
+    background: var(--primary-gradient);
+    padding: 1rem 2rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.card-date {
+    padding: 0 2rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.round-badge {
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.round-badge.upcoming {
+    opacity: 0.8;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-badge.completed {
+    background: rgba(163, 255, 18, 0.2);
+    color: var(--accent-color);
+}
+
+.status-badge.upcoming {
+    background: rgba(34, 211, 238, 0.2);
+    color: var(--secondary-color);
+}
+
+.status-badge.locked {
+    background: rgba(139, 151, 181, 0.2);
+    color: var(--text-muted);
+}
+
+.feature-card h3,
+.feature-card p {
+    padding: 0 2rem;
+}
+
+.feature-card .feature-link {
+    display: block;
+    padding: 0 2rem 2rem;
+}
+
+.coming-soon {
+    opacity: 0.7;
+    position: relative;
+}
+
+.coming-soon .card-header,
+.upcoming .card-header {
+    background: linear-gradient(140deg, rgba(203, 213, 225, 0.15), rgba(34, 51, 82, 0.6));
+}
+
+.locked .card-header {
+    background: linear-gradient(140deg, rgba(100, 116, 139, 0.2), rgba(34, 51, 82, 0.5));
+}
+
+.feature-link.disabled {
+    color: var(--text-muted);
+    cursor: not-allowed;
+    text-decoration: none;
+}
+
+.feature-card h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.feature-card p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.feature-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.feature-link:hover {
+    color: var(--accent-color);
+}
+
+.footer {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    text-align: center;
+    padding: 2rem 0;
+    margin-top: 4rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 0 1rem;
+    }
+    
+    .nav-logo {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .nav-logo h1 {
+        font-size: 1.25rem;
+    }
+    
+    .year-badge {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.4rem;
+    }
+    
+    .nav-links {
+        width: 100%;
+        justify-content: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    
+    .nav-link {
+        font-size: 0.875rem;
+        padding: 0.5rem 0.75rem;
+        background: var(--bg-card);
+        border-radius: var(--border-radius-small);
+    }
+    
+    .hero {
+        padding: 3rem 0;
+    }
+    
+    .hero-content {
+        padding: 0 1.5rem;
+    }
+    
+    .hero-title {
+        font-size: 1.75rem;
+        line-height: 1.2;
+    }
+    
+    .hero-competition {
+        font-size: 1.1rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 0.875rem 1.5rem;
+        text-align: center;
+    }
+    
+    .features {
+        padding: 2rem 0;
+    }
+    
+    .features-container {
+        padding: 0 1rem;
+    }
+    
+    .section-title {
+        font-size: 1.75rem;
+        margin-bottom: 2rem;
+    }
+    
+    .timeline-progress {
+        margin-bottom: 3rem;
+    }
+    
+    .stage-label {
+        font-size: 0.75rem;
+    }
+    
+    .round-section {
+        margin-bottom: 3rem;
+    }
+    
+    .round-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .round-number,
+    .round-name {
+        font-size: 1.5rem;
+    }
+    
+    .round-subtitle {
+        margin-left: 0;
+        font-size: 0.875rem;
+    }
+    
+    .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .card-header {
+        padding: 0.875rem 1.25rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .card-date {
+        padding: 0 1.25rem;
+        font-size: 0.8rem;
+    }
+    
+    .feature-card h3,
+    .feature-card p,
+    .feature-card .feature-link {
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+    }
+    
+    .feature-card h3 {
+        font-size: 1.25rem;
+    }
+    
+    .footer {
+        margin-top: 2rem;
+        padding: 1.5rem 0;
+    }
+    
+    .footer-content {
+        padding: 0 1rem;
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 1.5rem;
+    }
+    
+    .hero-competition {
+        font-size: 1rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+    }
+    
+    .nav-logo h1 {
+        font-size: 1.1rem;
+    }
+    
+    .timeline-progress {
+        margin-bottom: 2rem;
+    }
+    
+    .progress-stages {
+        padding: 0 0.5rem;
+    }
+    
+    .stage-dot {
+        width: 12px;
+        height: 12px;
+        border-width: 2px;
+    }
+    
+    .stage-label {
+        font-size: 0.7rem;
+    }
+    
+    .round-number,
+    .round-name {
+        font-size: 1.25rem;
+    }
+    
+    .round-subtitle {
+        font-size: 0.8rem;
+    }
+    
+    .card-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .status-badge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.6rem;
+    }
+    
+    .card-date {
+        padding: 0 1rem;
+        font-size: 0.75rem;
+    }
+    
+    .feature-card h3,
+    .feature-card p,
+    .feature-card .feature-link {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}

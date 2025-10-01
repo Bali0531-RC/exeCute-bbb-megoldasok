@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExeCute - Csapat Bemutatkozó</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="sidebar">
+        <button id="openOverlay" class="nav-btn">
+            <span class="icon">📸</span>
+            Galéria
+        </button>
+        <button id="visszaGomb" class="nav-btn">
+            <span class="icon">🏠</span>
+            Vissza
+        </button>
+        <button id="themeToggle" class="nav-btn">
+            <span class="icon">🌙</span>
+            Téma
+        </button>
+    </nav>
+
+    <main class="main-content">
+        <header class="page-header">
+            <h1 class="team-title">ExeCute</h1>
+            <div class="clock-widget">
+                <span class="clock-label">Aktuális idő:</span>
+                <div id="current-time" class="current-time"></div>
+            </div>
+        </header>
+        
+        <section class="team-section">
+            <h2 class="section-title">Csapattagok</h2>
+            <div class="members-grid">
+                <article class="member-card">
+                    <div class="member-avatar">
+                        <img src="./zsir.png" alt="Zsiros Márton profilképe" loading="lazy">
+                    </div>
+                    <div class="member-info">
+                        <h3 class="member-name">Zsiros Márton</h3>
+                        <span class="member-role">UI/UX Designer</span>
+                        <button class="intro-toggle" data-target="intro1">
+                            <span class="button-text">Bemutatkozás</span>
+                            <span class="button-icon">▼</span>
+                        </button>
+                        <div id="intro1" class="member-intro">
+                            <p>A csapatban a vizuális tervezésért és felhasználói felületek kialakításáért felelős vagyok. Modern, könnyen használható weboldalakat tervezek.</p>
+                        </div>
+                    </div>
+                </article>
+                
+                <article class="member-card">
+                    <div class="member-avatar">
+                        <img src="./bali.png" alt="Turi Balázs profilképe" loading="lazy">
+                    </div>
+                    <div class="member-info">
+                        <h3 class="member-name">Turi Balázs</h3>
+                        <span class="member-role">Főfejlesztő & Team Lead</span>
+                        <button class="intro-toggle" data-target="intro2">
+                            <span class="button-text">Bemutatkozás</span>
+                            <span class="button-icon">▼</span>
+                        </button>
+                        <div id="intro2" class="member-intro">
+                            <p>A csapat vezetője és főfejlesztő vagyok. Koordinálom a projekteket és végzem a fő fejlesztési feladatokat. Webes felületekkel és scripteléssel foglalkozok.</p>
+                        </div>
+                    </div>
+                </article>
+                
+                <article class="member-card">
+                    <div class="member-avatar">
+                        <img src="./fules.png" alt="Horváth Marcell profilképe" loading="lazy">
+                    </div>
+                    <div class="member-info">
+                        <h3 class="member-name">Horváth Marcell</h3>
+                        <span class="member-role">QA Tesztelő</span>
+                        <button class="intro-toggle" data-target="intro3">
+                            <span class="button-text">Bemutatkozás</span>
+                            <span class="button-icon">▼</span>
+                        </button>
+                        <div id="intro3" class="member-intro">
+                            <p>A csapatban a tesztelésért vagyok felelős. Hibák felderítése és a projektek megbízható működésének ellenőrzése a feladatom.</p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+    
+    <div id="imageOverlay" class="image-modal">
+        <div class="modal-backdrop" id="modalBackdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Galéria</h3>
+                <button id="closeOverlay" class="modal-close" aria-label="Bezárás">
+                    <span>✕</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <button id="prevImage" class="nav-arrow nav-prev" aria-label="Előző kép">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                
+                <div class="image-container">
+                    <img id="overlayImage" src="" alt="Galéria kép" class="gallery-image"/>
+                    <div class="image-counter">
+                        <span id="imageCounter">1 / 3</span>
+                    </div>
+                </div>
+                
+                <button id="nextImage" class="nav-arrow nav-next" aria-label="Következő kép">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-item">
+                <span class="footer-label">Felkészítő tanár:</span>
+                <span class="footer-value">Kovács Árpád</span>
+            </div>
+            <div class="footer-item">
+                <span class="footer-label">Iskola:</span>
+                <span class="footer-value">Szombathelyi Nagy Lajos Gimnázium</span>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="script.js"></script>
+</body>
+</html>
