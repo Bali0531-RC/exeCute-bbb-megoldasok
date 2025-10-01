@@ -220,81 +220,90 @@ class TodoApp {
 
     // Drag and drop
     initDragAndDrop() {
+        const todoList = document.getElementById('todoList');
         const todoItems = document.querySelectorAll('.todo-item');
         
         todoItems.forEach(item => {
-            item.draggable = true;
+            item.setAttribute('draggable', 'true');
             
+            // Drag start
             item.addEventListener('dragstart', (e) => {
                 this.draggedElement = item;
+                this.draggedId = item.dataset.id;
                 item.classList.add('dragging');
                 e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/html', item.innerHTML);
+                e.dataTransfer.setData('text/plain', item.dataset.id);
             });
             
+            // Drag end
             item.addEventListener('dragend', (e) => {
                 item.classList.remove('dragging');
-                document.querySelectorAll('.todo-item').forEach(i => i.classList.remove('drag-over'));
-                this.clearDropZones();
+                document.querySelectorAll('.todo-item').forEach(i => {
+                    i.classList.remove('drag-over');
+                    i.style.borderTop = '';
+                    i.style.borderBottom = '';
+                });
                 this.draggedElement = null;
+                this.draggedId = null;
             });
             
-            item.addEventListener('dragenter', (e) => {
-                e.preventDefault();
-                if (this.draggedElement && this.draggedElement !== item) {
-                    item.classList.add('drag-over');
-                }
-            });
-            
-            item.addEventListener('dragleave', (e) => {
-                item.classList.remove('drag-over');
-            });
-            
+            // Drag over
             item.addEventListener('dragover', (e) => {
                 e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
                 
-                if (this.draggedElement && this.draggedElement !== item) {
-                    const rect = item.getBoundingClientRect();
-                    const midY = rect.top + rect.height / 2;
-                    const insertAfter = e.clientY > midY;
-                    
-                    this.showDropZone(item, insertAfter);
+                if (!this.draggedElement || this.draggedElement === item) return;
+                
+                const bounding = item.getBoundingClientRect();
+                const offset = e.clientY - bounding.top;
+                
+                // Clear all borders first
+                document.querySelectorAll('.todo-item').forEach(i => {
+                    i.style.borderTop = '';
+                    i.style.borderBottom = '';
+                });
+                
+                if (offset > bounding.height / 2) {
+                    item.style.borderBottom = '2px solid var(--primary-color)';
+                } else {
+                    item.style.borderTop = '2px solid var(--primary-color)';
                 }
             });
             
+            // Drop
             item.addEventListener('drop', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 
-                item.classList.remove('drag-over');
+                if (!this.draggedElement || this.draggedElement === item) return;
                 
-                if (this.draggedElement && this.draggedElement !== item) {
-                    const draggedId = this.draggedElement.dataset.id;
-                    const targetId = item.dataset.id;
-                    
-                    const rect = item.getBoundingClientRect();
-                    const midY = rect.top + rect.height / 2;
-                    const insertAfter = e.clientY > midY;
-                    
-                    this.reorderTodos(draggedId, targetId, insertAfter);
-                }
+                const draggedId = this.draggedId;
+                const targetId = item.dataset.id;
                 
-                this.clearDropZones();
+                const bounding = item.getBoundingClientRect();
+                const offset = e.clientY - bounding.top;
+                const insertAfter = offset > bounding.height / 2;
+                
+                // Clear visual feedback
+                document.querySelectorAll('.todo-item').forEach(i => {
+                    i.style.borderTop = '';
+                    i.style.borderBottom = '';
+                });
+                
+                // Perform reorder
+                this.reorderTodos(draggedId, targetId, insertAfter);
             });
         });
         
-        // Also handle drop on the container
-        const todoList = document.getElementById('todoList');
-        todoList.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-        });
-        
-        todoList.addEventListener('drop', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-        });
+        // Prevent default drag behavior on container
+        if (todoList) {
+            todoList.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+            
+            todoList.addEventListener('drop', (e) => {
+                e.preventDefault();
+            });
+        }
     }
 
     showDropZone(item, insertAfter) {
@@ -327,10 +336,7 @@ class TodoApp {
         const [draggedTodo] = this.todos.splice(draggedIndex, 1);
         
         // Calculate new target index after removal
-        let newTargetIndex = targetIndex;
-        if (draggedIndex < targetIndex) {
-            newTargetIndex = targetIndex - 1;
-        }
+        let newTargetIndex = this.todos.findIndex(t => t.id === targetId);
         
         // Insert at the correct position
         const insertIndex = insertAfter ? newTargetIndex + 1 : newTargetIndex;
