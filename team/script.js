@@ -17,7 +17,6 @@ class TeamWebsite {
         this.initResponsive();
     }
 
-    // Modern clock with better formatting
     initClock() {
         const clockElement = document.getElementById('current-time');
         if (!clockElement) return;
@@ -80,7 +79,6 @@ class TeamWebsite {
         return '10-es';
     }
 
-    // Enhanced image gallery with better UX
     initImageGallery() {
         const modal = document.getElementById('imageOverlay');
         const openBtn = document.getElementById('openOverlay');
@@ -96,7 +94,6 @@ class TeamWebsite {
         nextBtn?.addEventListener('click', () => this.nextImage());
         prevBtn?.addEventListener('click', () => this.prevImage());
 
-        // Keyboard navigation
         document.addEventListener('keydown', (e) => {
             if (modal.classList.contains('show')) {
                 if (e.key === 'Escape') {
@@ -128,13 +125,13 @@ class TeamWebsite {
     }
 
     nextImage() {
-        if (this.isTransitioning) return; // Prevent multiple clicks during transition
+        if (this.isTransitioning) return;
         this.currentImageIndex = (this.currentImageIndex + 1) % this.images.length;
         this.showCurrentImage();
     }
 
     prevImage() {
-        if (this.isTransitioning) return; // Prevent multiple clicks during transition
+        if (this.isTransitioning) return;
         this.currentImageIndex = (this.currentImageIndex - 1 + this.images.length) % this.images.length;
         this.showCurrentImage();
     }
@@ -143,13 +140,10 @@ class TeamWebsite {
         const imgElement = document.getElementById('overlayImage');
         const counter = document.getElementById('imageCounter');
         
-        // Set transitioning flag
         this.isTransitioning = true;
         
-        // Create new image element to preload
         const newImg = new Image();
         newImg.onload = () => {
-            // Quick fade transition
             imgElement.style.opacity = '0';
             
             setTimeout(() => {
@@ -157,18 +151,15 @@ class TeamWebsite {
                 counter.textContent = `${this.currentImageIndex + 1} / ${this.images.length}`;
                 imgElement.style.opacity = '1';
                 
-                // Reset transitioning flag after animation
                 setTimeout(() => {
                     this.isTransitioning = false;
                 }, 200);
             }, 100);
         };
         
-        // Start loading the new image
         newImg.src = this.images[this.currentImageIndex];
     }
 
-    // Enhanced member card interactions
     initMemberCards() {
         const toggleButtons = document.querySelectorAll('.intro-toggle');
         
@@ -182,7 +173,6 @@ class TeamWebsite {
                 if (targetIntro) {
                     const isVisible = targetIntro.classList.contains('show');
                     
-                    // Close all other intros
                     document.querySelectorAll('.member-intro').forEach(intro => {
                         intro.classList.remove('show');
                     });
@@ -199,7 +189,6 @@ class TeamWebsite {
         });
     }
 
-    // Theme switching functionality
     initTheme() {
         const themeToggle = document.getElementById('themeToggle');
         this.applyTheme(this.theme);
@@ -219,7 +208,6 @@ class TeamWebsite {
         }
     }
 
-    // Navigation handling
     initNavigation() {
         const backButton = document.getElementById('visszaGomb');
         backButton?.addEventListener('click', (e) => {
@@ -228,11 +216,9 @@ class TeamWebsite {
         });
     }
 
-    // Mobile responsive functionality
     initResponsive() {
         this.createMobileMenuToggle();
         
-        // Handle window resize
         window.addEventListener('resize', () => {
             if (window.innerWidth > 768) {
                 this.closeMobileMenu();
@@ -241,22 +227,18 @@ class TeamWebsite {
     }
 
     createMobileMenuToggle() {
-        // Check if toggle button already exists
         if (document.querySelector('.mobile-menu-toggle')) return;
         
-        // Create mobile menu toggle button
         const toggleBtn = document.createElement('button');
         toggleBtn.className = 'mobile-menu-toggle';
         toggleBtn.innerHTML = '☰';
         toggleBtn.setAttribute('aria-label', 'Menü megnyitása');
         document.body.appendChild(toggleBtn);
         
-        // Create overlay
         const overlay = document.createElement('div');
         overlay.className = 'mobile-overlay';
         document.body.appendChild(overlay);
         
-        // Toggle sidebar on mobile
         toggleBtn.addEventListener('click', () => {
             this.toggleMobileMenu();
         });
@@ -265,7 +247,6 @@ class TeamWebsite {
             this.closeMobileMenu();
         });
         
-        // Close sidebar when clicking a navigation link
         const navButtons = document.querySelectorAll('.nav-btn');
         navButtons.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -310,19 +291,15 @@ class TeamWebsite {
     }
 
     initMobileMenu() {
-        // Deprecated - replaced by createMobileMenuToggle
         console.log('Mobile view initialized');
     }
 }
 
-// Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new TeamWebsite();
 });
 
-// Add some utility functions for better UX
 const Utils = {
-    // Smooth scroll utility
     smoothScrollTo: (element, duration = 800) => {
         element.scrollIntoView({
             behavior: 'smooth',
@@ -330,7 +307,6 @@ const Utils = {
         });
     },
 
-    // Debounce utility for performance
     debounce: (func, wait) => {
         let timeout;
         return function executedFunction(...args) {

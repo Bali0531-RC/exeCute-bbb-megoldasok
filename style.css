@@ -179,7 +179,6 @@ body {
     margin-bottom: 3rem;
 }
 
-/* Timeline Progress */
 .timeline-progress {
     max-width: 600px;
     margin: 0 auto 4rem;
@@ -248,7 +247,6 @@ body {
     color: var(--accent-color);
 }
 
-/* Round Sections */
 .round-section {
     margin-bottom: 4rem;
 }

@@ -1,4 +1,3 @@
-/* CSS Custom Properties */
 :root {
     --primary-color: #0f766e;
     --secondary-color: #22d3ee;
@@ -25,7 +24,6 @@
     --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Light theme */
 [data-theme="light"] {
     --text-primary: #0f172a;
     --text-secondary: #1f2937;
@@ -42,7 +40,6 @@
     --gradient-accent: linear-gradient(135deg, #bbf7d0 0%, #4ade80 50%, #16a34a 100%);
 }
 
-/* Reset and base styles */
 * {
     margin: 0;
     padding: 0;
@@ -64,7 +61,6 @@ body {
     flex-direction: column;
 }
 
-/* Top Navigation */
 .top-nav {
     background: var(--bg-secondary);
     backdrop-filter: blur(10px);
@@ -117,7 +113,6 @@ body {
     font-size: 1rem;
 }
 
-/* Main Content */
 .main-content {
     flex: 1;
     padding: 2rem;
@@ -126,7 +121,6 @@ body {
     width: 100%;
 }
 
-/* Add Todo Section */
 .add-todo-section {
     margin-bottom: 2rem;
 }
@@ -186,7 +180,6 @@ body {
     transform: translateY(0);
 }
 
-/* Statistics Section */
 .stats-section {
     margin-bottom: 2rem;
 }
@@ -228,7 +221,6 @@ body {
     font-weight: 500;
 }
 
-/* Filter Section */
 .filter-section {
     margin-bottom: 2rem;
 }
@@ -260,7 +252,6 @@ body {
     color: white;
 }
 
-/* Todo List */
 .todo-list-section {
     margin-bottom: 2rem;
 }
@@ -394,7 +385,6 @@ body {
     color: white;
 }
 
-/* Empty State */
 .empty-state {
     text-align: center;
     padding: 3rem 1rem;
@@ -413,7 +403,6 @@ body {
     color: var(--text-secondary);
 }
 
-/* Bulk Actions */
 .bulk-actions {
     position: fixed;
     bottom: 2rem;
@@ -558,7 +547,6 @@ body {
     box-shadow: 0 4px 12px var(--shadow-light);
 }
 
-/* Animations */
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -586,7 +574,6 @@ body {
     }
 }
 
-/* Drag and Drop Styles */
 .todo-item.drag-over {
     border-color: var(--primary-color);
     background: var(--shadow-light);
@@ -605,7 +592,6 @@ body {
     opacity: 1;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .main-content {
         padding: 1rem;

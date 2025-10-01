@@ -17,7 +17,6 @@ class TodoApp {
         this.updateStats();
     }
 
-    // Theme management
     initTheme() {
         this.applyTheme(this.theme);
         
@@ -37,9 +36,7 @@ class TodoApp {
         }
     }
 
-    // Event binding
     bindEvents() {
-        // Add todo
         const todoInput = document.getElementById('todoInput');
         const addButton = document.getElementById('addButton');
         
@@ -48,7 +45,6 @@ class TodoApp {
             if (e.key === 'Enter') this.addTodo();
         });
 
-        // Filter buttons
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 this.currentFilter = btn.dataset.filter;
@@ -57,12 +53,10 @@ class TodoApp {
             });
         });
 
-        // Back button
         document.getElementById('backButton')?.addEventListener('click', () => {
             window.location.href = '../index.html';
         });
 
-        // Bulk actions
         document.getElementById('completeSelected')?.addEventListener('click', () => {
             this.completeSelectedTodos();
         });
@@ -73,7 +67,6 @@ class TodoApp {
             });
         });
 
-        // Modal events
         document.getElementById('cancelAction')?.addEventListener('click', () => {
             this.hideConfirmModal();
         });
@@ -85,14 +78,13 @@ class TodoApp {
             }
         });
 
-        // Click outside modal to close
         document.getElementById('confirmModal')?.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal-backdrop')) {
                 this.hideConfirmModal();
             }
         });
 
-        // Keyboard shortcuts
+        // Ctrl+A: összes kiválasztása, Escape: kijelölés törlése
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey && e.key === 'a') {
                 e.preventDefault();
@@ -104,7 +96,6 @@ class TodoApp {
         });
     }
 
-    // Todo management
     addTodo() {
         const input = document.getElementById('todoInput');
         const text = input.value.trim();
@@ -127,7 +118,6 @@ class TodoApp {
         input.value = '';
         input.focus();
 
-        // Animation for new todo
         setTimeout(() => {
             const newTodoElement = document.querySelector(`[data-id="${todo.id}"]`);
             if (newTodoElement) {
@@ -173,7 +163,6 @@ class TodoApp {
         }
     }
 
-    // Selection management
     toggleSelection(id) {
         if (this.selectedTodos.has(id)) {
             this.selectedTodos.delete(id);
@@ -218,7 +207,7 @@ class TodoApp {
         this.updateStats();
     }
 
-    // Drag and drop
+    // Húzd és dobd sorrendezés
     initDragAndDrop() {
         const todoList = document.getElementById('todoList');
         const todoItems = document.querySelectorAll('.todo-item');
@@ -226,7 +215,6 @@ class TodoApp {
         todoItems.forEach(item => {
             item.setAttribute('draggable', 'true');
             
-            // Drag start
             item.addEventListener('dragstart', (e) => {
                 this.draggedElement = item;
                 this.draggedId = item.dataset.id;
@@ -235,110 +223,143 @@ class TodoApp {
                 e.dataTransfer.setData('text/plain', item.dataset.id);
             });
             
-            // Drag end
             item.addEventListener('dragend', (e) => {
                 item.classList.remove('dragging');
-                document.querySelectorAll('.todo-item').forEach(i => {
-                    i.classList.remove('drag-over');
-                    i.style.borderTop = '';
-                    i.style.borderBottom = '';
-                });
+                this.clearDragIndicators();
                 this.draggedElement = null;
                 this.draggedId = null;
             });
-            
-            // Drag over
-            item.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                
-                if (!this.draggedElement || this.draggedElement === item) return;
-                
-                const bounding = item.getBoundingClientRect();
-                const offset = e.clientY - bounding.top;
-                
-                // Clear all borders first
-                document.querySelectorAll('.todo-item').forEach(i => {
-                    i.style.borderTop = '';
-                    i.style.borderBottom = '';
-                });
-                
-                if (offset > bounding.height / 2) {
-                    item.style.borderBottom = '2px solid var(--primary-color)';
-                } else {
-                    item.style.borderTop = '2px solid var(--primary-color)';
-                }
-            });
-            
-            // Drop
-            item.addEventListener('drop', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                if (!this.draggedElement || this.draggedElement === item) return;
-                
-                const draggedId = this.draggedId;
-                const targetId = item.dataset.id;
-                
-                const bounding = item.getBoundingClientRect();
-                const offset = e.clientY - bounding.top;
-                const insertAfter = offset > bounding.height / 2;
-                
-                // Clear visual feedback
-                document.querySelectorAll('.todo-item').forEach(i => {
-                    i.style.borderTop = '';
-                    i.style.borderBottom = '';
-                });
-                
-                // Perform reorder
-                this.reorderTodos(draggedId, targetId, insertAfter);
-            });
         });
         
-        // Prevent default drag behavior on container
+        // Lista szintű drag-and-drop kezelés
         if (todoList) {
             todoList.addEventListener('dragover', (e) => {
                 e.preventDefault();
+                
+                if (!this.draggedElement) return;
+                
+                const listRect = todoList.getBoundingClientRect();
+                const mouseY = e.clientY;
+                const edgeThreshold = 50;
+                
+                this.clearDragIndicators();
+                
+                // Speciális kezelés: lista teteje (50px zóna)
+                if (mouseY < listRect.top + edgeThreshold) {
+                    const firstItem = todoList.querySelector('.todo-item:not(.dragging)');
+                    if (firstItem) {
+                        firstItem.style.marginTop = '40px';
+                        firstItem.style.transition = 'margin 0.2s ease';
+                    }
+                    return;
+                }
+                
+                // Speciális kezelés: lista alja (50px zóna)
+                if (mouseY > listRect.bottom - edgeThreshold) {
+                    const items = Array.from(todoList.querySelectorAll('.todo-item:not(.dragging)'));
+                    const lastItem = items[items.length - 1];
+                    if (lastItem) {
+                        lastItem.style.marginBottom = '40px';
+                        lastItem.style.transition = 'margin 0.2s ease';
+                    }
+                    return;
+                }
+                
+                // Normál eset: két elem közé húzás
+                const afterElement = this.getDragAfterElement(todoList, mouseY);
+                
+                if (afterElement == null) {
+                    const items = Array.from(todoList.querySelectorAll('.todo-item:not(.dragging)'));
+                    const lastItem = items[items.length - 1];
+                    if (lastItem) {
+                        lastItem.style.marginBottom = '40px';
+                        lastItem.style.transition = 'margin 0.2s ease';
+                    }
+                } else {
+                    afterElement.style.marginTop = '40px';
+                    afterElement.style.transition = 'margin 0.2s ease';
+                }
             });
             
             todoList.addEventListener('drop', (e) => {
                 e.preventDefault();
+                e.stopPropagation();
+                
+                if (!this.draggedElement) return;
+                
+                const listRect = todoList.getBoundingClientRect();
+                const mouseY = e.clientY;
+                const edgeThreshold = 50;
+                
+                this.clearDragIndicators();
+                
+                // Első pozícióba dobjuk
+                if (mouseY < listRect.top + edgeThreshold) {
+                    const firstItem = todoList.querySelector('.todo-item:not(.dragging)');
+                    if (firstItem) {
+                        this.reorderTodos(this.draggedId, firstItem.dataset.id, false);
+                    }
+                    return;
+                }
+                
+                // Utolsó pozícióba dobjuk
+                if (mouseY > listRect.bottom - edgeThreshold) {
+                    const items = Array.from(todoList.querySelectorAll('.todo-item:not(.dragging)'));
+                    const lastItem = items[items.length - 1];
+                    if (lastItem) {
+                        this.reorderTodos(this.draggedId, lastItem.dataset.id, true);
+                    }
+                    return;
+                }
+                
+                // Normál eset: két elem közé
+                const afterElement = this.getDragAfterElement(todoList, mouseY);
+                
+                if (afterElement == null) {
+                    const items = Array.from(todoList.querySelectorAll('.todo-item:not(.dragging)'));
+                    const lastItem = items[items.length - 1];
+                    if (lastItem) {
+                        this.reorderTodos(this.draggedId, lastItem.dataset.id, true);
+                    }
+                } else {
+                    this.reorderTodos(this.draggedId, afterElement.dataset.id, false);
+                }
             });
         }
     }
-
-    showDropZone(item, insertAfter) {
-        this.clearDropZones();
+    
+    getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.todo-item:not(.dragging)')];
         
-        const dropZone = document.createElement('div');
-        dropZone.className = 'drop-zone active';
-        
-        if (insertAfter) {
-            item.parentNode.insertBefore(dropZone, item.nextSibling);
-        } else {
-            item.parentNode.insertBefore(dropZone, item);
-        }
-        
-        this.dropZones.push(dropZone);
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+    
+    clearDragIndicators() {
+        document.querySelectorAll('.todo-item').forEach(i => {
+            i.style.marginTop = '';
+            i.style.marginBottom = '';
+            i.style.transition = '';
+        });
     }
 
-    clearDropZones() {
-        this.dropZones.forEach(zone => zone.remove());
-        this.dropZones = [];
-    }
-
+    // Újrarendezés: elem eltávolítása és beszúrása új helyre
     reorderTodos(draggedId, targetId, insertAfter) {
         const draggedIndex = this.todos.findIndex(t => t.id === draggedId);
         const targetIndex = this.todos.findIndex(t => t.id === targetId);
         
         if (draggedIndex === -1 || targetIndex === -1 || draggedIndex === targetIndex) return;
         
-        // Remove the dragged item
         const [draggedTodo] = this.todos.splice(draggedIndex, 1);
-        
-        // Calculate new target index after removal
         let newTargetIndex = this.todos.findIndex(t => t.id === targetId);
-        
-        // Insert at the correct position
         const insertIndex = insertAfter ? newTargetIndex + 1 : newTargetIndex;
         this.todos.splice(insertIndex, 0, draggedTodo);
         
@@ -346,7 +367,6 @@ class TodoApp {
         this.render();
     }
 
-    // Filtering
     getFilteredTodos() {
         switch (this.currentFilter) {
             case 'completed':
@@ -364,7 +384,6 @@ class TodoApp {
         });
     }
 
-    // UI Updates
     render() {
         const todoList = document.getElementById('todoList');
         const emptyState = document.getElementById('emptyState');
@@ -381,7 +400,6 @@ class TodoApp {
         
         todoList.innerHTML = filteredTodos.map(todo => this.createTodoHTML(todo)).join('');
         
-        // Bind events for new elements
         this.bindTodoEvents();
         this.initDragAndDrop();
         this.updateTodoSelection();
@@ -412,7 +430,6 @@ class TodoApp {
     }
 
     bindTodoEvents() {
-        // Checkbox events
         document.querySelectorAll('.todo-checkbox').forEach(checkbox => {
             checkbox.addEventListener('click', (e) => {
                 const id = e.target.dataset.id;
@@ -420,7 +437,6 @@ class TodoApp {
             });
         });
 
-        // Move buttons
         document.querySelectorAll('.move-up').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -437,7 +453,6 @@ class TodoApp {
             });
         });
 
-        // Delete buttons
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -446,7 +461,6 @@ class TodoApp {
             });
         });
 
-        // Item selection (Ctrl+click)
         document.querySelectorAll('.todo-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 if (e.ctrlKey || e.metaKey) {
@@ -488,7 +502,6 @@ class TodoApp {
         });
     }
 
-    // Modal management
     showConfirmModal(message, action) {
         const modal = document.getElementById('confirmModal');
         const messageElement = document.getElementById('confirmMessage');
@@ -510,7 +523,6 @@ class TodoApp {
         this.pendingAction = null;
     }
 
-    // Utility methods
     saveTodos() {
         localStorage.setItem('todos', JSON.stringify(this.todos));
     }
@@ -522,20 +534,13 @@ class TodoApp {
     }
 }
 
-// Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new TodoApp();
 });
 
-// Service Worker registration for offline functionality
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('SW registered: ', registration);
-            })
-            .catch(registrationError => {
-                console.log('SW registration failed: ', registrationError);
-            });
+            .catch(err => console.log('SW registration failed:', err));
     });
 }
