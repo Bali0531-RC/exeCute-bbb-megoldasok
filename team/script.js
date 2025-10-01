@@ -19,7 +19,7 @@ class TeamWebsite {
             };
             img.onerror = () => {
                 if (this.images.length === 0) {
-                    this.images = ["N.png", "L.png", "G.png"];
+                    this.images = ["bali.png", "fules.png", "zsir.png"];
                 }
             };
             img.src = `img${index}.jpeg`;
