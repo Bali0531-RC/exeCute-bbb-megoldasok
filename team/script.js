@@ -230,20 +230,87 @@ class TeamWebsite {
 
     // Mobile responsive functionality
     initResponsive() {
-        // Add mobile menu toggle if needed
-        if (window.innerWidth <= 768) {
-            this.initMobileMenu();
-        }
-
+        this.createMobileMenuToggle();
+        
+        // Handle window resize
         window.addEventListener('resize', () => {
-            if (window.innerWidth <= 768) {
-                this.initMobileMenu();
+            if (window.innerWidth > 768) {
+                this.closeMobileMenu();
             }
         });
     }
 
+    createMobileMenuToggle() {
+        // Check if toggle button already exists
+        if (document.querySelector('.mobile-menu-toggle')) return;
+        
+        // Create mobile menu toggle button
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'mobile-menu-toggle';
+        toggleBtn.innerHTML = '☰';
+        toggleBtn.setAttribute('aria-label', 'Menü megnyitása');
+        document.body.appendChild(toggleBtn);
+        
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'mobile-overlay';
+        document.body.appendChild(overlay);
+        
+        // Toggle sidebar on mobile
+        toggleBtn.addEventListener('click', () => {
+            this.toggleMobileMenu();
+        });
+        
+        overlay.addEventListener('click', () => {
+            this.closeMobileMenu();
+        });
+        
+        // Close sidebar when clicking a navigation link
+        const navButtons = document.querySelectorAll('.nav-btn');
+        navButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    this.closeMobileMenu();
+                }
+            });
+        });
+    }
+
+    toggleMobileMenu() {
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.querySelector('.mobile-overlay');
+        const toggleBtn = document.querySelector('.mobile-menu-toggle');
+        
+        sidebar.classList.toggle('mobile-open');
+        overlay.classList.toggle('active');
+        
+        if (sidebar.classList.contains('mobile-open')) {
+            toggleBtn.innerHTML = '✕';
+            toggleBtn.setAttribute('aria-label', 'Menü bezárása');
+            document.body.style.overflow = 'hidden';
+        } else {
+            toggleBtn.innerHTML = '☰';
+            toggleBtn.setAttribute('aria-label', 'Menü megnyitása');
+            document.body.style.overflow = '';
+        }
+    }
+
+    closeMobileMenu() {
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.querySelector('.mobile-overlay');
+        const toggleBtn = document.querySelector('.mobile-menu-toggle');
+        
+        if (sidebar) sidebar.classList.remove('mobile-open');
+        if (overlay) overlay.classList.remove('active');
+        if (toggleBtn) {
+            toggleBtn.innerHTML = '☰';
+            toggleBtn.setAttribute('aria-label', 'Menü megnyitása');
+        }
+        document.body.style.overflow = '';
+    }
+
     initMobileMenu() {
-        // Mobile sidebar toggle functionality could be added here
+        // Deprecated - replaced by createMobileMenuToggle
         console.log('Mobile view initialized');
     }
 }
