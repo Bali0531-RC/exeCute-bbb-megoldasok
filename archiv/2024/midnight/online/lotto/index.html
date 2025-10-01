@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lottó sorsolás</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <button id="backBtn">Vissza</button>
+    <div class="lotto-container">
+        <h1>Lottó sorsolás</h1>
+        <div class="draw-type-container">
+            <input type="number" id="totalNumbers" placeholder="Összes szám száma" min="1">
+            <input type="number" id="drawNumbers" placeholder="Húzott számok száma" min="1">
+            <button id="setDrawTypeBtn">Mentés</button>
+        </div>
+        <div id="ticketContainer"></div>
+        <button id="drawBtn" style="display: none;">Sorsolás</button>
+        <div id="result"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+
+:root {
+    --background-color: #ffffff;
+    --text-color: #121212;
+    --primary-color: #f0f0f0;
+    --secondary-color: #e0e0e0;
+    --button-background: #cccccc;
+    --button-text-color: #121212;
+    --hover-background: #bbbbbb;
+}
+
+body.dark-theme {
+    --background-color: #121212;
+    --text-color: #ffffff;
+    --primary-color: #1e1e1e;
+    --secondary-color: #333333;
+    --button-background: #333333;
+    --button-text-color: #ffffff;
+    --hover-background: #555555;
+}
+
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+h1, h2 {
+    color: var(--text-color);
+    text-align: center;
+}
+
+form {
+    background-color: var(--primary-color);
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+}
+
+label, input, button {
+    margin-bottom: 10px;
+}
+
+input, button {
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    background-color: var(--button-background);
+    color: var(--button-text-color);
+}
+
+button:hover {
+    background-color: var(--hover-background);
+}
+
+#tankolasAdatok {
+    margin: 20px auto;
+    padding: 20px;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    width: 25%;
+    text-align: center; 
+}
+
+#haviOsszegzes, #tavolsagok {
+    text-align: center;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    width: 50%; 
+}
+
+#osszegzes {
+    text-align: center;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+}
