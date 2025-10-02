@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Űrhajó Vadász - ExeCute</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="top-nav">
+            <a href="../index.html" class="nav-btn">
+                <span class="icon">🏠</span>
+                Vissza a főoldalra
+            </a>
+            <h1 class="app-title">🚀 Űrhajó Vadász</h1>
+            <button id="themeToggle" class="nav-btn">
+                <span class="icon">🌙</span>
+            </button>
+        </nav>
+
+        <main class="main-content">
+            <section class="game-header">
+                <div class="stats-container">
+                    <div class="stat-box">
+                        <span class="stat-label">Lépések</span>
+                        <span class="stat-value" id="moves">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Talált űrhajók</span>
+                        <span class="stat-value" id="foundShips">0 / 7</span>
+                    </div>
+                    <div class="stat-box" id="remainingMovesBox" style="display: none;">
+                        <span class="stat-label">Hátralevő lépések</span>
+                        <span class="stat-value" id="remainingMoves">15</span>
+                    </div>
+                </div>
+
+                <div class="game-controls">
+                    <button id="newGameBtn" class="btn btn-primary">
+                        <span class="icon">🎮</span>
+                        Új játék
+                    </button>
+                    <button id="timeAttackBtn" class="btn btn-secondary">
+                        <span class="icon">⏱️</span>
+                        Time Attack: OFF
+                    </button>
+                </div>
+            </section>
+
+            <section class="game-board-section">
+                <div id="gameBoard" class="game-board"></div>
+            </section>
+
+            <section class="legend-section">
+                <h3>Jelmagyarázat</h3>
+                <div class="legend-grid">
+                    <div class="legend-item">
+                        <div class="legend-cell empty">?</div>
+                        <span>Ismeretlen</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-cell number">3</div>
+                        <span>Távolság</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-cell ship">🚀</div>
+                        <span>Űrhajó</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="winModal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">🎉 Gratulálunk!</h3>
+            </div>
+            <div class="modal-body">
+                <p>Minden űrhajót megtaláltál!</p>
+                <p>Lépések száma: <span id="finalMoves">0</span></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary close-modal">Új játék</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loseModal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">💥 Játék vége</h3>
+            </div>
+            <div class="modal-body">
+                <p>Elfogytak a lépéseid!</p>
+                <p>Próbáld újra!</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary close-modal">Új játék</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
