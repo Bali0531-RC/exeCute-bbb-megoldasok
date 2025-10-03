@@ -1,7 +1,5 @@
-// MongoDB Serverless Leaderboard Manager using simple HTTP backend
 class LeaderboardManager {
     constructor() {
-        // API endpoint for api.plexdev.live
         this.apiEndpoint = 'https://api.plexdev.live';
         
         this.isOnline = false;
@@ -35,13 +33,11 @@ class LeaderboardManager {
     }
 
     async submitScore(moves) {
-        // Check if this is a personal best in TimeAttack mode
         if (!this.personalBest || moves < this.personalBest) {
             const isNewRecord = this.personalBest !== null;
             this.personalBest = moves;
             localStorage.setItem('personalBest', moves);
 
-            // If no name yet, ask for it
             if (!this.playerName) {
                 const shouldSubmit = confirm(
                     `🎉 Új személyes rekord: ${moves} lépés!\n\n` +
@@ -57,7 +53,6 @@ class LeaderboardManager {
                     }
                 }
             } else {
-                // Player already has a name, auto-update
                 if (isNewRecord) {
                     const shouldUpdate = confirm(
                         `🎉 Új személyes rekord: ${moves} lépés!\n\n` +
@@ -68,7 +63,6 @@ class LeaderboardManager {
                         await this.updateLeaderboard(this.playerName, moves);
                     }
                 } else {
-                    // First time
                     await this.updateLeaderboard(this.playerName, moves);
                 }
             }
@@ -83,7 +77,7 @@ class LeaderboardManager {
         let name = null;
         while (!name || name.trim().length === 0) {
             name = prompt('Add meg a neved a toplistához:');
-            if (name === null) return null; // User cancelled
+            if (name === null) return null;
             name = name.trim();
             if (name.length > 20) {
                 alert('A név maximum 20 karakter lehet!');

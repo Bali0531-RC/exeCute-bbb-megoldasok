@@ -19,7 +19,6 @@ class SpaceshipGame {
         this.timeAttackMode = false;
         this.remainingMoves = 15;
         
-        // Initialize leaderboard manager
         this.leaderboard = new LeaderboardManager();
         
         this.initializeElements();
@@ -74,7 +73,6 @@ class SpaceshipGame {
         this.timeAttackBtn.textContent = this.timeAttackMode ? 
             '⏱️ Time Attack: ON' : '⏱️ Time Attack: OFF';
         
-        // Show/hide leaderboard section
         const leaderboardSection = document.getElementById('leaderboardSection');
         if (this.timeAttackMode) {
             leaderboardSection.style.display = 'block';
@@ -307,7 +305,6 @@ class SpaceshipGame {
         this.finalMoves.textContent = this.moves;
         this.winModal.classList.add('show');
         
-        // Submit score to leaderboard if in TimeAttack mode
         if (this.timeAttackMode) {
             setTimeout(() => {
                 this.leaderboard.submitScore(this.moves);
@@ -351,7 +348,6 @@ class SpaceshipGame {
                 leaderboardContent.innerHTML = html;
             }
 
-            // Show personal best if available
             const personalBest = this.leaderboard.getPersonalBest();
             if (personalBest) {
                 personalBestValue.textContent = personalBest;
