@@ -19,6 +19,9 @@ class SpaceshipGame {
         this.timeAttackMode = false;
         this.remainingMoves = 15;
         
+        // Initialize leaderboard manager
+        this.leaderboard = new LeaderboardManager();
+        
         this.initializeElements();
         this.setupEventListeners();
         this.initializeGame();
@@ -70,6 +73,16 @@ class SpaceshipGame {
         this.timeAttackMode = !this.timeAttackMode;
         this.timeAttackBtn.textContent = this.timeAttackMode ? 
             '⏱️ Time Attack: ON' : '⏱️ Time Attack: OFF';
+        
+        // Show/hide leaderboard section
+        const leaderboardSection = document.getElementById('leaderboardSection');
+        if (this.timeAttackMode) {
+            leaderboardSection.style.display = 'block';
+            this.loadLeaderboard();
+        } else {
+            leaderboardSection.style.display = 'none';
+        }
+        
         this.initializeGame();
     }
 
@@ -293,6 +306,13 @@ class SpaceshipGame {
     showWinModal() {
         this.finalMoves.textContent = this.moves;
         this.winModal.classList.add('show');
+        
+        // Submit score to leaderboard if in TimeAttack mode
+        if (this.timeAttackMode) {
+            setTimeout(() => {
+                this.leaderboard.submitScore(this.moves);
+            }, 500);
+        }
     }
 
     showLoseModal() {
@@ -302,6 +322,44 @@ class SpaceshipGame {
     hideModals() {
         this.winModal.classList.remove('show');
         this.loseModal.classList.remove('show');
+    }
+
+    async loadLeaderboard() {
+        const leaderboardContent = document.getElementById('leaderboardContent');
+        const personalBestBox = document.getElementById('personalBest');
+        const personalBestValue = document.getElementById('personalBestValue');
+
+        try {
+            const data = await this.leaderboard.getLeaderboard(10);
+            
+            if (data.length === 0) {
+                leaderboardContent.innerHTML = '<p class="no-data">Nincs még adat a toplistán</p>';
+            } else {
+                let html = '<table class="leaderboard-table"><thead><tr><th>Helyezés</th><th>Név</th><th>Lépések</th></tr></thead><tbody>';
+                
+                data.forEach((entry, index) => {
+                    const isCurrentPlayer = entry.name === this.leaderboard.getPlayerName();
+                    const rowClass = isCurrentPlayer ? 'current-player' : '';
+                    html += `<tr class="${rowClass}">
+                        <td>${index + 1}.</td>
+                        <td>${entry.name}</td>
+                        <td>${entry.moves}</td>
+                    </tr>`;
+                });
+                
+                html += '</tbody></table>';
+                leaderboardContent.innerHTML = html;
+            }
+
+            // Show personal best if available
+            const personalBest = this.leaderboard.getPersonalBest();
+            if (personalBest) {
+                personalBestValue.textContent = personalBest;
+                personalBestBox.style.display = 'block';
+            }
+        } catch (error) {
+            leaderboardContent.innerHTML = '<p class="error-text">❌ Hiba a toplista betöltésekor</p>';
+        }
     }
 }
 
