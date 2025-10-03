@@ -6,26 +6,22 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI;
 const DB_NAME = 'spaceship_game';
 const COLLECTION_NAME = 'leaderboard';
-2
+
 let db = null;
 let collection = null;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Logging middleware
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
     next();
 });
 
-// Connect to MongoDB
 async function connectToDatabase() {
     try {
         const client = new MongoClient(MONGODB_URI);
@@ -35,7 +31,6 @@ async function connectToDatabase() {
         db = client.db(DB_NAME);
         collection = db.collection(COLLECTION_NAME);
         
-        // Create index for better performance
         await collection.createIndex({ moves: 1 });
         await collection.createIndex({ name: 1 }, { unique: true });
         
@@ -46,7 +41,6 @@ async function connectToDatabase() {
     }
 }
 
-// Health check endpoint
 app.get('/health', (req, res) => {
     res.json({ 
         status: 'ok', 
@@ -56,7 +50,6 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Get leaderboard (top scores)
 app.get('/leaderboard', async (req, res) => {
     try {
         if (!collection) {
@@ -67,7 +60,7 @@ app.get('/leaderboard', async (req, res) => {
         
         const leaderboard = await collection
             .find({})
-            .sort({ moves: 1 })  // Sort by moves ascending (lowest = best)
+            .sort({ moves: 1 })
             .limit(limit)
             .toArray();
 
@@ -78,7 +71,6 @@ app.get('/leaderboard', async (req, res) => {
     }
 });
 
-// Submit or update score
 app.post('/leaderboard', async (req, res) => {
     try {
         if (!collection) {
@@ -87,7 +79,6 @@ app.post('/leaderboard', async (req, res) => {
 
         const { name, moves, timestamp } = req.body;
 
-        // Validation
         if (!name || !moves) {
             return res.status(400).json({ error: 'Name and moves are required' });
         }
@@ -108,7 +99,6 @@ app.post('/leaderboard', async (req, res) => {
         const existing = await collection.findOne({ name: name.trim() });
 
         if (existing) {
-            // Only update if new score is better (lower moves)
             if (existing.moves <= moves) {
                 return res.status(200).json({
                     message: 'Score not updated - existing score is better or equal',
@@ -118,7 +108,6 @@ app.post('/leaderboard', async (req, res) => {
             }
         }
 
-        // Update or insert new score
         const result = await collection.findOneAndUpdate(
             { name: name.trim() },
             {
@@ -143,7 +132,6 @@ app.post('/leaderboard', async (req, res) => {
     } catch (error) {
         console.error('Error updating leaderboard:', error);
         
-        // Handle duplicate key error
         if (error.code === 11000) {
             return res.status(409).json({ error: 'Duplicate entry', details: error.message });
         }
@@ -152,7 +140,6 @@ app.post('/leaderboard', async (req, res) => {
     }
 });
 
-// Get player's rank
 app.get('/rank/:name', async (req, res) => {
     try {
         if (!collection) {
@@ -166,7 +153,6 @@ app.get('/rank/:name', async (req, res) => {
             return res.status(404).json({ error: 'Player not found' });
         }
 
-        // Count how many players have better scores
         const betterPlayers = await collection.countDocuments({ moves: { $lt: player.moves } });
         const rank = betterPlayers + 1;
 
@@ -182,7 +168,6 @@ app.get('/rank/:name', async (req, res) => {
     }
 });
 
-// Delete player (for testing/admin)
 app.delete('/leaderboard/:name', async (req, res) => {
     try {
         if (!collection) {
@@ -203,18 +188,15 @@ app.delete('/leaderboard/:name', async (req, res) => {
     }
 });
 
-// 404 handler
 app.use((req, res) => {
     res.status(404).json({ error: 'Endpoint not found' });
 });
 
-// Error handler
 app.use((err, req, res, next) => {
     console.error('Server error:', err);
     res.status(500).json({ error: 'Internal server error', details: err.message });
 });
 
-// Start server
 async function startServer() {
     const dbConnected = await connectToDatabase();
     
@@ -231,7 +213,6 @@ async function startServer() {
 
 startServer();
 
-// Graceful shutdown
 process.on('SIGINT', async () => {
     console.log('\n🛑 Shutting down gracefully...');
     process.exit(0);
