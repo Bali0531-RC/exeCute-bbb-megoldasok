@@ -96,6 +96,10 @@ class SpaceshipGame {
         this.renderBoard();
         this.updateStats();
         this.hideModals();
+        
+        if (this.timeAttackMode) {
+            this.loadLeaderboard();
+        }
     }
 
     placeShips() {
@@ -306,8 +310,9 @@ class SpaceshipGame {
         this.winModal.classList.add('show');
         
         if (this.timeAttackMode) {
-            setTimeout(() => {
-                this.leaderboard.submitScore(this.moves);
+            setTimeout(async () => {
+                await this.leaderboard.submitScore(this.moves);
+                this.loadLeaderboard();
             }, 500);
         }
     }
