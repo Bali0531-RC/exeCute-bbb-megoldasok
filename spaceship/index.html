@@ -72,6 +72,16 @@
                     </div>
                 </div>
             </section>
+
+            <section class="leaderboard-section" id="leaderboardSection" style="display: none;">
+                <h3>🏆 Toplista (TimeAttack)</h3>
+                <div id="leaderboardContent" class="leaderboard-content">
+                    <p class="loading-text">Toplista betöltése...</p>
+                </div>
+                <div class="personal-best" id="personalBest" style="display: none;">
+                    <p><strong>Személyes rekordod:</strong> <span id="personalBestValue">-</span> lépés</p>
+                </div>
+            </section>
         </main>
     </div>
 
@@ -107,6 +117,7 @@
         </div>
     </div>
 
+    <script src="leaderboard.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

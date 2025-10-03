@@ -312,6 +312,99 @@ body {
     color: white;
 }
 
+/* Leaderboard Section */
+.leaderboard-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    max-width: 800px;
+    margin: 2rem auto 0;
+}
+
+.leaderboard-section h3 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+}
+
+.leaderboard-content {
+    margin-bottom: 1rem;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.leaderboard-table thead {
+    background: var(--bg-secondary);
+}
+
+.leaderboard-table th {
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.leaderboard-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.leaderboard-table tr:hover {
+    background: var(--bg-secondary);
+}
+
+.leaderboard-table tr.current-player {
+    background: linear-gradient(90deg, rgba(34, 211, 238, 0.1) 0%, rgba(34, 211, 238, 0.05) 100%);
+    border-left: 3px solid var(--secondary-color);
+}
+
+.leaderboard-table tr.current-player td {
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+.personal-best {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-small);
+    padding: 1rem;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.personal-best p {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+.personal-best strong {
+    color: var(--text-primary);
+}
+
+.loading-text {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+}
+
+.no-data {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+}
+
+.error-text {
+    text-align: center;
+    color: var(--danger-color);
+    padding: 2rem;
+}
+
 .modal {
     position: fixed;
     top: 0;
