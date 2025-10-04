@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient } = require('mongodb');
+const OpenAI = require('openai');
 require('dotenv').config();
 
 const app = express();
@@ -9,6 +10,10 @@ const PORT = process.env.PORT || 4000;
 const MONGODB_URI = process.env.MONGODB_URI;
 const DB_NAME = 'spaceship_game';
 const COLLECTION_NAME = 'leaderboard';
+
+const openai = new OpenAI({
+    apiKey: "process.env.OPENAI_API_KEY"
+});
 
 let db = null;
 let collection = null;
@@ -49,6 +54,38 @@ app.get('/health', (req, res) => {
         timestamp: new Date().toISOString()
     });
 });
+
+async function moderateContent(text) {
+    try {
+        const moderation = await openai.moderations.create({
+            input: text,
+            model: "omni-moderation-latest"
+        });
+
+        const result = moderation.results[0];
+        
+        const categories = result.categories;
+        const categoryScores = result.category_scores;
+        
+        for (const [category, flagged] of Object.entries(categories)) {
+            const score = categoryScores[category];
+            if (score > 0.3) {
+                return {
+                    acceptable: false,
+                    reason: `Content flagged as potentially ${category.replace(/_/g, ' ')}`,
+                    category: category,
+                    score: score,
+                    flagged: flagged
+                };
+            }
+        }
+
+        return { acceptable: true };
+    } catch (error) {
+        console.error('OpenAI Moderation Error:', error);
+        return { acceptable: true, warning: 'Moderation check failed, allowing content' };
+    }
+}
 
 app.get('/leaderboard', async (req, res) => {
     try {
@@ -95,7 +132,17 @@ app.post('/leaderboard', async (req, res) => {
             return res.status(400).json({ error: 'Moves must be a positive integer' });
         }
 
-        // Check if player exists
+        const moderationResult = await moderateContent(name);
+        
+        if (!moderationResult.acceptable) {
+            return res.status(400).json({ 
+                error: 'Name contains inappropriate content',
+                reason: moderationResult.reason,
+                category: moderationResult.category,
+                score: moderationResult.score
+            });
+        }
+
         const existing = await collection.findOne({ name: name.trim() });
 
         if (existing) {

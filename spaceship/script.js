@@ -38,6 +38,13 @@ class SpaceshipGame {
         this.finalMoves = document.getElementById('finalMoves');
         this.themeToggle = document.getElementById('themeToggle');
         
+        this.nameInputSection = document.getElementById('nameInputSection');
+        this.playerNameInput = document.getElementById('playerNameInput');
+        this.submitScoreBtn = document.getElementById('submitScoreBtn');
+        this.nameError = document.getElementById('nameError');
+        this.submittingMessage = document.getElementById('submittingMessage');
+        this.submitSuccess = document.getElementById('submitSuccess');
+        
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.documentElement.setAttribute('data-theme', savedTheme);
         this.updateThemeIcon(savedTheme);
@@ -47,6 +54,11 @@ class SpaceshipGame {
         this.newGameBtn.addEventListener('click', () => this.initializeGame());
         this.timeAttackBtn.addEventListener('click', () => this.toggleTimeAttack());
         this.themeToggle.addEventListener('click', () => this.toggleTheme());
+        
+        this.submitScoreBtn.addEventListener('click', () => this.submitScore());
+        this.playerNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.submitScore();
+        });
         
         document.querySelectorAll('.modal-backdrop, .close-modal').forEach(el => {
             el.addEventListener('click', () => {
@@ -309,12 +321,59 @@ class SpaceshipGame {
         this.finalMoves.textContent = this.moves;
         this.winModal.classList.add('show');
         
+        this.nameInputSection.style.display = 'none';
+        this.submittingMessage.style.display = 'none';
+        this.submitSuccess.style.display = 'none';
+        this.nameError.style.display = 'none';
+        this.playerNameInput.value = '';
+        
         if (this.timeAttackMode) {
-            setTimeout(async () => {
-                await this.leaderboard.submitScore(this.moves);
-                this.loadLeaderboard();
-            }, 500);
+            this.nameInputSection.style.display = 'block';
         }
+    }
+    
+    async submitScore() {
+        const playerName = this.playerNameInput.value.trim();
+        
+        if (!playerName) {
+            this.showNameError('Kérlek add meg a neved!');
+            return;
+        }
+        
+        if (playerName.length > 20) {
+            this.showNameError('A név maximum 20 karakter lehet!');
+            return;
+        }
+        
+        this.nameInputSection.style.display = 'none';
+        this.submittingMessage.style.display = 'block';
+        this.nameError.style.display = 'none';
+        
+        try {
+            const result = await this.leaderboard.submitScore(playerName, this.moves);
+            
+            if (result.success) {
+                this.submittingMessage.style.display = 'none';
+                this.submitSuccess.style.display = 'block';
+                
+                document.getElementById('leaderboardSection').style.display = 'block';
+                await this.loadLeaderboard();
+            } else {
+                this.submittingMessage.style.display = 'none';
+                this.nameInputSection.style.display = 'block';
+                this.showNameError(result.error || 'Hiba történt az eredmény küldése során');
+            }
+        } catch (error) {
+            console.error('Submit error:', error);
+            this.submittingMessage.style.display = 'none';
+            this.nameInputSection.style.display = 'block';
+            this.showNameError('Nem sikerült kapcsolódni a szerverhez');
+        }
+    }
+    
+    showNameError(message) {
+        this.nameError.textContent = message;
+        this.nameError.style.display = 'block';
     }
 
     showLoseModal() {
@@ -328,8 +387,6 @@ class SpaceshipGame {
 
     async loadLeaderboard() {
         const leaderboardContent = document.getElementById('leaderboardContent');
-        const personalBestBox = document.getElementById('personalBest');
-        const personalBestValue = document.getElementById('personalBestValue');
 
         try {
             const data = await this.leaderboard.getLeaderboard(10);
@@ -340,9 +397,7 @@ class SpaceshipGame {
                 let html = '<table class="leaderboard-table"><thead><tr><th>Helyezés</th><th>Név</th><th>Lépések</th></tr></thead><tbody>';
                 
                 data.forEach((entry, index) => {
-                    const isCurrentPlayer = entry.name === this.leaderboard.getPlayerName();
-                    const rowClass = isCurrentPlayer ? 'current-player' : '';
-                    html += `<tr class="${rowClass}">
+                    html += `<tr>
                         <td>${index + 1}.</td>
                         <td>${entry.name}</td>
                         <td>${entry.moves}</td>
@@ -351,12 +406,6 @@ class SpaceshipGame {
                 
                 html += '</tbody></table>';
                 leaderboardContent.innerHTML = html;
-            }
-
-            const personalBest = this.leaderboard.getPersonalBest();
-            if (personalBest) {
-                personalBestValue.textContent = personalBest;
-                personalBestBox.style.display = 'block';
             }
         } catch (error) {
             leaderboardContent.innerHTML = '<p class="error-text">❌ Hiba a toplista betöltésekor</p>';
