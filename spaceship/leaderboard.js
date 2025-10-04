@@ -81,7 +81,7 @@ class LeaderboardManager {
         }
     }
 
-    async getLeaderboard(limit = 10) {
+    async getLeaderboard(limit = 5) {
         if (!this.isOnline) {
             return [];
         }

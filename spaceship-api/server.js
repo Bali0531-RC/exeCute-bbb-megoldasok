@@ -12,11 +12,17 @@ const DB_NAME = 'spaceship_game';
 const COLLECTION_NAME = 'leaderboard';
 
 const openai = new OpenAI({
-    apiKey: "process.env.OPENAI_API_KEY"
+    apiKey: process.env.OPENAI_API_KEY
 });
 
 let db = null;
 let collection = null;
+
+const bannedWords = [
+    'fasz', 'pina', 'pocs', 'kurva', 'geci', 'szar', 'bazmeg', 'picsa',
+    'buzi', 'nigger', 'cigany', 'zsido', 'faszt', 'faszfej', 'faszkalap',
+    'picsaba', 'kurvanyo', 'kurvaisten', 'kocsog', 'seggfej'
+];
 
 app.use(cors());
 app.use(express.json());
@@ -57,12 +63,33 @@ app.get('/health', (req, res) => {
 
 async function moderateContent(text) {
     try {
+        const normalizedText = text.toLowerCase().replace(/\s+/g, '');
+        
+        for (const word of bannedWords) {
+            if (normalizedText.includes(word)) {
+                console.log(`🚫 Blacklist match for "${text}": contains "${word}"`);
+                return {
+                    acceptable: false,
+                    reason: `Name contains inappropriate content (blacklisted word)`,
+                    category: 'blacklist',
+                    score: 1.0,
+                    flagged: true
+                };
+            }
+        }
+        
         const moderation = await openai.moderations.create({
             input: text,
             model: "omni-moderation-latest"
         });
 
         const result = moderation.results[0];
+        
+        console.log(`🔍 Moderation check for "${text}":`, JSON.stringify({
+            flagged: result.flagged,
+            categories: result.categories,
+            category_scores: result.category_scores
+        }, null, 2));
         
         const categories = result.categories;
         const categoryScores = result.category_scores;
@@ -93,11 +120,11 @@ app.get('/leaderboard', async (req, res) => {
             return res.status(503).json({ error: 'Database not connected' });
         }
 
-        const limit = parseInt(req.query.limit) || 10;
+        const limit = parseInt(req.query.limit) || 5;
         
         const leaderboard = await collection
             .find({})
-            .sort({ moves: 1 })
+            .sort({ moves: 1, name: 1 })
             .limit(limit)
             .toArray();
 
@@ -115,6 +142,8 @@ app.post('/leaderboard', async (req, res) => {
         }
 
         const { name, moves, timestamp } = req.body;
+        
+        console.log(`📝 Score submission received - Name: "${name}", Moves: ${moves}`);
 
         if (!name || !moves) {
             return res.status(400).json({ error: 'Name and moves are required' });
@@ -135,6 +164,7 @@ app.post('/leaderboard', async (req, res) => {
         const moderationResult = await moderateContent(name);
         
         if (!moderationResult.acceptable) {
+            console.log(`🚫 Name rejected - "${name}" (${moderationResult.category}: ${moderationResult.score})`);
             return res.status(400).json({ 
                 error: 'Name contains inappropriate content',
                 reason: moderationResult.reason,
@@ -142,6 +172,8 @@ app.post('/leaderboard', async (req, res) => {
                 score: moderationResult.score
             });
         }
+        
+        console.log(`✅ Name approved - "${name}"`);
 
         const existing = await collection.findOne({ name: name.trim() });
 
@@ -176,6 +208,8 @@ app.post('/leaderboard', async (req, res) => {
             record: result.value || result,
             updated: true
         });
+        
+        console.log(`💾 Score saved - Name: "${name}", Moves: ${moves}, Action: ${existing ? 'Updated' : 'New'}`);
     } catch (error) {
         console.error('Error updating leaderboard:', error);
         

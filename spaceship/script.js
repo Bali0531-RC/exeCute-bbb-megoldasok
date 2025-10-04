@@ -389,16 +389,23 @@ class SpaceshipGame {
         const leaderboardContent = document.getElementById('leaderboardContent');
 
         try {
-            const data = await this.leaderboard.getLeaderboard(10);
+            const data = await this.leaderboard.getLeaderboard(5);
             
             if (data.length === 0) {
                 leaderboardContent.innerHTML = '<p class="no-data">Nincs még adat a toplistán</p>';
             } else {
                 let html = '<table class="leaderboard-table"><thead><tr><th>Helyezés</th><th>Név</th><th>Lépések</th></tr></thead><tbody>';
                 
+                let currentRank = 1;
+                let displayRank = 1;
+                
                 data.forEach((entry, index) => {
+                    if (index > 0 && entry.moves !== data[index - 1].moves) {
+                        currentRank = index + 1;
+                    }
+                    
                     html += `<tr>
-                        <td>${index + 1}.</td>
+                        <td>${currentRank}.</td>
                         <td>${entry.name}</td>
                         <td>${entry.moves}</td>
                     </tr>`;
