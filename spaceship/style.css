@@ -73,6 +73,11 @@ body {
     z-index: 100;
 }
 
+.nav-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
 .app-title {
     font-size: 1.5rem;
     font-weight: 700;
@@ -563,4 +568,14 @@ body {
 .error-message {
     font-size: 0.875rem;
     margin-top: 0.5rem;
+}
+
+#youtube-player {
+    position: fixed;
+    top: -9999px;
+    left: -9999px;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    pointer-events: none;
 }
