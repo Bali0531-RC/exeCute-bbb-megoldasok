@@ -11,50 +11,41 @@ class MusicPlayer {
         this.player = null;
         this.currentIndex = 0;
         this.isPlaying = false;
-        this.isMuted = localStorage.getItem('musicMuted') === 'true';
-        
-        this.initPlayer();
+        this.isMuted = localStorage.getItem('musicMuted') !== 'false';
+        this.isReady = false;
     }
 
     initPlayer() {
-        window.onYouTubeIframeAPIReady = () => {
-            this.currentIndex = Math.floor(Math.random() * this.playlist.length);
-            
-            this.player = new YT.Player('youtube-player', {
-                height: '0',
-                width: '0',
-                videoId: this.playlist[this.currentIndex],
-                playerVars: {
-                    autoplay: 1,
-                    controls: 0,
-                    disablekb: 1,
-                    fs: 0,
-                    modestbranding: 1,
-                    playsinline: 1,
-                    rel: 0,
-                    showinfo: 0
-                },
-                events: {
-                    onReady: (event) => this.onPlayerReady(event),
-                    onStateChange: (event) => this.onPlayerStateChange(event),
-                    onError: (event) => this.onPlayerError(event)
-                }
-            });
-        };
+        this.currentIndex = Math.floor(Math.random() * this.playlist.length);
+        
+        this.player = new YT.Player('youtube-player', {
+            height: '0',
+            width: '0',
+            videoId: this.playlist[this.currentIndex],
+            playerVars: {
+                autoplay: 0,
+                controls: 0,
+                disablekb: 1,
+                fs: 0,
+                modestbranding: 1,
+                playsinline: 1,
+                rel: 0,
+                showinfo: 0
+            },
+            events: {
+                onReady: (event) => this.onPlayerReady(event),
+                onStateChange: (event) => this.onPlayerStateChange(event),
+                onError: (event) => this.onPlayerError(event)
+            }
+        });
     }
 
     onPlayerReady(event) {
         console.log('🎵 Music player ready');
+        this.isReady = true;
         
-        if (this.isMuted) {
-            event.target.mute();
-            this.updateMusicButton(false);
-        } else {
-            event.target.setVolume(30);
-            event.target.playVideo();
-            this.isPlaying = true;
-            this.updateMusicButton(true);
-        }
+        event.target.setVolume(30);
+        this.updateMusicButton(false);
     }
 
     onPlayerStateChange(event) {
@@ -81,9 +72,14 @@ class MusicPlayer {
     }
 
     toggleMusic() {
-        if (!this.player) return;
+        console.log('🎵 Toggle music clicked, ready:', this.isReady, 'playing:', this.isPlaying);
+        
+        if (!this.player || !this.isReady) {
+            console.log('⚠️ Player not ready yet');
+            return;
+        }
 
-        if (this.isMuted || !this.isPlaying) {
+        if (!this.isPlaying) {
             this.player.unMute();
             this.player.setVolume(30);
             this.player.playVideo();
@@ -91,13 +87,13 @@ class MusicPlayer {
             this.isPlaying = true;
             this.updateMusicButton(true);
             localStorage.setItem('musicMuted', 'false');
+            console.log('▶️ Music started');
         } else {
-            this.player.mute();
             this.player.pauseVideo();
-            this.isMuted = true;
             this.isPlaying = false;
             this.updateMusicButton(false);
             localStorage.setItem('musicMuted', 'true');
+            console.log('⏸️ Music paused');
         }
     }
 
@@ -112,15 +108,33 @@ class MusicPlayer {
 
 let musicPlayer = null;
 
+function onYouTubeIframeAPIReady() {
+    console.log('📺 YouTube API ready');
+    if (musicPlayer) {
+        musicPlayer.initPlayer();
+    }
+}
+
 window.addEventListener('load', () => {
+    console.log('🎮 Page loaded, creating MusicPlayer...');
     musicPlayer = new MusicPlayer();
+    
+    if (typeof YT !== 'undefined' && typeof YT.Player !== 'undefined') {
+        console.log('✅ YouTube API already loaded, initializing player...');
+        musicPlayer.initPlayer();
+    } else {
+        console.log('⏳ Waiting for YouTube API...');
+    }
     
     const musicToggle = document.getElementById('musicToggle');
     if (musicToggle) {
+        console.log('🎵 Music toggle button found');
         musicToggle.addEventListener('click', () => {
             if (musicPlayer) {
                 musicPlayer.toggleMusic();
             }
         });
+    } else {
+        console.error('❌ Music toggle button not found');
     }
 });
