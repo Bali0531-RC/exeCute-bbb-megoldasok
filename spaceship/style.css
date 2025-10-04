@@ -102,6 +102,7 @@ body {
     font-weight: 500;
     cursor: pointer;
     transition: all var(--transition-fast);
+    text-decoration: none;
 }
 
 .nav-btn:hover {

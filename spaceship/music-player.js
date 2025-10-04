@@ -1,6 +1,6 @@
-class MusicPlayer {
+class ZeneJatszo {
     constructor() {
-        this.playlist = [
+        this.lejatszasiLista = [
             'lNoUP579nQ8',
             'sb5EuQ2oczY',
             'xvFZjo5PgG0',
@@ -8,20 +8,21 @@ class MusicPlayer {
             'sYgIVlfwv8Q'
         ];
         
-        this.player = null;
-        this.currentIndex = 0;
-        this.isPlaying = false;
-        this.isMuted = localStorage.getItem('musicMuted') !== 'false';
-        this.isReady = false;
+        this.jatszo = null;
+        this.jelenlegiIndex = 0;
+        this.jatszikE = false;
+        this.nemitottE = localStorage.getItem('zeneNemitva') !== 'false';
+        this.kesz = false;
     }
 
-    initPlayer() {
-        this.currentIndex = Math.floor(Math.random() * this.playlist.length);
+    jatszoInicializalas() {
+        console.log('🎬 YouTube lejátszó inicializálása...');
+        this.jelenlegiIndex = Math.floor(Math.random() * this.lejatszasiLista.length);
         
-        this.player = new YT.Player('youtube-player', {
+        this.jatszo = new YT.Player('youtube-player', {
             height: '0',
             width: '0',
-            videoId: this.playlist[this.currentIndex],
+            videoId: this.lejatszasiLista[this.jelenlegiIndex],
             playerVars: {
                 autoplay: 0,
                 controls: 0,
@@ -33,108 +34,108 @@ class MusicPlayer {
                 showinfo: 0
             },
             events: {
-                onReady: (event) => this.onPlayerReady(event),
-                onStateChange: (event) => this.onPlayerStateChange(event),
-                onError: (event) => this.onPlayerError(event)
+                onReady: (event) => this.jatszoKesz(event),
+                onStateChange: (event) => this.jatszoAllapotValtozas(event),
+                onError: (event) => this.jatszoHiba(event)
             }
         });
     }
 
-    onPlayerReady(event) {
-        console.log('🎵 Music player ready');
-        this.isReady = true;
+    jatszoKesz(event) {
+        console.log('🎵 Zenelejátszó kész');
+        this.kesz = true;
         
         event.target.setVolume(30);
-        this.updateMusicButton(false);
+        this.zeneGombFrissites(false);
     }
 
-    onPlayerStateChange(event) {
+    jatszoAllapotValtozas(event) {
         if (event.data === YT.PlayerState.ENDED) {
-            this.playNext();
+            this.kovetkezoLejatszasa();
         } else if (event.data === YT.PlayerState.PLAYING) {
-            this.isPlaying = true;
+            this.jatszikE = true;
         } else if (event.data === YT.PlayerState.PAUSED) {
-            this.isPlaying = false;
+            this.jatszikE = false;
         }
     }
 
-    onPlayerError(event) {
-        console.error('YouTube player error:', event.data);
-        this.playNext();
+    jatszoHiba(event) {
+        console.error('YouTube lejátszó hiba:', event.data);
+        this.kovetkezoLejatszasa();
     }
 
-    playNext() {
-        this.currentIndex = Math.floor(Math.random() * this.playlist.length);
+    kovetkezoLejatszasa() {
+        this.jelenlegiIndex = Math.floor(Math.random() * this.lejatszasiLista.length);
         
-        if (this.player) {
-            this.player.loadVideoById(this.playlist[this.currentIndex]);
+        if (this.jatszo) {
+            this.jatszo.loadVideoById(this.lejatszasiLista[this.jelenlegiIndex]);
         }
     }
 
-    toggleMusic() {
-        console.log('🎵 Toggle music clicked, ready:', this.isReady, 'playing:', this.isPlaying);
+    zeneValt() {
+        console.log('🎵 Zene gomb megnyomva, kész:', this.kesz, 'játszik:', this.jatszikE);
         
-        if (!this.player || !this.isReady) {
-            console.log('⚠️ Player not ready yet');
+        if (!this.jatszo || !this.kesz) {
+            console.log('⚠️ Lejátszó még nem kész');
             return;
         }
 
-        if (!this.isPlaying) {
-            this.player.unMute();
-            this.player.setVolume(30);
-            this.player.playVideo();
-            this.isMuted = false;
-            this.isPlaying = true;
-            this.updateMusicButton(true);
-            localStorage.setItem('musicMuted', 'false');
-            console.log('▶️ Music started');
+        if (!this.jatszikE) {
+            this.jatszo.unMute();
+            this.jatszo.setVolume(30);
+            this.jatszo.playVideo();
+            this.nemitottE = false;
+            this.jatszikE = true;
+            this.zeneGombFrissites(true);
+            localStorage.setItem('zeneNemitva', 'false');
+            console.log('▶️ Zene elindult');
         } else {
-            this.player.pauseVideo();
-            this.isPlaying = false;
-            this.updateMusicButton(false);
-            localStorage.setItem('musicMuted', 'true');
-            console.log('⏸️ Music paused');
+            this.jatszo.pauseVideo();
+            this.jatszikE = false;
+            this.zeneGombFrissites(false);
+            localStorage.setItem('zeneNemitva', 'true');
+            console.log('⏸️ Zene megállítva');
         }
     }
 
-    updateMusicButton(playing) {
-        const musicButton = document.getElementById('musicToggle');
-        if (musicButton) {
-            const icon = musicButton.querySelector('.icon');
-            icon.textContent = playing ? '🔊' : '🔇';
+    zeneGombFrissites(jatszik) {
+        const zeneGomb = document.getElementById('musicToggle');
+        if (zeneGomb) {
+            const ikon = zeneGomb.querySelector('.icon');
+            ikon.textContent = jatszik ? '🔊' : '🔇';
         }
     }
 }
 
-let musicPlayer = null;
+let zeneJatszo = null;
 
 function onYouTubeIframeAPIReady() {
-    console.log('📺 YouTube API ready');
-    if (musicPlayer) {
-        musicPlayer.initPlayer();
+    console.log('📺 YouTube API kész');
+    if (zeneJatszo) {
+        zeneJatszo.jatszoInicializalas();
     }
 }
 
 window.addEventListener('load', () => {
-    console.log('🎮 Page loaded, creating MusicPlayer...');
-    musicPlayer = new MusicPlayer();
+    console.log('🎮 Oldal betöltve, ZeneJatszo létrehozása...');
+    zeneJatszo = new ZeneJatszo();
     
     if (typeof YT !== 'undefined' && typeof YT.Player !== 'undefined') {
-        console.log('✅ YouTube API already loaded, initializing player...');
-        musicPlayer.initPlayer();
+        console.log('✅ YouTube API már betöltve, lejátszó inicializálása...');
+        zeneJatszo.jatszoInicializalas();
     } else {
-        console.log('⏳ Waiting for YouTube API...');
+        console.log('⏳ YouTube API várakozás...');
     }
     
-    const musicToggle = document.getElementById('musicToggle');
-    if (musicToggle) {
-        console.log('🎵 Music toggle button found');
-        musicToggle.addEventListener('click', () => {
-            if (musicPlayer) {
-                musicPlayer.toggleMusic();
+    const zeneGomb = document.getElementById('musicToggle');
+    if (zeneGomb) {
+        console.log('🎵 Zene gomb megtalálva');
+        zeneGomb.addEventListener('click', () => {
+            if (zeneJatszo) {
+                zeneJatszo.zeneValt();
             }
         });
     } else {
-        console.error('❌ Music toggle button not found');
+        console.error('❌ Zene gomb nem található');
     }
 });
