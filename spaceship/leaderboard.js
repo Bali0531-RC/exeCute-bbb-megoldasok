@@ -3,8 +3,6 @@ class LeaderboardManager {
         this.apiEndpoint = 'https://api.plexdev.live';
         
         this.isOnline = false;
-        this.playerName = localStorage.getItem('playerName') || null;
-        this.personalBest = parseInt(localStorage.getItem('personalBest')) || null;
         
         this.checkConnection();
     }
@@ -32,65 +30,12 @@ class LeaderboardManager {
         }
     }
 
-    async submitScore(moves) {
-        if (!this.personalBest || moves < this.personalBest) {
-            const isNewRecord = this.personalBest !== null;
-            this.personalBest = moves;
-            localStorage.setItem('personalBest', moves);
-
-            if (!this.playerName) {
-                const shouldSubmit = confirm(
-                    `🎉 Új személyes rekord: ${moves} lépés!\n\n` +
-                    `Szeretnéd felküldeni a toplistára?`
-                );
-
-                if (shouldSubmit) {
-                    const name = this.promptForName();
-                    if (name) {
-                        this.playerName = name;
-                        localStorage.setItem('playerName', name);
-                        await this.updateLeaderboard(name, moves);
-                    }
-                }
-            } else {
-                if (isNewRecord) {
-                    const shouldUpdate = confirm(
-                        `🎉 Új személyes rekord: ${moves} lépés!\n\n` +
-                        `Frissíted a toplistán a rekordodat (${this.playerName})?`
-                    );
-                    
-                    if (shouldUpdate) {
-                        await this.updateLeaderboard(this.playerName, moves);
-                    }
-                } else {
-                    await this.updateLeaderboard(this.playerName, moves);
-                }
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    promptForName() {
-        let name = null;
-        while (!name || name.trim().length === 0) {
-            name = prompt('Add meg a neved a toplistához:');
-            if (name === null) return null;
-            name = name.trim();
-            if (name.length > 20) {
-                alert('A név maximum 20 karakter lehet!');
-                name = null;
-            }
-        }
-        return name;
-    }
-
-    async updateLeaderboard(name, moves) {
+    async submitScore(name, moves) {
         if (!this.isOnline) {
-            alert('❌ Nincs internet kapcsolat - a toplista nem elérhető');
-            return false;
+            return {
+                success: false,
+                error: 'Nincs internet kapcsolat - a toplista nem elérhető'
+            };
         }
 
         try {
@@ -106,20 +51,37 @@ class LeaderboardManager {
                 })
             });
 
+            const data = await response.json();
+
             if (response.ok) {
-                alert('✅ Toplista frissítve!');
-                return true;
+                this.playerName = name;
+                this.personalBest = moves;
+                localStorage.setItem('playerName', name);
+                localStorage.setItem('personalBest', moves);
+                
+                return { success: true, data };
             } else {
-                throw new Error('Failed to update leaderboard');
+                if (data.error === 'Name contains inappropriate content') {
+                    return {
+                        success: false,
+                        error: `A név nem megfelelő tartalmat tartalmaz (${data.category}). Kérlek válassz másik nevet!`
+                    };
+                }
+                return {
+                    success: false,
+                    error: data.error || 'Hiba történt a toplista frissítésekor'
+                };
             }
         } catch (error) {
             console.error('Leaderboard update error:', error);
-            alert('❌ Hiba történt a toplista frissítésekor');
-            return false;
+            return {
+                success: false,
+                error: 'Nem sikerült kapcsolódni a szerverhez'
+            };
         }
     }
 
-    async getLeaderboard(limit = 10) {
+    async getLeaderboard(limit = 5) {
         if (!this.isOnline) {
             return [];
         }
@@ -134,24 +96,6 @@ class LeaderboardManager {
         } catch (error) {
             console.error('Failed to fetch leaderboard:', error);
             return [];
-        }
-    }
-
-    getPersonalBest() {
-        return this.personalBest;
-    }
-
-    getPlayerName() {
-        return this.playerName;
-    }
-
-    resetPersonalData() {
-        if (confirm('Biztosan törölni szeretnéd a személyes adataidat?')) {
-            localStorage.removeItem('playerName');
-            localStorage.removeItem('personalBest');
-            this.playerName = null;
-            this.personalBest = null;
-            alert('✅ Személyes adatok törölve');
         }
     }
 }

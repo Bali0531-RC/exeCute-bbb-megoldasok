@@ -94,6 +94,18 @@
             <div class="modal-body">
                 <p>Minden űrhajót megtaláltál!</p>
                 <p>Lépések száma: <span id="finalMoves">0</span></p>
+                <div id="nameInputSection" style="display: none; margin-top: 1.5rem;">
+                    <p style="margin-bottom: 0.5rem;">Add meg a neved a toplistához:</p>
+                    <input type="text" id="playerNameInput" class="name-input" maxlength="20" placeholder="Neved (max 20 karakter)">
+                    <p id="nameError" class="error-message" style="display: none; color: var(--danger-color); margin-top: 0.5rem;"></p>
+                    <button id="submitScoreBtn" class="btn btn-primary" style="margin-top: 1rem;">Toplista küldés</button>
+                </div>
+                <div id="submittingMessage" style="display: none; margin-top: 1rem;">
+                    <p>Eredmény küldése...</p>
+                </div>
+                <div id="submitSuccess" style="display: none; margin-top: 1rem; color: var(--success-color);">
+                    <p>✅ Sikeresen felkerültél a toplistára!</p>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary close-modal">Új játék</button>
