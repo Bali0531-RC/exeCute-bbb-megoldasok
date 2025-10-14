@@ -32,6 +32,20 @@ body {
     line-height: 1.6;
     color: var(--text-primary);
     background: var(--bg-primary);
+    overflow-x: hidden;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+}
+
+html,
+body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .navbar {

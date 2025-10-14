@@ -6,6 +6,7 @@ class TodoApp {
         this.theme = localStorage.getItem('theme') || 'dark';
         this.draggedElement = null;
         this.dropZones = [];
+        this.modalIsOpen = false;
 
         this.init();
     }
@@ -61,20 +62,42 @@ class TodoApp {
             this.completeSelectedTodos();
         });
 
-        document.getElementById('deleteSelected')?.addEventListener('click', () => {
-            this.showConfirmModal('Biztosan törölni szeretnéd a kiválasztott feladatokat?', () => {
-                this.deleteSelectedTodos();
-            });
-        });
+        const deleteSelectedBtn = document.getElementById('deleteSelected');
+        if (deleteSelectedBtn) {
+            deleteSelectedBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                console.log('Delete selected clicked, size:', this.selectedTodos.size);
+                if (this.selectedTodos.size > 0 && !this.modalIsOpen) {
+                    const selectedIds = Array.from(this.selectedTodos);
+                    console.log('Selected IDs:', selectedIds);
+                    this.showConfirmModal(`Biztosan törölni szeretnéd a kiválasztott ${selectedIds.length} feladatot?`, () => {
+                        console.log('Executing delete for IDs:', selectedIds);
+                        this.todos = this.todos.filter(t => !selectedIds.includes(t.id));
+                        this.selectedTodos.clear();
+                        this.saveTodos();
+                        this.render();
+                        this.updateStats();
+                        this.updateBulkActions();
+                    });
+                }
+            }, { once: false });
+        }
 
         document.getElementById('cancelAction')?.addEventListener('click', () => {
             this.hideConfirmModal();
         });
 
         document.getElementById('confirmAction')?.addEventListener('click', () => {
+            console.log('Confirm clicked, has pendingAction:', !!this.pendingAction);
             if (this.pendingAction) {
-                this.pendingAction();
+                const actionToExecute = this.pendingAction;
+                this.pendingAction = null;
                 this.hideConfirmModal();
+                setTimeout(() => {
+                    console.log('Executing action');
+                    actionToExecute();
+                }, 0);
             }
         });
 
@@ -200,7 +223,8 @@ class TodoApp {
     }
 
     deleteSelectedTodos() {
-        this.todos = this.todos.filter(t => !this.selectedTodos.has(t.id));
+        const idsToDelete = Array.from(this.selectedTodos);
+        this.todos = this.todos.filter(t => !idsToDelete.includes(t.id));
         this.clearSelection();
         this.saveTodos();
         this.render();
@@ -503,22 +527,30 @@ class TodoApp {
     }
 
     showConfirmModal(message, action) {
+        if (this.modalIsOpen) {
+            console.log('Modal already open, ignoring');
+            return;
+        }
+        
         const modal = document.getElementById('confirmModal');
         const messageElement = document.getElementById('confirmMessage');
         
         messageElement.textContent = message;
+        this.pendingAction = action;
+        this.modalIsOpen = true;
         modal.classList.add('show');
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
-        
-        this.pendingAction = action;
     }
 
     hideConfirmModal() {
         const modal = document.getElementById('confirmModal');
         modal.classList.remove('show');
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
+        setTimeout(() => {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            this.modalIsOpen = false;
+        }, 100);
         
         this.pendingAction = null;
     }

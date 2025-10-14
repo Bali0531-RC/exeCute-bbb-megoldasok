@@ -51,13 +51,16 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
+    overflow-y: hidden;
     transition: background-color var(--transition-smooth), color var(--transition-smooth);
 }
 
 .app-container {
     min-height: 100vh;
+    max-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .top-nav {
@@ -123,6 +126,17 @@ body {
     max-width: 1400px;
     margin: 0 auto;
     width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.main-content::-webkit-scrollbar {
+    display: none;
+}
+
+.main-content {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .game-header {
@@ -273,7 +287,7 @@ body {
     border-radius: var(--border-radius);
     padding: 1.5rem;
     max-width: 600px;
-    margin: 0 auto;
+    margin: 0 auto 2rem;
 }
 
 .legend-section h3 {
@@ -336,6 +350,17 @@ body {
 
 .leaderboard-content {
     margin-bottom: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.leaderboard-content::-webkit-scrollbar {
+    display: none;
+}
+
+.leaderboard-content {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .leaderboard-table {
