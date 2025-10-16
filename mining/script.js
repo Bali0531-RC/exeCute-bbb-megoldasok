@@ -4,6 +4,7 @@ class MiningGame {
         this.clickPower = 1;
         this.clickRadius = 0;
         this.minerCost = 50;
+        this.minerCount = 0;
         this.minerPower = 1;
         this.minerRadius = 100;
         this.baseCost = 50000;
@@ -68,6 +69,8 @@ class MiningGame {
                 this.clickRadius = data.clickRadius || 0;
                 this.minerPower = data.minerPower || 1;
                 this.minerRadius = data.minerRadius || 100;
+                this.minerCount = data.minerCount || 0;
+                this.minerCost = data.minerCost || 50;
                 this.miners = data.miners || [];
                 this.upgrades = data.upgrades || this.upgrades;
                 this.endlessMode = data.endlessMode || false;
@@ -92,6 +95,8 @@ class MiningGame {
                 clickRadius: this.clickRadius,
                 minerPower: this.minerPower,
                 minerRadius: this.minerRadius,
+                minerCount: this.minerCount,
+                minerCost: this.minerCost,
                 miners: this.miners,
                 upgrades: this.upgrades,
                 endlessMode: this.endlessMode,
@@ -221,6 +226,9 @@ class MiningGame {
                 power: this.minerPower,
                 lastMine: Date.now()
             });
+            
+            this.minerCount++;
+            this.minerCost = Math.floor(50 * Math.pow(1.15, this.minerCount));
             
             this.placingMiner = false;
             this.canvas.classList.remove('placing');
@@ -388,6 +396,8 @@ class MiningGame {
             clickRadius: 0,
             minerPower: 1,
             minerRadius: 100,
+            minerCount: 0,
+            minerCost: 50,
             miners: [],
             upgrades: {
                 clickPower: { level: 0, baseCost: 10, multiplier: 1.5 },
@@ -567,6 +577,9 @@ class MiningGame {
         
         const completeBtn = document.getElementById('completeBaseBtn');
         completeBtn.disabled = this.iron < this.baseCost;
+        
+        const baseCostDisplay = document.getElementById('baseCostDisplay');
+        if (baseCostDisplay) baseCostDisplay.textContent = this.baseCost;
         
         const placeMinerBtn = document.getElementById('placeMinerBtn');
         placeMinerBtn.disabled = this.iron < this.minerCost;
