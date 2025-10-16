@@ -15,6 +15,9 @@ class MiningGame {
         this.asteroidValueMultiplier = 1.0;
         this.asteroidSpawnRate = 2000;
         
+        this.productionHistory = [];
+        this.lastProductionTime = Date.now();
+        
         this.asteroids = [];
         this.miners = [];
         this.placingMiner = false;
@@ -501,9 +504,19 @@ class MiningGame {
                     target.iron -= mined;
                     this.iron += mined;
                     miner.lastMine = now;
+                    
+                    // Termelés tracking
+                    this.productionHistory.push({
+                        amount: mined,
+                        timestamp: now
+                    });
                 }
             }
         });
+        
+        // Tisztítsuk ki a 60 másodpercnél régebbi bejegyzéseket
+        const cutoffTime = now - 60000;
+        this.productionHistory = this.productionHistory.filter(entry => entry.timestamp > cutoffTime);
     }
     
     draw() {
@@ -561,7 +574,9 @@ class MiningGame {
         document.getElementById('minerCost').textContent = this.minerCost;
         document.getElementById('minerCount').textContent = this.miners.length;
         
-        const productionRate = this.miners.length * this.minerPower;
+        // Számoljuk ki az elmúlt 60 mp termelését
+        const productionLast60s = this.productionHistory.reduce((sum, entry) => sum + entry.amount, 0);
+        const productionRate = Math.round(productionLast60s / 60);
         document.getElementById('productionRate').textContent = productionRate;
         
         document.getElementById('asteroidCount').textContent = this.asteroids.length;
