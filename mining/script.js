@@ -48,6 +48,13 @@ class MiningGame {
             const savedGame = localStorage.getItem('miningGameSave');
             if (savedGame) {
                 const data = JSON.parse(savedGame);
+                
+                // Ha reset flag van, ne töltsük be a mentést
+                if (data.resetFlag) {
+                    localStorage.removeItem('miningGameSave');
+                    return;
+                }
+                
                 this.iron = data.iron || 0;
                 this.clickPower = data.clickPower || 1;
                 this.clickRadius = data.clickRadius || 0;
@@ -331,7 +338,25 @@ class MiningGame {
     }
     
     restart() {
-        localStorage.removeItem('miningGameSave');
+        // Beállítjuk a reset flag-et a mentésben
+        const resetSave = {
+            resetFlag: true,
+            iron: 0,
+            clickPower: 1,
+            clickRadius: 0,
+            minerPower: 1,
+            minerRadius: 100,
+            miners: [],
+            upgrades: {
+                clickPower: { level: 0, baseCost: 10, multiplier: 1.5 },
+                clickRadius: { level: 0, baseCost: 25, multiplier: 1.5 },
+                minerPower: { level: 0, baseCost: 50, multiplier: 1.5 },
+                minerRadius: { level: 0, baseCost: 75, multiplier: 1.5 }
+            },
+            endlessMode: false,
+            endlessGoal: 50000
+        };
+        localStorage.setItem('miningGameSave', JSON.stringify(resetSave));
         location.reload();
     }
     
