@@ -532,8 +532,6 @@ class MiningGame {
             if (btn) btn.disabled = this.iron < cost;
             if (costEl) costEl.textContent = cost;
         });
-        
-        this.saveGame();
     }
     
     startGameLoop() {
