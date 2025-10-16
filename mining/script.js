@@ -11,6 +11,9 @@ class MiningGame {
         this.endlessMode = false;
         this.endlessGoal = 50000;
         
+        this.asteroidValueBonus = 0;
+        this.asteroidSpawnRate = 2000;
+        
         this.asteroids = [];
         this.miners = [];
         this.placingMiner = false;
@@ -21,7 +24,9 @@ class MiningGame {
             clickPower: { level: 0, baseCost: 10, multiplier: 1.5 },
             clickRadius: { level: 0, baseCost: 25, multiplier: 1.5 },
             minerPower: { level: 0, baseCost: 50, multiplier: 1.5 },
-            minerRadius: { level: 0, baseCost: 75, multiplier: 1.5 }
+            minerRadius: { level: 0, baseCost: 75, multiplier: 1.5 },
+            asteroidValue: { level: 0, baseCost: 100, multiplier: 1.6 },
+            spawnRate: { level: 0, baseCost: 150, multiplier: 1.7 }
         };
         
         this.canvas = document.getElementById('gameCanvas');
@@ -34,6 +39,9 @@ class MiningGame {
     init() {
         this.resizeCanvas();
         window.addEventListener('resize', () => this.resizeCanvas());
+        
+        // Rendszeres canvas méret ellenőrzés (zoom változásokhoz)
+        setInterval(() => this.resizeCanvas(), 500);
         
         this.initTheme();
         this.bindEvents();
@@ -64,6 +72,8 @@ class MiningGame {
                 this.upgrades = data.upgrades || this.upgrades;
                 this.endlessMode = data.endlessMode || false;
                 this.endlessGoal = data.endlessGoal || 50000;
+                this.asteroidValueBonus = data.asteroidValueBonus || 0;
+                this.asteroidSpawnRate = data.asteroidSpawnRate || 2000;
                 
                 if (this.endlessMode) {
                     this.baseCost = this.endlessGoal;
@@ -86,6 +96,8 @@ class MiningGame {
                 upgrades: this.upgrades,
                 endlessMode: this.endlessMode,
                 endlessGoal: this.endlessGoal,
+                asteroidValueBonus: this.asteroidValueBonus,
+                asteroidSpawnRate: this.asteroidSpawnRate,
                 timestamp: Date.now()
             };
             localStorage.setItem('miningGameSave', JSON.stringify(saveData));
@@ -102,8 +114,14 @@ class MiningGame {
     
     resizeCanvas() {
         const rect = this.canvas.parentElement.getBoundingClientRect();
-        this.canvas.width = rect.width;
-        this.canvas.height = rect.height;
+        const newWidth = rect.width;
+        const newHeight = rect.height;
+        
+        // Csak akkor frissítsük ha tényleg változott a méret
+        if (this.canvas.width !== newWidth || this.canvas.height !== newHeight) {
+            this.canvas.width = newWidth;
+            this.canvas.height = newHeight;
+        }
     }
     
     initTheme() {
@@ -170,6 +188,14 @@ class MiningGame {
         
         document.getElementById('upgrade-minerRadius')?.addEventListener('click', () => {
             this.buyUpgrade('minerRadius');
+        });
+        
+        document.getElementById('upgrade-asteroidValue')?.addEventListener('click', () => {
+            this.buyUpgrade('asteroidValue');
+        });
+        
+        document.getElementById('upgrade-spawnRate')?.addEventListener('click', () => {
+            this.buyUpgrade('spawnRate');
         });
     }
     
@@ -259,6 +285,13 @@ class MiningGame {
                 case 'minerRadius':
                     this.minerRadius += 30;
                     this.miners.forEach(m => m.radius = this.minerRadius);
+                    break;
+                case 'asteroidValue':
+                    this.asteroidValueBonus += 5;
+                    break;
+                case 'spawnRate':
+                    this.asteroidSpawnRate = Math.max(500, this.asteroidSpawnRate - 200);
+                    this.restartAsteroidSpawner();
                     break;
             }
             
@@ -356,10 +389,14 @@ class MiningGame {
                 clickPower: { level: 0, baseCost: 10, multiplier: 1.5 },
                 clickRadius: { level: 0, baseCost: 25, multiplier: 1.5 },
                 minerPower: { level: 0, baseCost: 50, multiplier: 1.5 },
-                minerRadius: { level: 0, baseCost: 75, multiplier: 1.5 }
+                minerRadius: { level: 0, baseCost: 75, multiplier: 1.5 },
+                asteroidValue: { level: 0, baseCost: 100, multiplier: 1.6 },
+                spawnRate: { level: 0, baseCost: 150, multiplier: 1.7 }
             },
             endlessMode: false,
-            endlessGoal: 50000
+            endlessGoal: 50000,
+            asteroidValueBonus: 0,
+            asteroidSpawnRate: 2000
         };
         localStorage.setItem('miningGameSave', JSON.stringify(resetSave));
         
@@ -370,7 +407,7 @@ class MiningGame {
     }
     
     spawnAsteroids() {
-        setInterval(() => {
+        this.asteroidSpawnerInterval = setInterval(() => {
             if (this.asteroids.length < 10) {
                 const edge = Math.floor(Math.random() * 4);
                 let x, y, vx, vy;
@@ -408,10 +445,17 @@ class MiningGame {
                     vx: vx,
                     vy: vy,
                     size: 15 + Math.random() * 15,
-                    iron: 10 + Math.floor(Math.random() * 20)
+                    iron: 10 + Math.floor(Math.random() * 20) + this.asteroidValueBonus
                 });
             }
-        }, 2000);
+        }, this.asteroidSpawnRate);
+    }
+    
+    restartAsteroidSpawner() {
+        if (this.asteroidSpawnerInterval) {
+            clearInterval(this.asteroidSpawnerInterval);
+        }
+        this.spawnAsteroids();
     }
     
     updateAsteroids() {
