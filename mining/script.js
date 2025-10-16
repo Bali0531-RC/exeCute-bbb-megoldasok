@@ -297,27 +297,30 @@ class MiningGame {
         
         if (this.endlessMode) {
             document.getElementById('winMessage').textContent = `🎉 Elérted a(z) ${this.baseCost} vasos célt!`;
-            document.getElementById('modeChoiceButtons').style.display = 'none';
-            document.getElementById('endlessInfo').style.display = 'block';
-            document.getElementById('endlessFooter').style.display = 'flex';
+            document.getElementById('modeChoiceButtons').style.display = 'flex';
+            document.getElementById('endlessInfo').style.display = 'none';
+            document.getElementById('endlessFooter').style.display = 'none';
             
-            this.endlessGoal = this.baseCost * 2;
-            this.baseCost = this.endlessGoal;
-            document.getElementById('nextGoal').textContent = this.endlessGoal;
+            const nextGoal = this.baseCost * 2;
+            document.getElementById('continueEndlessBtn').innerHTML = `♾️ Tovább (cél: ${nextGoal} vas)`;
         } else {
             document.getElementById('winMessage').textContent = '🎉 Gratulálok! Sikeresen összegyűjtötted az alaphoz szükséges vasat!';
             document.getElementById('modeChoiceButtons').style.display = 'flex';
             document.getElementById('endlessInfo').style.display = 'none';
             document.getElementById('endlessFooter').style.display = 'none';
+            document.getElementById('continueEndlessBtn').innerHTML = '♾️ Endless Mode (folytatás)';
         }
         
         document.getElementById('winModal').classList.add('show');
     }
     
     startEndlessMode() {
-        this.endlessMode = true;
-        this.endlessGoal = 100000;
-        this.baseCost = this.endlessGoal;
+        if (!this.endlessMode) {
+            this.endlessMode = true;
+            this.baseCost = this.baseCost * 2;
+        } else {
+            this.baseCost = this.baseCost * 2;
+        }
         document.getElementById('winModal').classList.remove('show');
         this.saveGame();
         this.updateUI();
