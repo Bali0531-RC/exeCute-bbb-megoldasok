@@ -309,6 +309,8 @@ class MiningGame {
             this.upgrades.clickRadius.baseCost = 1;
             this.upgrades.minerPower.baseCost = 1;
             this.upgrades.minerRadius.baseCost = 1;
+            this.upgrades.asteroidValue.baseCost = 1;
+            this.upgrades.spawnRate.baseCost = 1;
             
             document.getElementById('testModeBtn').style.background = 'var(--gradient-accent)';
         } else {
@@ -318,6 +320,8 @@ class MiningGame {
             this.upgrades.clickRadius.baseCost = 25;
             this.upgrades.minerPower.baseCost = 50;
             this.upgrades.minerRadius.baseCost = 75;
+            this.upgrades.asteroidValue.baseCost = 100;
+            this.upgrades.spawnRate.baseCost = 150;
             
             document.getElementById('testModeBtn').style.background = '';
         }
