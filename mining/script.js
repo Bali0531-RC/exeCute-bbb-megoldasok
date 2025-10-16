@@ -11,7 +11,7 @@ class MiningGame {
         this.endlessMode = false;
         this.endlessGoal = 50000;
         
-        this.asteroidValueBonus = 0;
+        this.asteroidValueMultiplier = 1.0;
         this.asteroidSpawnRate = 2000;
         
         this.asteroids = [];
@@ -72,7 +72,7 @@ class MiningGame {
                 this.upgrades = data.upgrades || this.upgrades;
                 this.endlessMode = data.endlessMode || false;
                 this.endlessGoal = data.endlessGoal || 50000;
-                this.asteroidValueBonus = data.asteroidValueBonus || 0;
+                this.asteroidValueMultiplier = data.asteroidValueMultiplier || 1.0;
                 this.asteroidSpawnRate = data.asteroidSpawnRate || 2000;
                 
                 if (this.endlessMode) {
@@ -96,7 +96,7 @@ class MiningGame {
                 upgrades: this.upgrades,
                 endlessMode: this.endlessMode,
                 endlessGoal: this.endlessGoal,
-                asteroidValueBonus: this.asteroidValueBonus,
+                asteroidValueMultiplier: this.asteroidValueMultiplier,
                 asteroidSpawnRate: this.asteroidSpawnRate,
                 timestamp: Date.now()
             };
@@ -287,10 +287,10 @@ class MiningGame {
                     this.miners.forEach(m => m.radius = this.minerRadius);
                     break;
                 case 'asteroidValue':
-                    this.asteroidValueBonus += 5;
+                    this.asteroidValueMultiplier += 0.25;
                     break;
                 case 'spawnRate':
-                    this.asteroidSpawnRate = Math.max(500, this.asteroidSpawnRate - 200);
+                    this.asteroidSpawnRate = Math.max(200, Math.floor(this.asteroidSpawnRate * 0.85));
                     this.restartAsteroidSpawner();
                     break;
             }
@@ -395,7 +395,7 @@ class MiningGame {
             },
             endlessMode: false,
             endlessGoal: 50000,
-            asteroidValueBonus: 0,
+            asteroidValueMultiplier: 1.0,
             asteroidSpawnRate: 2000
         };
         localStorage.setItem('miningGameSave', JSON.stringify(resetSave));
@@ -445,7 +445,7 @@ class MiningGame {
                     vx: vx,
                     vy: vy,
                     size: 15 + Math.random() * 15,
-                    iron: 10 + Math.floor(Math.random() * 20) + this.asteroidValueBonus
+                    iron: Math.floor((10 + Math.floor(Math.random() * 20)) * this.asteroidValueMultiplier)
                 });
             }
         }, this.asteroidSpawnRate);
