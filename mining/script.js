@@ -95,7 +95,7 @@ class MiningGame {
     }
     
     startAutoSave() {
-        setInterval(() => {
+        this.autoSaveInterval = setInterval(() => {
             this.saveGame();
         }, 5000);
     }
@@ -338,6 +338,11 @@ class MiningGame {
     }
     
     restart() {
+        // Leállítjuk az auto-save-t hogy ne írja felül a reset flag-et
+        if (this.autoSaveInterval) {
+            clearInterval(this.autoSaveInterval);
+        }
+        
         // Beállítjuk a reset flag-et a mentésben
         const resetSave = {
             resetFlag: true,
@@ -357,7 +362,11 @@ class MiningGame {
             endlessGoal: 50000
         };
         localStorage.setItem('miningGameSave', JSON.stringify(resetSave));
-        location.reload();
+        
+        // Kis késleltetés hogy biztosan mentve legyen
+        setTimeout(() => {
+            location.reload();
+        }, 100);
     }
     
     spawnAsteroids() {
