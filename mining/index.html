@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aszteroida Bányászat - ExeCute</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="top-nav">
+            <a href="../index.html" class="nav-btn">
+                <span class="icon">🏠</span>
+                Vissza a főoldalra
+            </a>
+            <h1 class="app-title">⛏️ Aszteroida Bányászat</h1>
+            <div class="nav-controls">
+                <button id="testModeBtn" class="nav-btn">
+                    <span class="icon">🧪</span>
+                    Teszt mód
+                </button>
+                <button id="themeToggle" class="nav-btn">
+                    <span class="icon">🌙</span>
+                </button>
+            </div>
+        </nav>
+
+        <div class="game-container">
+            <aside class="left-panel">
+                <div class="panel-section">
+                    <h3>📊 Erőforrások</h3>
+                    <div class="resource-display">
+                        <div class="resource-item">
+                            <span class="resource-icon">⚙️</span>
+                            <span class="resource-label">Vas:</span>
+                            <span class="resource-value" id="ironCount">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>🏭 Bányászat</h3>
+                    <div class="action-card">
+                        <div class="action-header">
+                            <span class="action-icon">👆</span>
+                            <span class="action-name">Kézi bányászat</span>
+                        </div>
+                        <div class="action-info">
+                            <span id="clickPower">1</span> vas / kattintás
+                        </div>
+                    </div>
+                    <button id="placeMinerBtn" class="action-button">
+                        <span class="btn-icon">🏗️</span>
+                        <span class="btn-text">Bányász állomás</span>
+                        <span class="btn-cost" id="minerCost">50</span>
+                        <span class="btn-icon">⚙️</span>
+                    </button>
+                </div>
+
+                <div class="panel-section">
+                    <h3>⭐ Fejlesztések</h3>
+                    <div class="upgrades-list">
+                        <button class="upgrade-btn" id="upgrade-clickPower">
+                            <div class="upgrade-header">
+                                <span class="upgrade-icon">💪</span>
+                                <span class="upgrade-name">Erősebb csákány</span>
+                            </div>
+                            <div class="upgrade-desc">Kattintás: +1 vas</div>
+                            <div class="upgrade-cost">
+                                <span id="clickPowerCost">10</span>
+                                <span class="upgrade-icon">⚙️</span>
+                            </div>
+                        </button>
+
+                        <button class="upgrade-btn" id="upgrade-clickRadius">
+                            <div class="upgrade-header">
+                                <span class="upgrade-icon">📡</span>
+                                <span class="upgrade-name">Szélesebb hatósugár</span>
+                            </div>
+                            <div class="upgrade-desc">Kattintás hatósugár: +20px</div>
+                            <div class="upgrade-cost">
+                                <span id="clickRadiusCost">25</span>
+                                <span class="upgrade-icon">⚙️</span>
+                            </div>
+                        </button>
+
+                        <button class="upgrade-btn" id="upgrade-minerPower">
+                            <div class="upgrade-header">
+                                <span class="upgrade-icon">⚡</span>
+                                <span class="upgrade-name">Jobb bányagép</span>
+                            </div>
+                            <div class="upgrade-desc">Bányász: +1 vas/s</div>
+                            <div class="upgrade-cost">
+                                <span id="minerPowerCost">50</span>
+                                <span class="upgrade-icon">⚙️</span>
+                            </div>
+                        </button>
+
+                        <button class="upgrade-btn" id="upgrade-minerRadius">
+                            <div class="upgrade-header">
+                                <span class="upgrade-icon">🔭</span>
+                                <span class="upgrade-name">Bányász hatótáv</span>
+                            </div>
+                            <div class="upgrade-desc">Bányász hatósugár: +30px</div>
+                            <div class="upgrade-cost">
+                                <span id="minerRadiusCost">75</span>
+                                <span class="upgrade-icon">⚙️</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="game-board">
+                <canvas id="gameCanvas"></canvas>
+                <div id="clickEffect" class="click-effect"></div>
+            </main>
+
+            <aside class="right-panel">
+                <div class="panel-section">
+                    <h3>🎯 Cél</h3>
+                    <div class="goal-card">
+                        <div class="goal-header">
+                            <span class="goal-icon">🏢</span>
+                            <span class="goal-name">Bázis leépítése</span>
+                        </div>
+                        <div class="goal-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="baseProgress" style="width: 0%"></div>
+                            </div>
+                            <div class="progress-text">
+                                <span id="baseProgressText">0 / 50000</span>
+                            </div>
+                        </div>
+                        <button id="completeBaseBtn" class="goal-button" disabled>
+                            <span class="btn-icon">🏆</span>
+                            <span class="btn-text">Leépítés befejezése</span>
+                            <span class="btn-cost">50000</span>
+                            <span class="btn-icon">⚙️</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>🏗️ Bányász állomások</h3>
+                    <div class="stats-list">
+                        <div class="stat-item">
+                            <span class="stat-label">Állomások:</span>
+                            <span class="stat-value" id="minerCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Termelés/s:</span>
+                            <span class="stat-value" id="productionRate">0</span>
+                            <span class="stat-unit">⚙️</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>☄️ Aszteroidák</h3>
+                    <div class="stats-list">
+                        <div class="stat-item">
+                            <span class="stat-label">Pályán:</span>
+                            <span class="stat-value" id="asteroidCount">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section info-section">
+                    <h3>ℹ️ Információ</h3>
+                    <div class="info-text">
+                        <p><strong>Kattintás:</strong> Bányássz vasat az aszteroidákból</p>
+                        <p><strong>Bányász állomás:</strong> Kattints a gombra, majd helyezd el a pályán</p>
+                        <p><strong>Cél:</strong> Gyűjts 50000 vasat!</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <div id="winModal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">🎉 Gratulálunk!</h3>
+            </div>
+            <div class="modal-body">
+                <p id="winMessage">🎉 Gratulálok! Sikeresen összegyűjtötted az alaphoz szükséges vasat!</p>
+                <p>📊 Összegyűjtött vas: <strong id="finalIron">0</strong></p>
+                <p>🏗️ Telepített bányászok: <strong id="finalMiners">0</strong></p>
+                <div id="modeChoiceButtons" style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                    <button class="btn btn-primary" id="continueEndlessBtn">♾️ Endless Mode (folytatás)</button>
+                    <button class="btn btn-primary" id="newGameBtn">🔄 Új játék (Normal Mode)</button>
+                </div>
+                <div id="endlessInfo" style="display: none; margin-top: 1rem;">
+                    <p style="color: var(--accent-color); font-weight: 600;">♾️ ENDLESS MODE AKTÍV</p>
+                    <p>🎯 Következő cél: <strong id="nextGoal">100000</strong> vas</p>
+                </div>
+            </div>
+            <div class="modal-footer" id="endlessFooter" style="display: none;">
+                <button class="btn btn-primary" id="exitEndlessBtn">🏁 Kilépés Endless Mode-ból (új játék)</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
