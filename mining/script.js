@@ -625,3 +625,17 @@ class MiningGame {
 document.addEventListener('DOMContentLoaded', () => {
     new MiningGame();
 });
+
+// YouTube API inicializálás a zenelejátszóhoz
+let zeneJatszo;
+
+function onYouTubeIframeAPIReady() {
+    console.log('🎬 YouTube API betöltve');
+    zeneJatszo = new ZeneJatszo();
+    zeneJatszo.jatszoInicializalas();
+}
+
+// Fallback ha az API már betöltött
+if (window.YT && window.YT.Player) {
+    onYouTubeIframeAPIReady();
+}
