@@ -68,8 +68,10 @@ html::-webkit-scrollbar {
 
 .app-container {
     min-height: 100vh;
+    max-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .top-nav {
@@ -134,6 +136,7 @@ html::-webkit-scrollbar {
     gap: 1rem;
     padding: 1rem;
     overflow: hidden;
+    min-height: 0;
 }
 
 .left-panel,
@@ -144,6 +147,7 @@ html::-webkit-scrollbar {
     gap: 1rem;
     overflow-y: auto;
     overflow-x: hidden;
+    padding-bottom: 1rem;
 }
 
 .left-panel::-webkit-scrollbar,
@@ -359,6 +363,8 @@ html::-webkit-scrollbar {
     border-radius: var(--border-radius);
     position: relative;
     overflow: hidden;
+    min-height: 0;
+    min-width: 0;
 }
 
 #gameCanvas {
@@ -623,11 +629,17 @@ html::-webkit-scrollbar {
     .left-panel,
     .right-panel {
         width: 100%;
-        max-height: 200px;
+        max-height: 250px;
+        flex-shrink: 0;
     }
 
     .game-board {
-        min-height: 400px;
+        flex: 1;
+        min-height: 300px;
+    }
+    
+    .app-container {
+        max-height: 100vh;
     }
 
     .app-title {

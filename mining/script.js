@@ -4,12 +4,19 @@ class MiningGame {
         this.clickPower = 1;
         this.clickRadius = 0;
         this.minerCost = 50;
+        this.minerCount = 0;
         this.minerPower = 1;
         this.minerRadius = 100;
         this.baseCost = 50000;
         this.testMode = false;
         this.endlessMode = false;
         this.endlessGoal = 50000;
+        
+        this.asteroidValueMultiplier = 1.0;
+        this.asteroidSpawnRate = 2000;
+        
+        this.productionHistory = [];
+        this.lastProductionTime = Date.now();
         
         this.asteroids = [];
         this.miners = [];
@@ -21,7 +28,9 @@ class MiningGame {
             clickPower: { level: 0, baseCost: 10, multiplier: 1.5 },
             clickRadius: { level: 0, baseCost: 25, multiplier: 1.5 },
             minerPower: { level: 0, baseCost: 50, multiplier: 1.5 },
-            minerRadius: { level: 0, baseCost: 75, multiplier: 1.5 }
+            minerRadius: { level: 0, baseCost: 75, multiplier: 1.5 },
+            asteroidValue: { level: 0, baseCost: 100, multiplier: 1.6 },
+            spawnRate: { level: 0, baseCost: 150, multiplier: 1.7 }
         };
         
         this.canvas = document.getElementById('gameCanvas');
@@ -34,6 +43,9 @@ class MiningGame {
     init() {
         this.resizeCanvas();
         window.addEventListener('resize', () => this.resizeCanvas());
+        
+        // Rendszeres canvas méret ellenőrzés (zoom változásokhoz)
+        setInterval(() => this.resizeCanvas(), 500);
         
         this.initTheme();
         this.bindEvents();
@@ -48,15 +60,26 @@ class MiningGame {
             const savedGame = localStorage.getItem('miningGameSave');
             if (savedGame) {
                 const data = JSON.parse(savedGame);
+                
+                // Ha reset flag van, ne töltsük be a mentést
+                if (data.resetFlag) {
+                    localStorage.removeItem('miningGameSave');
+                    return;
+                }
+                
                 this.iron = data.iron || 0;
                 this.clickPower = data.clickPower || 1;
                 this.clickRadius = data.clickRadius || 0;
                 this.minerPower = data.minerPower || 1;
                 this.minerRadius = data.minerRadius || 100;
+                this.minerCount = data.minerCount || 0;
+                this.minerCost = data.minerCost || 50;
                 this.miners = data.miners || [];
                 this.upgrades = data.upgrades || this.upgrades;
                 this.endlessMode = data.endlessMode || false;
                 this.endlessGoal = data.endlessGoal || 50000;
+                this.asteroidValueMultiplier = data.asteroidValueMultiplier || 1.0;
+                this.asteroidSpawnRate = data.asteroidSpawnRate || 2000;
                 
                 if (this.endlessMode) {
                     this.baseCost = this.endlessGoal;
@@ -75,10 +98,14 @@ class MiningGame {
                 clickRadius: this.clickRadius,
                 minerPower: this.minerPower,
                 minerRadius: this.minerRadius,
+                minerCount: this.minerCount,
+                minerCost: this.minerCost,
                 miners: this.miners,
                 upgrades: this.upgrades,
                 endlessMode: this.endlessMode,
                 endlessGoal: this.endlessGoal,
+                asteroidValueMultiplier: this.asteroidValueMultiplier,
+                asteroidSpawnRate: this.asteroidSpawnRate,
                 timestamp: Date.now()
             };
             localStorage.setItem('miningGameSave', JSON.stringify(saveData));
@@ -88,15 +115,21 @@ class MiningGame {
     }
     
     startAutoSave() {
-        setInterval(() => {
+        this.autoSaveInterval = setInterval(() => {
             this.saveGame();
         }, 5000);
     }
     
     resizeCanvas() {
         const rect = this.canvas.parentElement.getBoundingClientRect();
-        this.canvas.width = rect.width;
-        this.canvas.height = rect.height;
+        const newWidth = rect.width;
+        const newHeight = rect.height;
+        
+        // Csak akkor frissítsük ha tényleg változott a méret
+        if (this.canvas.width !== newWidth || this.canvas.height !== newHeight) {
+            this.canvas.width = newWidth;
+            this.canvas.height = newHeight;
+        }
     }
     
     initTheme() {
@@ -164,6 +197,14 @@ class MiningGame {
         document.getElementById('upgrade-minerRadius')?.addEventListener('click', () => {
             this.buyUpgrade('minerRadius');
         });
+        
+        document.getElementById('upgrade-asteroidValue')?.addEventListener('click', () => {
+            this.buyUpgrade('asteroidValue');
+        });
+        
+        document.getElementById('upgrade-spawnRate')?.addEventListener('click', () => {
+            this.buyUpgrade('spawnRate');
+        });
     }
     
     handleCanvasClick(e) {
@@ -188,6 +229,9 @@ class MiningGame {
                 power: this.minerPower,
                 lastMine: Date.now()
             });
+            
+            this.minerCount++;
+            this.minerCost = Math.floor(50 * Math.pow(1.15, this.minerCount));
             
             this.placingMiner = false;
             this.canvas.classList.remove('placing');
@@ -253,6 +297,13 @@ class MiningGame {
                     this.minerRadius += 30;
                     this.miners.forEach(m => m.radius = this.minerRadius);
                     break;
+                case 'asteroidValue':
+                    this.asteroidValueMultiplier += 0.25;
+                    break;
+                case 'spawnRate':
+                    this.asteroidSpawnRate = Math.max(200, Math.floor(this.asteroidSpawnRate * 0.85));
+                    this.restartAsteroidSpawner();
+                    break;
             }
             
             this.updateUI();
@@ -269,6 +320,8 @@ class MiningGame {
             this.upgrades.clickRadius.baseCost = 1;
             this.upgrades.minerPower.baseCost = 1;
             this.upgrades.minerRadius.baseCost = 1;
+            this.upgrades.asteroidValue.baseCost = 1;
+            this.upgrades.spawnRate.baseCost = 1;
             
             document.getElementById('testModeBtn').style.background = 'var(--gradient-accent)';
         } else {
@@ -278,6 +331,8 @@ class MiningGame {
             this.upgrades.clickRadius.baseCost = 25;
             this.upgrades.minerPower.baseCost = 50;
             this.upgrades.minerRadius.baseCost = 75;
+            this.upgrades.asteroidValue.baseCost = 100;
+            this.upgrades.spawnRate.baseCost = 150;
             
             document.getElementById('testModeBtn').style.background = '';
         }
@@ -331,12 +386,45 @@ class MiningGame {
     }
     
     restart() {
-        localStorage.removeItem('miningGameSave');
-        location.reload();
+        // Leállítjuk az auto-save-t hogy ne írja felül a reset flag-et
+        if (this.autoSaveInterval) {
+            clearInterval(this.autoSaveInterval);
+        }
+        
+        // Beállítjuk a reset flag-et a mentésben
+        const resetSave = {
+            resetFlag: true,
+            iron: 0,
+            clickPower: 1,
+            clickRadius: 0,
+            minerPower: 1,
+            minerRadius: 100,
+            minerCount: 0,
+            minerCost: 50,
+            miners: [],
+            upgrades: {
+                clickPower: { level: 0, baseCost: 10, multiplier: 1.5 },
+                clickRadius: { level: 0, baseCost: 25, multiplier: 1.5 },
+                minerPower: { level: 0, baseCost: 50, multiplier: 1.5 },
+                minerRadius: { level: 0, baseCost: 75, multiplier: 1.5 },
+                asteroidValue: { level: 0, baseCost: 100, multiplier: 1.6 },
+                spawnRate: { level: 0, baseCost: 150, multiplier: 1.7 }
+            },
+            endlessMode: false,
+            endlessGoal: 50000,
+            asteroidValueMultiplier: 1.0,
+            asteroidSpawnRate: 2000
+        };
+        localStorage.setItem('miningGameSave', JSON.stringify(resetSave));
+        
+        // Kis késleltetés hogy biztosan mentve legyen
+        setTimeout(() => {
+            location.reload();
+        }, 100);
     }
     
     spawnAsteroids() {
-        setInterval(() => {
+        this.asteroidSpawnerInterval = setInterval(() => {
             if (this.asteroids.length < 10) {
                 const edge = Math.floor(Math.random() * 4);
                 let x, y, vx, vy;
@@ -374,10 +462,17 @@ class MiningGame {
                     vx: vx,
                     vy: vy,
                     size: 15 + Math.random() * 15,
-                    iron: 10 + Math.floor(Math.random() * 20)
+                    iron: Math.floor((10 + Math.floor(Math.random() * 20)) * this.asteroidValueMultiplier)
                 });
             }
-        }, 2000);
+        }, this.asteroidSpawnRate);
+    }
+    
+    restartAsteroidSpawner() {
+        if (this.asteroidSpawnerInterval) {
+            clearInterval(this.asteroidSpawnerInterval);
+        }
+        this.spawnAsteroids();
     }
     
     updateAsteroids() {
@@ -409,9 +504,19 @@ class MiningGame {
                     target.iron -= mined;
                     this.iron += mined;
                     miner.lastMine = now;
+                    
+                    // Termelés tracking
+                    this.productionHistory.push({
+                        amount: mined,
+                        timestamp: now
+                    });
                 }
             }
         });
+        
+        // Tisztítsuk ki a 60 másodpercnél régebbi bejegyzéseket
+        const cutoffTime = now - 60000;
+        this.productionHistory = this.productionHistory.filter(entry => entry.timestamp > cutoffTime);
     }
     
     draw() {
@@ -469,7 +574,9 @@ class MiningGame {
         document.getElementById('minerCost').textContent = this.minerCost;
         document.getElementById('minerCount').textContent = this.miners.length;
         
-        const productionRate = this.miners.length * this.minerPower;
+        // Számoljuk ki az elmúlt 60 mp termelését
+        const productionLast60s = this.productionHistory.reduce((sum, entry) => sum + entry.amount, 0);
+        const productionRate = Math.round(productionLast60s / 60);
         document.getElementById('productionRate').textContent = productionRate;
         
         document.getElementById('asteroidCount').textContent = this.asteroids.length;
@@ -486,6 +593,9 @@ class MiningGame {
         const completeBtn = document.getElementById('completeBaseBtn');
         completeBtn.disabled = this.iron < this.baseCost;
         
+        const baseCostDisplay = document.getElementById('baseCostDisplay');
+        if (baseCostDisplay) baseCostDisplay.textContent = this.baseCost;
+        
         const placeMinerBtn = document.getElementById('placeMinerBtn');
         placeMinerBtn.disabled = this.iron < this.minerCost;
         
@@ -498,8 +608,6 @@ class MiningGame {
             if (btn) btn.disabled = this.iron < cost;
             if (costEl) costEl.textContent = cost;
         });
-        
-        this.saveGame();
     }
     
     startGameLoop() {
