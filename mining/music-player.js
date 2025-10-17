@@ -102,36 +102,3 @@ class ZeneJatszo {
         }
     }
 }
-
-let zeneJatszo = null;
-
-function onYouTubeIframeAPIReady() {
-    console.log('📺 YouTube API kész');
-    if (zeneJatszo) {
-        zeneJatszo.jatszoInicializalas();
-    }
-}
-
-window.addEventListener('load', () => {
-    console.log('🎮 Oldal betöltve, ZeneJatszo létrehozása...');
-    zeneJatszo = new ZeneJatszo();
-    
-    if (typeof YT !== 'undefined' && typeof YT.Player !== 'undefined') {
-        console.log('✅ YouTube API már betöltve, lejátszó inicializálása...');
-        zeneJatszo.jatszoInicializalas();
-    } else {
-        console.log('⏳ YouTube API várakozás...');
-    }
-    
-    const zeneGomb = document.getElementById('musicToggle');
-    if (zeneGomb) {
-        console.log('🎵 Zene gomb megtalálva');
-        zeneGomb.addEventListener('click', () => {
-            if (zeneJatszo) {
-                zeneJatszo.zeneValt();
-            }
-        });
-    } else {
-        console.error('❌ Zene gomb nem található');
-    }
-});

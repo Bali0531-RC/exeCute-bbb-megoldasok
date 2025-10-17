@@ -622,11 +622,6 @@ class MiningGame {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    new MiningGame();
-});
-
-// YouTube API inicializálás a zenelejátszóhoz
 let zeneJatszo;
 
 function onYouTubeIframeAPIReady() {
@@ -635,7 +630,23 @@ function onYouTubeIframeAPIReady() {
     zeneJatszo.jatszoInicializalas();
 }
 
-// Fallback ha az API már betöltött
-if (window.YT && window.YT.Player) {
-    onYouTubeIframeAPIReady();
-}
+document.addEventListener('DOMContentLoaded', () => {
+    new MiningGame();
+    
+    // YouTube API fallback ha már betöltve van
+    if (window.YT && window.YT.Player) {
+        onYouTubeIframeAPIReady();
+    }
+    
+    // Zene gomb kezelése
+    const musicToggle = document.getElementById('musicToggle');
+    if (musicToggle) {
+        musicToggle.addEventListener('click', () => {
+            if (zeneJatszo) {
+                zeneJatszo.zeneValt();
+            } else {
+                console.warn('⚠️ Zenelejátszó még nem inicializálódott');
+            }
+        });
+    }
+});
