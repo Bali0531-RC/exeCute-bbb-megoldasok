@@ -22,6 +22,10 @@ class MiningGame {
         this.miners = [];
         this.placingMiner = false;
         
+        this.bases = [];
+        this.placingBase = false;
+        this.baseLevel = 1;
+        
         this.theme = localStorage.getItem('theme') || 'dark';
         
         this.upgrades = {
@@ -80,6 +84,9 @@ class MiningGame {
                 this.endlessGoal = data.endlessGoal || 50000;
                 this.asteroidValueMultiplier = data.asteroidValueMultiplier || 1.0;
                 this.asteroidSpawnRate = data.asteroidSpawnRate || 2000;
+                this.baseCost = data.baseCost || 50000;
+                this.bases = data.bases || [];
+                this.baseLevel = data.baseLevel || 1;
                 
                 if (this.endlessMode) {
                     this.baseCost = this.endlessGoal;
@@ -106,6 +113,9 @@ class MiningGame {
                 endlessGoal: this.endlessGoal,
                 asteroidValueMultiplier: this.asteroidValueMultiplier,
                 asteroidSpawnRate: this.asteroidSpawnRate,
+                baseCost: this.baseCost,
+                bases: this.bases,
+                baseLevel: this.baseLevel,
                 timestamp: Date.now()
             };
             localStorage.setItem('miningGameSave', JSON.stringify(saveData));
@@ -167,7 +177,7 @@ class MiningGame {
         });
         
         document.getElementById('completeBaseBtn')?.addEventListener('click', () => {
-            this.completeBase();
+            this.startPlacingBase();
         });
         
         document.getElementById('newGameBtn')?.addEventListener('click', () => {
@@ -214,6 +224,8 @@ class MiningGame {
         
         if (this.placingMiner) {
             this.placeMiner(x, y);
+        } else if (this.placingBase) {
+            this.placeBase(x, y);
         } else {
             this.mineAsteroids(x, y);
         }
@@ -346,6 +358,102 @@ class MiningGame {
         }
     }
     
+    startPlacingBase() {
+        if (this.iron >= this.baseCost) {
+            // Ha még nincs bázis, akkor rakjunk le egyet
+            if (this.bases.length === 0 && !this.placingBase) {
+                this.placingBase = true;
+                this.canvas.classList.add('placing-base');
+                document.getElementById('completeBaseBtn').textContent = '📍 Kattints a térképre a bázis lerakásához!';
+            } else if (this.bases.length > 0) {
+                // Ha már van bázis, akkor fejlesszük
+                this.upgradeBase();
+            }
+        }
+    }
+    
+    placeBase(x, y) {
+        if (this.iron >= this.baseCost && this.bases.length === 0) {
+            this.iron -= this.baseCost;
+            
+            // Bázis boostok szintjétől függően
+            const boosts = this.calculateBaseBoosts(1);
+            
+            this.bases.push({
+                x: x,
+                y: y,
+                level: 1,
+                radius: 80,
+                boosts: boosts
+            });
+            
+            // Alkalmazzuk a boostokat
+            this.applyBaseBoosts(boosts);
+            
+            this.placingBase = false;
+            this.canvas.classList.remove('placing-base');
+            
+            // Endless mode aktiválása
+            this.endlessMode = true;
+            this.baseCost = this.baseCost * 2;
+            this.baseLevel = 2;
+            
+            this.saveGame();
+            this.updateUI();
+        }
+    }
+    
+    upgradeBase() {
+        if (this.iron >= this.baseCost && this.bases.length > 0) {
+            this.iron -= this.baseCost;
+            
+            // Frissítjük az első (egyetlen) bázist
+            const base = this.bases[0];
+            base.level++;
+            
+            // Új boostok kiszámítása
+            const boosts = this.calculateBaseBoosts(base.level);
+            base.boosts = boosts;
+            
+            // Alkalmazzuk az új boostokat
+            this.applyBaseBoosts(boosts);
+            
+            // Következő szint költsége
+            this.baseCost = this.baseCost * 2;
+            this.baseLevel = base.level + 1;
+            
+            this.saveGame();
+            this.updateUI();
+        }
+    }
+    
+    calculateBaseBoosts(level) {
+        // Minden szint jobb boostokat ad
+        return {
+            clickPower: 5 * level,
+            spawnRateBonus: 0.25 * level, // 25% gyorsabb spawn per szint
+            asteroidValueBonus: 0.25 * level, // 25% több vas per szint
+            minerPowerBonus: 2 * level // +2 vas/s a bányászoknak per szint
+        };
+    }
+    
+    applyBaseBoosts(boosts) {
+        // Kattintás erő növelése
+        this.clickPower += boosts.clickPower;
+        
+        // Aszteroida érték növelése
+        this.asteroidValueMultiplier += boosts.asteroidValueBonus;
+        
+        // Spawn rate növelése
+        const spawnRateReduction = 1 - boosts.spawnRateBonus;
+        this.asteroidSpawnRate = Math.max(200, Math.floor(this.asteroidSpawnRate * spawnRateReduction));
+        this.restartAsteroidSpawner();
+        
+        // Bányász erő növelése
+        this.minerPower += boosts.minerPowerBonus;
+        this.miners.forEach(m => m.power = this.minerPower);
+    }
+    
     showWinModal() {
         document.getElementById('finalIron').textContent = Math.floor(this.iron);
         document.getElementById('finalMiners').textContent = this.miners.length;
@@ -402,6 +510,9 @@ class MiningGame {
             minerCount: 0,
             minerCost: 50,
             miners: [],
+            bases: [],
+            baseLevel: 1,
+            baseCost: 50000,
             upgrades: {
                 clickPower: { level: 0, baseCost: 10, multiplier: 1.5 },
                 clickRadius: { level: 0, baseCost: 25, multiplier: 1.5 },
@@ -522,6 +633,7 @@ class MiningGame {
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
+        this.drawBases();
         this.drawAsteroids();
         this.drawMiners();
     }
@@ -568,11 +680,79 @@ class MiningGame {
         });
     }
     
+    drawBases() {
+        this.bases.forEach(base => {
+            this.ctx.save();
+            
+            // Külső kör (boostok hatósugara)
+            this.ctx.strokeStyle = 'rgba(16, 185, 129, 0.3)';
+            this.ctx.lineWidth = 3;
+            this.ctx.beginPath();
+            this.ctx.arc(base.x, base.y, base.radius, 0, Math.PI * 2);
+            this.ctx.stroke();
+            
+            // Bázis épület
+            this.ctx.fillStyle = '#10b981';
+            this.ctx.beginPath();
+            this.ctx.arc(base.x, base.y, 25, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Bázis ikon
+            this.ctx.fillStyle = '#fff';
+            this.ctx.font = 'bold 28px Inter';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText('🏢', base.x, base.y);
+            
+            // Szint megjelenítése
+            this.ctx.fillStyle = '#fff';
+            this.ctx.font = 'bold 14px Inter';
+            this.ctx.fillText(`Lv.${base.level}`, base.x, base.y + 40);
+            
+            this.ctx.restore();
+        });
+    }
+    
     updateUI() {
         document.getElementById('ironCount').textContent = Math.floor(this.iron);
         document.getElementById('clickPower').textContent = this.clickPower;
         document.getElementById('minerCost').textContent = this.minerCost;
         document.getElementById('minerCount').textContent = this.miners.length;
+        
+        // Bázisok száma és jelenlegi szint
+        const baseCountEl = document.getElementById('baseCount');
+        if (baseCountEl) {
+            if (this.bases.length > 0) {
+                baseCountEl.textContent = `Lv.${this.bases[0].level}`;
+            } else {
+                baseCountEl.textContent = '0';
+            }
+        }
+        
+        const nextBaseLevelEl = document.getElementById('nextBaseLevel');
+        if (nextBaseLevelEl) {
+            if (this.bases.length > 0) {
+                nextBaseLevelEl.textContent = this.bases[0].level + 1;
+            } else {
+                nextBaseLevelEl.textContent = '1';
+            }
+        }
+        
+        // Következő bázis boostjainak megjelenítése
+        const baseBoostsListEl = document.getElementById('baseBoostsList');
+        if (baseBoostsListEl && this.iron >= this.baseCost * 0.5) {
+            const nextLevel = this.bases.length > 0 ? this.bases[0].level + 1 : 1;
+            const nextBoosts = this.calculateBaseBoosts(nextLevel);
+            baseBoostsListEl.innerHTML = `
+                <p style="color: var(--accent-color); margin: 0.25rem 0;"><strong>Következő boostok (Lv.${nextLevel}):</strong></p>
+                <p style="margin: 0.25rem 0;">💪 +${nextBoosts.clickPower} vas/kattintás</p>
+                <p style="margin: 0.25rem 0;">⏱️ +${(nextBoosts.spawnRateBonus * 100).toFixed(0)}% spawn sebesség</p>
+                <p style="margin: 0.25rem 0;">💎 +${(nextBoosts.asteroidValueBonus * 100).toFixed(0)}% aszteroida érték</p>
+                <p style="margin: 0.25rem 0;">⚡ +${nextBoosts.minerPowerBonus} vas/s bányászoknak</p>
+            `;
+        } else if (baseBoostsListEl) {
+            baseBoostsListEl.innerHTML = '';
+        }
         
         // Számoljuk ki az elmúlt 60 mp termelését
         const productionLast60s = this.productionHistory.reduce((sum, entry) => sum + entry.amount, 0);
@@ -593,6 +773,15 @@ class MiningGame {
         const completeBtn = document.getElementById('completeBaseBtn');
         completeBtn.disabled = this.iron < this.baseCost;
         
+        // Bázis gomb szövege
+        if (this.placingBase) {
+            completeBtn.innerHTML = '<span class="btn-icon">📍</span> Kattints a térképre!';
+        } else if (this.bases.length === 0) {
+            completeBtn.innerHTML = `<span class="btn-icon">🏢</span><span class="btn-text">Bázis építése</span><span class="btn-cost" id="baseCostDisplay">${this.baseCost}</span><span class="btn-icon">⚙️</span>`;
+        } else {
+            completeBtn.innerHTML = `<span class="btn-icon">⬆️</span><span class="btn-text">Bázis fejlesztés (Lv.${this.baseLevel})</span><span class="btn-cost" id="baseCostDisplay">${this.baseCost}</span><span class="btn-icon">⚙️</span>`;
+        }
+        
         const baseCostDisplay = document.getElementById('baseCostDisplay');
         if (baseCostDisplay) baseCostDisplay.textContent = this.baseCost;
         
@@ -608,8 +797,9 @@ class MiningGame {
             if (btn) btn.disabled = this.iron < cost;
             if (costEl) costEl.textContent = cost;
         });
-    }
     
+    }
+
     startGameLoop() {
         const gameLoop = () => {
             this.updateAsteroids();
