@@ -378,6 +378,10 @@ html::-webkit-scrollbar {
     cursor: copy;
 }
 
+#gameCanvas.placing-base {
+    cursor: crosshair;
+}
+
 .click-effect {
     position: absolute;
     pointer-events: none;
