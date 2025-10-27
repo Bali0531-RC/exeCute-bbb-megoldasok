@@ -87,10 +87,6 @@ class MiningGame {
                 this.baseCost = data.baseCost || 50000;
                 this.bases = data.bases || [];
                 this.baseLevel = data.baseLevel || 1;
-                
-                if (this.endlessMode) {
-                    this.baseCost = this.endlessGoal;
-                }
             }
         } catch (e) {
             console.error('Hiba a játék betöltésekor:', e);
