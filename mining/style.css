@@ -260,6 +260,10 @@ html::-webkit-scrollbar {
     transition: all var(--transition-fast);
 }
 
+.action-button * {
+    pointer-events: none;
+}
+
 .action-button:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px var(--shadow-light);
@@ -459,6 +463,10 @@ html::-webkit-scrollbar {
     font-weight: 600;
     cursor: pointer;
     transition: all var(--transition-fast);
+}
+
+.goal-button * {
+    pointer-events: none;
 }
 
 .goal-button:hover:not(:disabled) {
