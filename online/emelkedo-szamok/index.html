@@ -13,34 +13,32 @@
     <nav class="top-nav">
         <button id="backButton" class="nav-btn">
             <span class="icon">🏠</span>
-            Vissza a főoldalra
+            <span>Vissza a főoldalra</span>
         </button>
-        <h1 class="app-title">📈 Emelkedő számok</h1>
+        <h1 class="app-title">Emelkedő számok</h1>
         <button id="themeToggle" class="nav-btn">
             <span class="icon">🌙</span>
         </button>
     </nav>
-
-    <main class="main-content">
-        <section>
-            <h2>Számok hozzáadása</h2>
-            <div class="input-section">
-                <input type="number" id="numberInput" placeholder="Írj be egy számot...">
+    
+    <div class="main-content">
+        <section class="input-section">
+                <h2>Számok bekérése</h2>
+                <input type="number" id="numberInput" placeholder="Írj be egy pozitív számot">
                 <button id="addBtn">Hozzáad</button>
-                <button id="resetBtn">Törlés</button>
-            </div>
-        </section>
+                <button id="resetBtn">Újrakezdés</button>
+            </section>
 
-        <section>
-            <h2>Megadott számok</h2>
-            <div id="numbersList"></div>
-        </section>
+            <section class="numbers-section">
+                <h2>Beírt számok:</h2>
+                <div id="numbersList"></div>
+            </section>
 
-        <section>
-            <h2>Eredmény</h2>
-            <div id="result">Add meg a számokat!</div>
-        </section>
-    </main>
+            <section class="result-section">
+                <h2>Leghosszabb emelkedő részsorozat:</h2>
+                <div id="result"></div>
+            </section>
+    </div>
 
     <script src="script.js"></script>
 </body>
