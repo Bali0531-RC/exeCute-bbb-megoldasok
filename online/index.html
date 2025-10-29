@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Round - ExeCute</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="top-nav">
+        <button id="backButton" class="nav-btn">
+            <span class="icon">🏠</span>
+            <span>Vissza a főoldalra</span>
+        </button>
+        <h1 class="app-title">Online Forduló</h1>
+        <button id="themeToggle" class="nav-btn">
+            <span class="icon">🌙</span>
+        </button>
+    </nav>
+
+    <main class="main-content">
+        <div class="intro-section">
+            <h2>Feladatok</h2>
+            <p>Válaszd ki az egyik feladatot a megoldáshoz!</p>
+        </div>
+
+        <div class="tasks-grid">
+            <a href="naprendszer/index.html" class="task-card">
+                <div class="task-icon">🪐</div>
+                <h3>Naprendszer generátor</h3>
+                <p>Véletlenszerű naprendszerek generálása bolygókkal és holdakkal</p>
+                <div class="task-points">32 pont</div>
+            </a>
+
+            <a href="vizeskancsok/index.html" class="task-card">
+                <div class="task-icon">💧</div>
+                <h3>Vizes kancsók</h3>
+                <p>Klasszikus logikai puzzle 9 és 4 literes kancsókkal</p>
+                <div class="task-points">32 pont</div>
+            </a>
+
+            <a href="robotseta/index.html" class="task-card">
+                <div class="task-icon">🤖</div>
+                <h3>Robotséta</h3>
+                <p>Robot mozgásának szimulálása fordulási jelekkel</p>
+                <div class="task-points">36 pont</div>
+            </a>
+
+            <a href="emelkedo-szamok/index.html" class="task-card">
+                <div class="task-icon">📈</div>
+                <h3>Emelkedő számok</h3>
+                <p>Leghosszabb emelkedő részsorozat keresése</p>
+                <div class="task-points">36 pont</div>
+            </a>
+
+            <a href="aszteroida-kereso/index.html" class="task-card">
+                <div class="task-icon">☄️</div>
+                <h3>Aszteroida kereső</h3>
+                <p>Rezet tartalmazó aszteroidák keresése korlátozott látótérrel</p>
+                <div class="task-points">40 pont</div>
+            </a>
+
+            <a href="almaszedo/index.html" class="task-card">
+                <div class="task-icon">🍎</div>
+                <h3>Almaszedő</h3>
+                <p>Optimális útvonal keresése almák összegyűjtéséhez</p>
+                <div class="task-points">48 pont</div>
+            </a>
+        </div>
+    </main>
+
+    <script>
+        const backButton = document.getElementById('backButton');
+        const themeToggle = document.getElementById('themeToggle');
+
+        backButton.addEventListener('click', () => {
+            window.location.href = '../index.html';
+        });
+
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.querySelector('.icon').textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            themeToggle.querySelector('.icon').textContent = newTheme === 'dark' ? '🌙' : '☀️';
+        });
+    </script>
+</body>
+</html>

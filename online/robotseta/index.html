@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robotséta - ExeCute</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="top-nav">
+        <button id="backButton" class="nav-btn">
+            <span class="icon">🏠</span>
+            Vissza a főoldalra
+        </button>
+        <h1 class="app-title">Robotséta</h1>
+        <button id="themeToggle" class="nav-btn">
+            <span class="icon">🌙</span>
+        </button>
+    </nav>
+
+    <main class="main-content">
+        <div class="controls">
+            <div class="control-group">
+                <label>Rács mérete:</label>
+                <input type="number" id="gridSize" value="8" min="5" max="20">
+                <button id="createGridBtn">Új pálya</button>
+            </div>
+            
+            <div class="control-group">
+                <label>Fordulás típusa:</label>
+                <select id="turnType">
+                    <option value="left">↰ Balra</option>
+                    <option value="right">↱ Jobbra</option>
+                    <option value="uturn">↶ Megfordul</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <button id="startBtn" class="start-btn">▶ Indítás</button>
+                <button id="stopBtn" class="stop-btn">⏹ Állj</button>
+                <button id="resetBtn" class="reset-btn">🔄 Újra</button>
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <canvas id="gridCanvas" width="600" height="600"></canvas>
+        </div>
+
+        <div class="info">
+            <div>Pozíció: <span id="position">(0, 0)</span></div>
+            <div>Irány: <span id="direction">↑ Fel</span></div>
+            <div>Lépések: <span id="steps">0</span></div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-icon robot-icon">🤖</span>
+                <span>Robot</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon turn-left">↰</span>
+                <span>Balra fordul</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon turn-right">↱</span>
+                <span>Jobbra fordul</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon turn-uturn">↶</span>
+                <span>Megfordul</span>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

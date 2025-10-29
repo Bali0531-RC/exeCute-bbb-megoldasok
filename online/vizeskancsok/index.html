@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vizes kancsók - ExeCute</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="top-nav">
+        <button id="backButton" class="nav-btn">
+            <span class="icon">🏠</span>
+            <span>Vissza a főoldalra</span>
+        </button>
+        <h1 class="app-title">Vizes kancsók</h1>
+        <button id="themeToggle" class="nav-btn">
+            <span class="icon">🌙</span>
+        </button>
+    </nav>
+
+    <main class="main-content">
+        <div class="jugs-container">
+            <div class="jug" id="jug9">
+                <div class="jug-label">9 Literes</div>
+                <div class="jug-visual">
+                    <div class="water" id="water9"></div>
+                    <div class="jug-amount" id="amount9">0 L</div>
+                </div>
+                <div class="jug-controls">
+                    <button onclick="fill(9)">Feltölt</button>
+                    <button onclick="empty(9)">Kiönt</button>
+                </div>
+            </div>
+
+            <div class="transfer-controls">
+                <button onclick="pour(9, 4)" class="transfer-btn">9L → 4L</button>
+                <button onclick="pour(4, 9)" class="transfer-btn">4L → 9L</button>
+            </div>
+
+            <div class="jug" id="jug4">
+                <div class="jug-label">4 Literes</div>
+                <div class="jug-visual">
+                    <div class="water" id="water4"></div>
+                    <div class="jug-amount" id="amount4">0 L</div>
+                </div>
+                <div class="jug-controls">
+                    <button onclick="fill(4)">Feltölt</button>
+                    <button onclick="empty(4)">Kiönt</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="info">
+            <div class="steps">Lépések: <span id="steps">0</span></div>
+            <button onclick="reset()" class="reset-btn">Újrakezd</button>
+        </div>
+
+        <div id="success" class="success hidden">
+            🎉 Gratulálok! Sikeresen elérted a 6 litert <span id="finalSteps">0</span> lépésben!
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naprendszer - ExeCute</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="top-nav">
+        <button id="backButton" class="nav-btn">
+            <span class="icon">🏠</span>
+            Vissza a főoldalra
+        </button>
+        <h1 class="app-title">Naprendszer</h1>
+        <button id="themeToggle" class="nav-btn">
+            <span class="icon">🌙</span>
+        </button>
+    </nav>
+
+    <main class="main-content">
+        <canvas id="solarSystem"></canvas>
+        <div class="controls">
+            <button id="regenerateBtn">Új naprendszer</button>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

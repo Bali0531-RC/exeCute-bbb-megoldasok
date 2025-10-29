@@ -1,0 +1,127 @@
+:root {
+    --primary-color: #0f766e;
+    --secondary-color: #22d3ee;
+    --accent-color: #a3ff12;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5f5;
+    --bg-primary: #050b1a;
+    --bg-secondary: #0f172a;
+    --bg-card: #16233d;
+    --border-color: #223352;
+    --shadow-light: rgba(34, 211, 238, 0.12);
+    --gradient-primary: linear-gradient(140deg, #0f172a 0%, #0f766e 45%, #22d3ee 100%);
+    --border-radius: 16px;
+    --border-radius-small: 10px;
+    --transition-fast: 0.18s ease;
+}
+
+[data-theme="light"] {
+    --text-primary: #0f172a;
+    --text-secondary: #1f2937;
+    --bg-primary: #f1f5f9;
+    --bg-secondary: #e2e8f0;
+    --bg-card: #f8fafc;
+    --border-color: #cbd5e1;
+    --shadow-light: rgba(15, 118, 110, 0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color var(--transition-fast);
+}
+
+.top-nav {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    gap: 1rem;
+}
+
+.app-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    flex: 1;
+    text-align: center;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-small);
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.nav-btn:hover {
+    background: var(--gradient-primary);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.nav-btn .icon { font-size: 1.25rem; }
+
+.main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+#solarSystem {
+    width: 100%;
+    height: 600px;
+    background: radial-gradient(circle, #0a0a0a 0%, #000 100%);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius-small);
+}
+
+.controls {
+    margin-top: 20px;
+    text-align: center;
+}
+
+button {
+    padding: 12px 24px;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-small);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px var(--shadow-light);
+}
+
+@media (max-width: 768px) {
+    .top-nav { padding: 0.75rem 1rem; }
+    .app-title { font-size: 1.25rem; }
+    .nav-btn span:not(.icon) { display: none; }
+    .main-content { padding: 1rem; }
+}
