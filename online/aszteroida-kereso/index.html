@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aszteroida kereső - ExeCute</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="top-nav">
+        <button id="backButton" class="nav-btn">
+            <span class="icon">🏠</span>
+            <span>Vissza a főoldalra</span>
+        </button>
+        <h1 class="app-title">☄️ Aszteroida kereső</h1>
+        <button id="themeToggle" class="nav-btn">
+            <span class="icon">🌙</span>
+        </button>
+    </nav>
+
+    <main class="main-content">
+        <div class="info-panel">
+            <div class="stat">
+                <span class="label">Kibányászott réz:</span>
+                <span class="value" id="score">0</span>
+            </div>
+            <div class="stat">
+                <span class="label">Hibás kattintás:</span>
+                <span class="value" id="mistakes">0</span>
+            </div>
+            <button id="resetBtn" class="reset-btn">🔄 Újrakezdés</button>
+        </div>
+
+        <div class="game-container">
+            <canvas id="gameCanvas"></canvas>
+            <div id="spotlight">
+                <div class="crosshair-h"></div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-icon gray">⚫</span>
+                <span>Szürke aszteroida (nem kattintható)</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon colored">🔶</span>
+                <span>Rezet tartalmazó aszteroida (kattintható!)</span>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

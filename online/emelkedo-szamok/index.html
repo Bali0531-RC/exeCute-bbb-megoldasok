@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emelkedő számok - ExeCute</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="top-nav">
+        <button id="backButton" class="nav-btn">
+            <span class="icon">🏠</span>
+            Vissza a főoldalra
+        </button>
+        <h1 class="app-title">📈 Emelkedő számok</h1>
+        <button id="themeToggle" class="nav-btn">
+            <span class="icon">🌙</span>
+        </button>
+    </nav>
+
+    <main class="main-content">
+        <section>
+            <h2>Számok hozzáadása</h2>
+            <div class="input-section">
+                <input type="number" id="numberInput" placeholder="Írj be egy számot...">
+                <button id="addBtn">Hozzáad</button>
+                <button id="resetBtn">Törlés</button>
+            </div>
+        </section>
+
+        <section>
+            <h2>Megadott számok</h2>
+            <div id="numbersList"></div>
+        </section>
+
+        <section>
+            <h2>Eredmény</h2>
+            <div id="result">Add meg a számokat!</div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
