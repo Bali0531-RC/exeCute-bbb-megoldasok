@@ -1,3 +1,9 @@
+const FEJLESZTES_ROI = {
+    mining_speed: 8,
+    capacity: 12,
+    move_speed: 18
+};
+
 class FeladatMegoldo {
     constructor() {
         this.aktualisFeladat = null;
@@ -380,6 +386,12 @@ class FeladatMegoldo {
             mining_speed: 8
         };
 
+        const FEJLESZTES_ROI = {
+            mining_speed: 8,
+            capacity: 18,
+            move_speed: 13
+        };
+
         const MAX_FEJLESZTES = 5;
         const OSSZES_FEJLESZTES_KOLTSEG = 
             FEJLESZTES_KOLTSEG.move_speed * MAX_FEJLESZTES +
@@ -550,6 +562,7 @@ class FeladatMegoldo {
         const kezdoHajokSzama = params.shipCount || params.ships || 1;
         const hajoKoltseg = 300;
         const korLimit = params.roundLimit || Infinity;
+        const normalizaltKorLimit = Number.isFinite(korLimit) ? korLimit : 600;
         
         const bazisok = poziciok
             .map((p, idx) => ({ ...p, index: idx }))
@@ -578,7 +591,7 @@ class FeladatMegoldo {
             koltsegAlapuHajok,
             28
         );
-        const celHajokSzama = Math.max(kezdoHajokSzama, optimalisHajokSzama);
+        const celHajokSzama = Math.min(18, Math.max(4, kezdoHajokSzama, optimalisHajokSzama));
         
         console.log(`📊 Pálya elemzés: ${osszesErc} érc, átlag távolság: ${atlagTavolsag.toFixed(1)}`);
         console.log(`🚢 Optimális hajók: ${celHajokSzama}, Kezdő: ${kezdoHajokSzama}, Kör limit: ${korLimit}`);
@@ -612,9 +625,23 @@ class FeladatMegoldo {
             mining_speed: 0
         };
 
+        const bazisErcElemzes = bazisok.map(bazis => {
+            let sulyozottErc = 0;
+            for (const a of aszteroidak) {
+                const tavolsag = tavolsagMatrix[bazis.index][a.index];
+                if (tavolsag < 200) {
+                    const sulyozas = 1 / (1 + tavolsag / 50);
+                    sulyozottErc += a.mennyiseg * sulyozas;
+                }
+            }
+            return { bazis, osszesErc: sulyozottErc, index: bazis.index };
+        });
+        
+        bazisErcElemzes.sort((a, b) => b.osszesErc - a.osszesErc);
+        
         const hajok = [];
         for (let i = 0; i < kezdoHajokSzama; i++) {
-            const bazis = bazisok[i % bazisok.length];
+            const bazis = bazisErcElemzes[i % bazisErcElemzes.length].bazis;
             hajok.push({
                 parancsok: [{
                     command: 'STARTFROM',
@@ -625,7 +652,9 @@ class FeladatMegoldo {
                 sebesseg: globalHajoSebesseg,
                 kapacitas: globalHajoKapacitas,
                 banyaszSebesseg: globalBanyaszSebesseg,
-                elerheto: 0
+                elerheto: 0,
+                elteltKor: 0,
+                preferaltBazis: bazis.index
             });
         }
 
@@ -643,7 +672,7 @@ class FeladatMegoldo {
             iteracio++;
             let vanMunka = false;
             
-            const osszesKor = this.osszesKorSzamitas(hajok, tavolsagMatrix, params.shipSpeed || 10);
+            const osszesKor = this.osszesKorSzamitas(hajok);
             
             if (osszesKor >= korLimit) {
                 console.log(`⚠️ Elértük a kör limitet (${korLimit}), leállítás`);
@@ -651,34 +680,84 @@ class FeladatMegoldo {
             }
 
             for (const hajo of hajok) {
-                const hajoKor = this.hajoKorSzamitas(hajo, tavolsagMatrix, params.shipSpeed || 10);
+                const hajoKor = this.hajoKorSzamitas(hajo);
+                const hatralevKorok = korLimit - hajoKor;
                 
-                if (hajoKor >= korLimit) {
+                if (hatralevKorok <= 0) {
                     continue;
                 }
+                
+                const legkozelebbiBazis = this.legkozelebbiBazisKeresese(hajo.pozicio, bazisok, tavolsagMatrix);
+                const minimalVisszaKor = legkozelebbiBazis
+                    ? Math.ceil(tavolsagMatrix[hajo.pozicio][legkozelebbiBazis.index] / hajo.sebesseg)
+                    : Infinity;
+                const rakottseg = hajo.kapacitas > 0 ? hajo.rakomany / hajo.kapacitas : 0;
+                const dinamikusLeadKuszob = !Number.isFinite(minimalVisszaKor)
+                    ? 0.9
+                    : minimalVisszaKor <= 4
+                        ? 0.68
+                        : minimalVisszaKor <= 7
+                            ? 0.78
+                            : 0.85;
+                const kesoVissza = hatralevKorok <= minimalVisszaKor + Math.max(5, Math.ceil(minimalVisszaKor * 0.7));
 
-                if (hajo.rakomany >= hajo.kapacitas) {
-                    const legkozelebbiBazis = this.legkozelebbiBazisKeresese(hajo.pozicio, bazisok, tavolsagMatrix);
+                if (legkozelebbiBazis && (rakottseg >= dinamikusLeadKuszob || kesoVissza)) {
+                    let celBazis = legkozelebbiBazis;
                     
-                    if (legkozelebbiBazis && hajo.pozicio !== legkozelebbiBazis.index) {
-                        const visszaUtKorok = Math.ceil(tavolsagMatrix[hajo.pozicio][legkozelebbiBazis.index] / hajo.sebesseg);
-                        
+                    if (rakottseg >= 0.9) {
+                        const jelenlegiBazisErc = this.bazisKornyezetiErc(
+                            celBazis.index,
+                            tavolsagMatrix,
+                            aszteroridaMennyisegek,
+                            aszteroidak
+                        );
+                        for (const bazisInfo of bazisErcElemzes) {
+                            const bazis = bazisInfo.bazis;
+                            const tavolsag = tavolsagMatrix[hajo.pozicio][bazis.index];
+                            const legkozelebbiTavolsag = tavolsagMatrix[hajo.pozicio][celBazis.index];
+                            const ujBazisErc = this.bazisKornyezetiErc(
+                                bazis.index,
+                                tavolsagMatrix,
+                                aszteroridaMennyisegek,
+                                aszteroidak
+                            );
+                            if (ujBazisErc > jelenlegiBazisErc * 1.8 && tavolsag < legkozelebbiTavolsag * 1.2) {
+                                celBazis = bazis;
+                                hajo.preferaltBazis = bazis.index;
+                                console.log(`🔄 Bázisváltás: ${jelenlegiBazisErc.toFixed(0)} → ${ujBazisErc.toFixed(0)} érc`);
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (hajo.pozicio !== celBazis.index) {
+                        const visszaUtKorok = Math.ceil(tavolsagMatrix[hajo.pozicio][celBazis.index] / hajo.sebesseg);
                         if (hajoKor + visszaUtKorok <= korLimit) {
                             hajo.parancsok.push({
                                 command: 'MOVE',
-                                position: legkozelebbiBazis.index
+                                position: celBazis.index
                             });
-                            hajo.pozicio = legkozelebbiBazis.index;
+                            hajo.pozicio = celBazis.index;
+                            this.hajoIdoNovelese(hajo, visszaUtKorok);
                             raktar += hajo.rakomany;
                             hajo.rakomany = 0;
                             vanMunka = true;
                         }
+                    } else if (hajo.rakomany > 0) {
+                        raktar += hajo.rakomany;
+                        hajo.rakomany = 0;
+                        vanMunka = true;
                     }
                     continue;
                 }
 
                 let legkozelebbiAszteroida = null;
                 let legjobbErtek = -Infinity;
+                const dinamikusLimit = Number.isFinite(korLimit) ? korLimit : 400;
+                const kozelKorLimit = Math.max(6, Math.min(24, Math.floor(dinamikusLimit * 0.05)));
+                const panicMod = hatralevKorok < Math.max(50, normalizaltKorLimit * 0.25);
+                let legjobbKozeli = null;
+                let legjobbKozeliErtek = -Infinity;
 
                 for (const aszteroida of aszteroidak) {
                     if (aszteroridaMennyisegek[aszteroida.index] <= 0) continue;
@@ -703,51 +782,120 @@ class FeladatMegoldo {
                     const hozam = maxBanyaszhato;
                     const idoKoltseg = Math.max(1, mozgasKor + banyaszKorok);
                     const bazisBonus = 2.5 / (visszaKor + 1);
-                    const mennyisegBonus = Math.sqrt(elerheto) / 4;
+                    const mennyisegBonus = Math.sqrt(elerheto) / 6;
                     const rakomanyBonus = hajo.rakomany > 0 ? 0.5 : 1.5;
-                    const tavolsagBuntetes = 1 / (1 + mozgasKor / 15);
+                    const tavolsagBuntetes = 1 / (1 + mozgasKor / 10);
                     const teljesKapacitasBonus = (maxBanyaszhato >= hajo.kapacitas - hajo.rakomany) ? 1.5 : 1.0;
                     
-                    const hatekonyErtek = (hozam / idoKoltseg) * (1 + bazisBonus + mennyisegBonus) * rakomanyBonus * tavolsagBuntetes * teljesKapacitasBonus;
+                    const szabad = hajo.kapacitas - hajo.rakomany;
+                    const tobbMintKapacitas = elerheto >= szabad ? 3.0 : 1.0;
                     
+                    const kisErcBuntetes = (elerheto < 50 && hajo.rakomany > 0) ? 0.3 : 1.0;
+                    
+                    const kozeliBonus = mozgasKor <= 5 ? 1.8 : mozgasKor <= 10 ? 1.3 : 1.0;
+                    
+                    const hatekonyErtek = (hozam / idoKoltseg) * (1 + bazisBonus + mennyisegBonus) * rakomanyBonus * tavolsagBuntetes * teljesKapacitasBonus * tobbMintKapacitas * kisErcBuntetes * kozeliBonus;
+                    
+                    if (mozgasKor <= kozelKorLimit && hatekonyErtek > legjobbKozeliErtek) {
+                        legjobbKozeliErtek = hatekonyErtek;
+                        legjobbKozeli = aszteroida;
+                    }
+
                     if (hatekonyErtek > legjobbErtek) {
                         legjobbErtek = hatekonyErtek;
                         legkozelebbiAszteroida = aszteroida;
                     }
                 }
 
-                if (legkozelebbiAszteroida) {
+                let valasztottAszteroida = legkozelebbiAszteroida;
+                let valasztottErtek = legjobbErtek;
+                if (legjobbKozeli) {
+                    const tavValasztott = valasztottAszteroida
+                        ? Math.ceil(tavolsagMatrix[hajo.pozicio][valasztottAszteroida.index] / hajo.sebesseg)
+                        : Infinity;
+                    const ertekArany = valasztottErtek === 0 ? 1 : legjobbKozeliErtek / Math.max(1e-6, valasztottErtek);
+                    if (
+                        !valasztottAszteroida ||
+                        (tavValasztott > kozelKorLimit * 1.5 && ertekArany >= 0.6) ||
+                        tavValasztott > kozelKorLimit * 2.5
+                    ) {
+                        valasztottAszteroida = legjobbKozeli;
+                        valasztottErtek = legjobbKozeliErtek;
+                    }
+                }
+
+                if (!valasztottAszteroida && panicMod) {
+                    let panicCel = null;
+                    let panicErtek = -Infinity;
+                    for (const aszteroida of aszteroidak) {
+                        if (aszteroridaMennyisegek[aszteroida.index] <= 0) continue;
+                        const szabad = hajo.kapacitas - hajo.rakomany;
+                        if (szabad <= 0) {
+                            break;
+                        }
+                        const mozgasKor = Math.ceil(tavolsagMatrix[hajo.pozicio][aszteroida.index] / hajo.sebesseg);
+                        const panicBazis = this.legkozelebbiBazisKeresese(aszteroida.index, bazisok, tavolsagMatrix);
+                        if (!panicBazis) {
+                            continue;
+                        }
+                        const visszaKor = Math.ceil(tavolsagMatrix[aszteroida.index][panicBazis.index] / hajo.sebesseg);
+                        const panicMennyiseg = Math.min(szabad, aszteroridaMennyisegek[aszteroida.index]);
+                        if (panicMennyiseg <= 0) continue;
+                        const banyaszKor = Math.max(1, Math.ceil(panicMennyiseg / hajo.banyaszSebesseg));
+                        const osszesIdo = mozgasKor + banyaszKor + visszaKor;
+                        if (hajoKor + osszesIdo > korLimit) {
+                            continue;
+                        }
+                        const ertek = panicMennyiseg / Math.max(1, osszesIdo);
+                        if (ertek > panicErtek) {
+                            panicErtek = ertek;
+                            panicCel = aszteroida;
+                        }
+                    }
+                    if (panicCel) {
+                        valasztottAszteroida = panicCel;
+                        legjobbErtek = panicErtek;
+                    }
+                }
+
+                if (valasztottAszteroida) {
                     vanMunka = true;
                     
-                    if (hajo.pozicio !== legkozelebbiAszteroida.index) {
+                    if (hajo.pozicio !== valasztottAszteroida.index) {
+                        const mozgasKor = Math.ceil(tavolsagMatrix[hajo.pozicio][valasztottAszteroida.index] / hajo.sebesseg);
                         hajo.parancsok.push({
                             command: 'MOVE',
-                            position: legkozelebbiAszteroida.index
+                            position: valasztottAszteroida.index
                         });
-                        hajo.pozicio = legkozelebbiAszteroida.index;
+                        hajo.pozicio = valasztottAszteroida.index;
+                        this.hajoIdoNovelese(hajo, mozgasKor);
                     }
 
                     const szabad = hajo.kapacitas - hajo.rakomany;
-                    const elerheto = aszteroridaMennyisegek[legkozelebbiAszteroida.index];
+                    const elerheto = aszteroridaMennyisegek[valasztottAszteroida.index];
                     const banyaszhato = Math.min(szabad, elerheto);
                     
                     if (banyaszhato > 0) {
-                        let korok = Math.max(1, Math.floor(banyaszhato / hajo.banyaszSebesseg));
-                        
-                        const ujHajoKor = this.hajoKorSzamitas(hajo, tavolsagMatrix, params.shipSpeed || 10);
-                        if (ujHajoKor + korok > korLimit) {
-                            korok = Math.max(1, korLimit - ujHajoKor);
+                        let korok = Math.max(1, Math.ceil(banyaszhato / hajo.banyaszSebesseg));
+                        const ujHajoKor = this.hajoKorSzamitas(hajo);
+                        const maradekKor = korLimit - ujHajoKor;
+                        if (maradekKor <= 0) {
+                            continue;
+                        }
+                        if (korok > maradekKor) {
+                            korok = maradekKor;
                         }
                         
                         hajo.parancsok.push({
                             command: 'MINE',
                             rounds: korok
                         });
+                        this.hajoIdoNovelese(hajo, korok);
                         
                         const valodiBanyaszott = Math.min(banyaszhato, korok * hajo.banyaszSebesseg);
                         
                         hajo.rakomany += valodiBanyaszott;
-                        aszteroridaMennyisegek[legkozelebbiAszteroida.index] -= valodiBanyaszott;
+                        aszteroridaMennyisegek[valasztottAszteroida.index] -= valodiBanyaszott;
                     }
                 } else {
                     if (hajo.rakomany > 0) {
@@ -762,6 +910,7 @@ class FeladatMegoldo {
                                     position: legkozelebbiBazis.index
                                 });
                                 hajo.pozicio = legkozelebbiBazis.index;
+                                this.hajoIdoNovelese(hajo, visszaUtKorok);
                                 raktar += hajo.rakomany;
                                 hajo.rakomany = 0;
                                 vanMunka = true;
@@ -773,10 +922,16 @@ class FeladatMegoldo {
                 const bazison = bazisok.some(b => b.index === hajo.pozicio);
                 
                 if (hajo.rakomany === 0 && bazison) {
-                    const aktualisKor = this.osszesKorSzamitas(hajok, tavolsagMatrix, params.shipSpeed || 10);
+                    const aktualisKor = this.osszesKorSzamitas(hajok);
                     const hatralevKorok = korLimit - aktualisKor;
+                    const becsultFuvarKor = Math.max(
+                        12,
+                        Math.ceil((atlagTavolsag / Math.max(1, globalHajoSebesseg)) * 2) +
+                        Math.ceil(globalHajoKapacitas / Math.max(1, globalBanyaszSebesseg))
+                    );
+                    const ujHajoMegterulesKor = Math.max(50, becsultFuvarKor + 8);
                     
-                    while (raktar >= hajoKoltseg && hajok.length < celHajokSzama && hatralevKorok > 80) {
+                    while (raktar >= hajoKoltseg && hajok.length < celHajokSzama && hatralevKorok > ujHajoMegterulesKor) {
                         const ujHajoKor = aktualisKor;
                         ujHajok.push(ujHajoKor);
                         raktar -= hajoKoltseg;
@@ -786,7 +941,7 @@ class FeladatMegoldo {
                             cost: hajoKoltseg
                         });
                         
-                        const bazis = bazisok[hajok.length % bazisok.length];
+                        const bazis = bazisErcElemzes[hajok.length % bazisErcElemzes.length].bazis;
                         hajok.push({
                             parancsok: [{
                                 command: 'STARTFROM',
@@ -797,7 +952,9 @@ class FeladatMegoldo {
                             sebesseg: globalHajoSebesseg,
                             kapacitas: globalHajoKapacitas,
                             banyaszSebesseg: globalBanyaszSebesseg,
-                            elerheto: ujHajoKor + 1
+                            elerheto: ujHajoKor + 1,
+                            elteltKor: ujHajoKor + 1,
+                            preferaltBazis: bazis.index
                         });
                         
                         vanMunka = true;
@@ -806,48 +963,57 @@ class FeladatMegoldo {
                         if (raktar < hajoKoltseg * 1.5) break;
                     }
                     
-                    if (raktar >= 100 && (hajok.length >= celHajokSzama || hatralevKorok <= 80)) {
-                        const fejlesztesiSorrend = [
-                        { attr: 'mining_speed', koltseg: FEJLESZTES_KOLTSEG.mining_speed, max: 3 },
-                        { attr: 'capacity', koltseg: FEJLESZTES_KOLTSEG.capacity, max: 2 },
-                        { attr: 'move_speed', koltseg: FEJLESZTES_KOLTSEG.move_speed, max: 2 }
-                    ];
-                    
+                    const koraiFejlesztes = aktualisKor >= 100 && raktar >= 20;
+                    const fejlesztesAktivalva = (raktar >= 100 && (hajok.length >= celHajokSzama || hatralevKorok <= ujHajoMegterulesKor)) || koraiFejlesztes;
+                    if (fejlesztesAktivalva) {
+                        const kapacitasDominancia = globalHajoKapacitas < 100 || (globalHajoKapacitas / Math.max(1, globalBanyaszSebesseg)) < (atlagTavolsag / Math.max(1, globalHajoSebesseg));
+                        const fejlesztesiSorrend = kapacitasDominancia
+                            ? [
+                                { attr: 'capacity', koltseg: FEJLESZTES_KOLTSEG.capacity, max: MAX_FEJLESZTES },
+                                { attr: 'mining_speed', koltseg: FEJLESZTES_KOLTSEG.mining_speed, max: MAX_FEJLESZTES },
+                                { attr: 'move_speed', koltseg: FEJLESZTES_KOLTSEG.move_speed, max: MAX_FEJLESZTES }
+                            ]
+                            : [
+                                { attr: 'mining_speed', koltseg: FEJLESZTES_KOLTSEG.mining_speed, max: MAX_FEJLESZTES },
+                                { attr: 'capacity', koltseg: FEJLESZTES_KOLTSEG.capacity, max: MAX_FEJLESZTES },
+                                { attr: 'move_speed', koltseg: FEJLESZTES_KOLTSEG.move_speed, max: MAX_FEJLESZTES }
+                            ];
                         let fejlesztesekSzama = 0;
                         const maxFejlesztesEgyKorben = raktar > 400 ? 3 : raktar > 250 ? 2 : 1;
-                    
-                    for (const fejl of fejlesztesiSorrend) {
-                        if (fejlesztesekSzama >= maxFejlesztesEgyKorben) break;
-                        
-                        while (fejlesztesek[fejl.attr] < fejl.max && raktar >= fejl.koltseg && fejlesztesekSzama < maxFejlesztesEgyKorben) {
-                            hajo.parancsok.push({
-                                command: 'UPGRADE',
-                                attribute: fejl.attr
-                            });
-                            raktar -= fejl.koltseg;
-                            fejlesztesek[fejl.attr]++;
-                            fejlesztesekSzama++;
-                            
-                            if (fejl.attr === 'mining_speed') {
-                                globalBanyaszSebesseg += FEJLESZTES_ERTEKEK.mining_speed;
-                                hajok.forEach(h => h.banyaszSebesseg = globalBanyaszSebesseg);
-                            } else if (fejl.attr === 'capacity') {
-                                globalHajoKapacitas += FEJLESZTES_ERTEKEK.capacity;
-                                hajok.forEach(h => h.kapacitas = globalHajoKapacitas);
-                            } else if (fejl.attr === 'move_speed') {
-                                globalHajoSebesseg += FEJLESZTES_ERTEKEK.move_speed;
-                                hajok.forEach(h => h.sebesseg = globalHajoSebesseg);
+                        for (const fejl of fejlesztesiSorrend) {
+                            if (fejlesztesekSzama >= maxFejlesztesEgyKorben) break;
+                            const minimalKorIgeny = FEJLESZTES_ROI[fejl.attr] + fejlesztesek[fejl.attr] * 3;
+                            if (!koraiFejlesztes && hatralevKorok <= minimalKorIgeny) {
+                                continue;
                             }
-                            
-                            vanMunka = true;
+                            while (fejlesztesek[fejl.attr] < fejl.max && raktar >= fejl.koltseg && fejlesztesekSzama < maxFejlesztesEgyKorben) {
+                                hajo.parancsok.push({
+                                    command: 'UPGRADE',
+                                    attribute: fejl.attr
+                                });
+                                this.hajoIdoNovelese(hajo, 1);
+                                raktar -= fejl.koltseg;
+                                fejlesztesek[fejl.attr]++;
+                                fejlesztesekSzama++;
+                                if (fejl.attr === 'mining_speed') {
+                                    globalBanyaszSebesseg += FEJLESZTES_ERTEKEK.mining_speed;
+                                    hajok.forEach(h => h.banyaszSebesseg = globalBanyaszSebesseg);
+                                } else if (fejl.attr === 'capacity') {
+                                    globalHajoKapacitas += FEJLESZTES_ERTEKEK.capacity;
+                                    hajok.forEach(h => h.kapacitas = globalHajoKapacitas);
+                                } else if (fejl.attr === 'move_speed') {
+                                    globalHajoSebesseg += FEJLESZTES_ERTEKEK.move_speed;
+                                    hajok.forEach(h => h.sebesseg = globalHajoSebesseg);
+                                }
+                                vanMunka = true;
+                            }
                         }
-                    }
-                        
-                        while (fejlesztesek.mining_speed < MAX_FEJLESZTES && raktar >= FEJLESZTES_KOLTSEG.mining_speed && hatralevKorok > 60 && raktar > 200) {
+                        while (fejlesztesek.mining_speed < MAX_FEJLESZTES && raktar >= FEJLESZTES_KOLTSEG.mining_speed && hatralevKorok > FEJLESZTES_ROI.mining_speed + fejlesztesek.mining_speed * 3 && raktar > 200) {
                             hajo.parancsok.push({
                                 command: 'UPGRADE',
                                 attribute: 'mining_speed'
                             });
+                            this.hajoIdoNovelese(hajo, 1);
                             raktar -= FEJLESZTES_KOLTSEG.mining_speed;
                             fejlesztesek.mining_speed++;
                             globalBanyaszSebesseg += FEJLESZTES_ERTEKEK.mining_speed;
@@ -866,7 +1032,7 @@ class FeladatMegoldo {
 
         for (const hajo of hajok) {
             if (hajo.rakomany > 0) {
-                const hajoKor = this.hajoKorSzamitas(hajo, tavolsagMatrix, params.shipSpeed || 10);
+                const hajoKor = this.hajoKorSzamitas(hajo);
                 const legkozelebbiBazis = this.legkozelebbiBazisKeresese(hajo.pozicio, bazisok, tavolsagMatrix);
                 
                 if (legkozelebbiBazis) {
@@ -877,6 +1043,7 @@ class FeladatMegoldo {
                             command: 'MOVE',
                             position: legkozelebbiBazis.index
                         });
+                        this.hajoIdoNovelese(hajo, visszaUtKorok);
                         raktar += hajo.rakomany;
                         hajo.rakomany = 0;
                     }
@@ -884,7 +1051,7 @@ class FeladatMegoldo {
             }
         }
 
-        const osszesKor = this.osszesKorSzamitas(hajok, tavolsagMatrix, params.shipSpeed || 10);
+        const osszesKor = this.osszesKorSzamitas(hajok);
 
         const eredmeny = {
             commands: hajok.map(h => h.parancsok),
@@ -914,65 +1081,45 @@ class FeladatMegoldo {
         return legkozelebbi;
     }
 
-    hajoKorSzamitas(hajo, tavolsagMatrix, kezdoHajoSebesseg) {
-        let korSzamlalo = hajo.elerheto || 0;
-        let jelenlegiPozicio = null;
-        let aktualisSebesseg = kezdoHajoSebesseg;
-
-        for (const parancs of hajo.parancsok) {
-            if (parancs.command === 'STARTFROM') {
-                jelenlegiPozicio = parancs.position;
-            } else if (parancs.command === 'MOVE') {
-                if (jelenlegiPozicio !== null) {
-                    const tavolsag = tavolsagMatrix[jelenlegiPozicio][parancs.position];
-                    korSzamlalo += Math.ceil(tavolsag / aktualisSebesseg);
-                }
-                jelenlegiPozicio = parancs.position;
-            } else if (parancs.command === 'MINE') {
-                korSzamlalo += parancs.rounds;
-            } else if (parancs.command === 'UPGRADE') {
-                korSzamlalo += 1;
-                if (parancs.attribute === 'move_speed') {
-                    aktualisSebesseg += 4;
-                }
+    bazisKornyezetiErc(bazisIndex, tavolsagMatrix, aszteroridaMennyisegek, aszteroidak) {
+        let osszeg = 0;
+        for (const aszteroida of aszteroidak) {
+            const aktualisMennyiseg = aszteroridaMennyisegek[aszteroida.index] || 0;
+            if (aktualisMennyiseg <= 0) {
+                continue;
             }
+            const tavolsag = tavolsagMatrix[bazisIndex][aszteroida.index];
+            if (tavolsag > 220) {
+                continue;
+            }
+            const suly = 1 / (1 + tavolsag / 60);
+            osszeg += aktualisMennyiseg * suly;
         }
-
-        return korSzamlalo;
+        return osszeg;
     }
 
-    osszesKorSzamitas(hajok, tavolsagMatrix, kezdoHajoSebesseg) {
+    hajoIdoNovelese(hajo, korok) {
+        const aktualis = this.hajoKorSzamitas(hajo);
+        hajo.elteltKor = aktualis + korok;
+        return hajo.elteltKor;
+    }
+
+    hajoKorSzamitas(hajo) {
+        const alap = hajo.elerheto || 0;
+        if (typeof hajo.elteltKor !== 'number' || hajo.elteltKor < alap) {
+            hajo.elteltKor = alap;
+        }
+        return hajo.elteltKor;
+    }
+
+    osszesKorSzamitas(hajok) {
         let maxKor = 0;
-
         for (const hajo of hajok) {
-            let korSzamlalo = hajo.elerheto || 0;
-            let jelenlegiPozicio = null;
-            let aktualisSebesseg = kezdoHajoSebesseg;
-
-            for (const parancs of hajo.parancsok) {
-                if (parancs.command === 'STARTFROM') {
-                    jelenlegiPozicio = parancs.position;
-                } else if (parancs.command === 'MOVE') {
-                    if (jelenlegiPozicio !== null) {
-                        const tavolsag = tavolsagMatrix[jelenlegiPozicio][parancs.position];
-                        korSzamlalo += Math.ceil(tavolsag / aktualisSebesseg);
-                    }
-                    jelenlegiPozicio = parancs.position;
-                } else if (parancs.command === 'MINE') {
-                    korSzamlalo += parancs.rounds;
-                } else if (parancs.command === 'UPGRADE') {
-                    korSzamlalo += 1;
-                    if (parancs.attribute === 'move_speed') {
-                        aktualisSebesseg += 4;
-                    }
-                }
-            }
-
-            if (korSzamlalo > maxKor) {
-                maxKor = korSzamlalo;
+            const kor = this.hajoKorSzamitas(hajo);
+            if (kor > maxKor) {
+                maxKor = kor;
             }
         }
-
         return maxKor;
     }
 }
