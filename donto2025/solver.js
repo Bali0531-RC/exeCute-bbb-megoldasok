@@ -568,15 +568,15 @@ class FeladatMegoldo {
             ? aszteroidak.reduce((sum, a) => sum + this.tavolsagSzamitas(bazisok[0].x, bazisok[0].y, a.x, a.y), 0) / aszteroidak.length
             : 100;
         
-        const ercAlapuHajok = Math.ceil(osszesErc / 1300);
-        const idoAlapuHajok = Math.ceil(korLimit / 42);
-        const koltsegAlapuHajok = Math.floor(osszesErc / 270);
+        const ercAlapuHajok = Math.ceil(osszesErc / 1100);
+        const idoAlapuHajok = Math.ceil(korLimit / 38);
+        const koltsegAlapuHajok = Math.floor(osszesErc / 240);
         
         const optimalisHajokSzama = Math.min(
             Math.max(ercAlapuHajok, 6),
             idoAlapuHajok,
             koltsegAlapuHajok,
-            24
+            28
         );
         const celHajokSzama = Math.max(kezdoHajokSzama, optimalisHajokSzama);
         
@@ -702,11 +702,11 @@ class FeladatMegoldo {
                     
                     const hozam = maxBanyaszhato;
                     const idoKoltseg = Math.max(1, mozgasKor + banyaszKorok);
-                    const bazisBonus = 3.0 / (visszaKor + 1);
-                    const mennyisegBonus = Math.sqrt(elerheto) / 3.5;
-                    const rakomanyBonus = hajo.rakomany > 0 ? 0.4 : 1.6;
-                    const tavolsagBuntetes = 1 / (1 + mozgasKor / 18);
-                    const teljesKapacitasBonus = (maxBanyaszhato >= hajo.kapacitas - hajo.rakomany) ? 1.6 : 1.0;
+                    const bazisBonus = 2.5 / (visszaKor + 1);
+                    const mennyisegBonus = Math.sqrt(elerheto) / 4;
+                    const rakomanyBonus = hajo.rakomany > 0 ? 0.5 : 1.5;
+                    const tavolsagBuntetes = 1 / (1 + mozgasKor / 15);
+                    const teljesKapacitasBonus = (maxBanyaszhato >= hajo.kapacitas - hajo.rakomany) ? 1.5 : 1.0;
                     
                     const hatekonyErtek = (hozam / idoKoltseg) * (1 + bazisBonus + mennyisegBonus) * rakomanyBonus * tavolsagBuntetes * teljesKapacitasBonus;
                     
@@ -776,7 +776,7 @@ class FeladatMegoldo {
                     const aktualisKor = this.osszesKorSzamitas(hajok, tavolsagMatrix, params.shipSpeed || 10);
                     const hatralevKorok = korLimit - aktualisKor;
                     
-                    while (raktar >= hajoKoltseg && hajok.length < celHajokSzama && hatralevKorok > 120) {
+                    while (raktar >= hajoKoltseg && hajok.length < celHajokSzama && hatralevKorok > 80) {
                         const ujHajoKor = aktualisKor;
                         ujHajok.push(ujHajoKor);
                         raktar -= hajoKoltseg;
@@ -803,18 +803,18 @@ class FeladatMegoldo {
                         vanMunka = true;
                         console.log(`✅ Új hajó ${hajok.length - 1} vásárlás: ${ujHajoKor}. kör, Raktár: ${raktar}`);
                         
-                        if (raktar < hajoKoltseg * 1.8) break;
+                        if (raktar < hajoKoltseg * 1.5) break;
                     }
                     
-                    if (raktar >= 50 && (hajok.length >= celHajokSzama || hatralevKorok <= 120)) {
+                    if (raktar >= 100 && (hajok.length >= celHajokSzama || hatralevKorok <= 80)) {
                         const fejlesztesiSorrend = [
-                        { attr: 'mining_speed', koltseg: FEJLESZTES_KOLTSEG.mining_speed, max: 5 },
-                        { attr: 'capacity', koltseg: FEJLESZTES_KOLTSEG.capacity, max: 4 },
-                        { attr: 'move_speed', koltseg: FEJLESZTES_KOLTSEG.move_speed, max: 5 }
+                        { attr: 'mining_speed', koltseg: FEJLESZTES_KOLTSEG.mining_speed, max: 3 },
+                        { attr: 'capacity', koltseg: FEJLESZTES_KOLTSEG.capacity, max: 2 },
+                        { attr: 'move_speed', koltseg: FEJLESZTES_KOLTSEG.move_speed, max: 2 }
                     ];
                     
                         let fejlesztesekSzama = 0;
-                        const maxFejlesztesEgyKorben = raktar > 500 ? 5 : raktar > 350 ? 4 : raktar > 150 ? 3 : raktar > 70 ? 2 : 1;
+                        const maxFejlesztesEgyKorben = raktar > 400 ? 3 : raktar > 250 ? 2 : 1;
                     
                     for (const fejl of fejlesztesiSorrend) {
                         if (fejlesztesekSzama >= maxFejlesztesEgyKorben) break;
@@ -842,7 +842,18 @@ class FeladatMegoldo {
                             vanMunka = true;
                         }
                     }
-
+                        
+                        while (fejlesztesek.mining_speed < MAX_FEJLESZTES && raktar >= FEJLESZTES_KOLTSEG.mining_speed && hatralevKorok > 60 && raktar > 200) {
+                            hajo.parancsok.push({
+                                command: 'UPGRADE',
+                                attribute: 'mining_speed'
+                            });
+                            raktar -= FEJLESZTES_KOLTSEG.mining_speed;
+                            fejlesztesek.mining_speed++;
+                            globalBanyaszSebesseg += FEJLESZTES_ERTEKEK.mining_speed;
+                            hajok.forEach(h => h.banyaszSebesseg = globalBanyaszSebesseg);
+                            vanMunka = true;
+                        }
                     }
                 }
             }
