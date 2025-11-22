@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBB Döntő 2025</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="top-nav">
+            <button id="backButton" class="nav-btn">
+                <span class="icon">🏠</span>
+                Vissza a főoldalra
+            </button>
+            <h1 class="app-title">Döntő</h1>
+            <button id="themeToggle" class="nav-btn">
+                <span class="icon">🌙</span>
+            </button>
+        </nav>
+
+        <main class="main-content">
+            <section class="control-section">
+                <div class="control-card">
+                    <div class="team-info">
+                        <div>
+                            <span id="csapatKod" class="team-code">Csapat kód: nincs beállítva</span>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">
+                                API: https://bitkozpont.mik.uni-pannon.hu/2025/
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <div id="osszPontszam" class="total-points" style="display: none;">
+                                <span class="icon">🏆</span>
+                                <span id="osszPontszamErtek">0</span> pont
+                            </div>
+                            <button id="vizualizacioBtn" class="btn btn-secondary">
+                                <span class="icon">🎬</span>
+                                Vizualizáció
+                            </button>
+                            <button id="kodBeallitasBtn" class="btn btn-primary">
+                                <span class="icon">🔑</span>
+                                Kód beállítása
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="layout-grid">
+                <aside class="sidebar">
+                    <div class="sidebar-header">
+                        <h2>📋 Feladatok</h2>
+                        <button id="frissitesBtn" class="refresh-btn">
+                            <span class="icon">🔄</span>
+                        </button>
+                    </div>
+                    <div id="feladatLista" class="task-list">
+                        <p class="loading">Feladatok betöltése...</p>
+                    </div>
+                </aside>
+
+                <div class="content-area">
+                    <div class="tabs">
+                        <button class="tab active" data-tab="feladat">
+                            <span class="icon">📄</span>
+                            Feladat részletek
+                        </button>
+                        <button class="tab" data-tab="megoldas">
+                            <span class="icon">💡</span>
+                            Megoldás
+                        </button>
+                    </div>
+
+                    <div id="feladatTab" class="tab-content active">
+                        <div class="content-card">
+                            <div id="feladatReszletek">
+                                <div class="placeholder">
+                                    <span class="placeholder-icon">📌</span>
+                                    <p>Válassz egy feladatot a bal oldalról!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="megoldasTab" class="tab-content">
+                        <div class="content-card">
+                            <h3>💡 Megoldás beküldése</h3>
+                            <div id="kerdesekLista" class="questions-container"></div>
+                            <div class="button-group">
+                                <button id="automatikusBtn" class="btn btn-secondary">
+                                    <span class="icon">⚡</span>
+                                    Automatikus megoldás
+                                </button>
+                                <button id="kuldesBtn" class="btn btn-primary" disabled>
+                                    <span class="icon">📤</span>
+                                    Megoldás küldése
+                                </button>
+                            </div>
+                            <div id="eredmeny" class="result"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="solver.js?v=1763806633"></script>
+    <script src="script.js"></script>
+</body>
+</html>
