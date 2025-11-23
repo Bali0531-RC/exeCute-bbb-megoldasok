@@ -1,0 +1,23 @@
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8">
+		<title>2. Feladat</title>
+	</head>
+	<body>
+		<h1>2. feladat: Pozíciók és távolságok</h1>
+		
+		Ebben a feladatban megismerjük, hogy a rendszer hogyan kezeli a távolságokat. A feladat négy ugyanolyan kérdést tartalmaz, csak eltérő adatokkal.<br/>
+		Ezek a kérdések egy pozíció listát tartalmaznak, amelyek aszteroidák pozícióit határozzák meg, x és y koordináták formájában. A feladat egy mátrixban visszaadni az aszteroidák páronkénti távolságait. Van azonban egy csavar benne: a távolságok alapján az utazási időket fogjuk számolni, és ott nem foglalkozunk az apró eltérésekkel (az előkészületek, felszállás, landolás, stb., úgyis visznek el időt). Így hát a távolságokat felkerekítjük a következő egész számra. A feladat beküldése nem kötelező, de ezekre a távolságokra a többi feladatban is szükség lesz, tehát fontos jól kiszámolni őket.<br/>
+		Fontos, hogy a kerekítés felfelé történik! Tehát, ha egy távolság akár csak 5.01-re jön ki, azt már 6-nak számoljuk!<br/>
+		A cél tehát egy mátrixot visszaadni, melyben az i. sor j. oszlopában az i. és j. aszteroidák távolságat található. Az aszteroida önmagával vett távolsága mindig 0.<br/>
+		Példának nézzük a következő listát: [{"x": 12.2, "y": -23.5}, {"x": -22.7, "y": 14.9}, {"x": 22.4, "y": 65.3}]. Ebből a következő mátrixnak kell kijönnie:<br/>
+		<pre>
+		0	52	90
+		52	0	68
+		90	68	0
+		</pre>
+		Figyeljük meg a 0 értékeket, valamint a szimmetriát! És akkor hogy is jött ki például az 90-es érték? Nos, az az 1. és 2. indexű aszteroidák ({"x": -22.7, "y": 14.9} és {"x": 22.4, "y": 65.3}) távolsága. A Pitagorasz tétel szerint a távolság 89.383891166 lenne, amit viszont felfelé kell kerekíteni, így jön ki a 90.
+	</body>
+</html>
+

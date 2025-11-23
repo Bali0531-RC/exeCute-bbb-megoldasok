@@ -1,0 +1,19 @@
+<?php
+require("../resources/dataValues.php");
+?>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="UTF-8">
+		<title>6. Feladat</title>
+	</head>
+	<body>
+		<h1>6. feladat: Véletlen térkép</h1>
+
+		Ennél a feladatnál már csak egy új információ van: a feladat paraméterei tartalmaznak egy "roundLimit" értéket is, ami maximálisan rendelkezésre álló körök számát jelenti. Ennyi körre elegendő ellátmánya van az expedíciónak. Amint ez a kör mennyiség letelik, a játék véget ér, és a pontszám az éppen raktáron lévő érc mennyiségéből jön. Fontos tehát, hogy nem az az érc számít, amit kibányászunk, hanem, ami raktáron van a játék végén!<br/>
+		Azért, hogy ne legyen túl nagy különbség az egyes pályákból kapható pontok között, a pontszámot a rendszer mindig skálázza. A tényleges pontszámot az adja, hogy a teljes pályán rendelkezésre álló érc hány százalékát sikerül a végén elszállítani. Így elvileg minden feladat maximum 100 pontot érhet, de valójában ennél jóval kevesebb lesz a tényleges pontszám (és a pályától is függ).<br/>
+		Egyébként ez a feladat sem ér még pontot, és ezt sem kell megoldani. Ennek a lényege, hogy véletlenszerű pályákat generáljon, feldolgozza a Tőletek kapott utasítás sorozatot, és visszaadja visszajelzésként, hogy mennyi lenne az elért pontszám. Ez tesztelésre használható.<br/>
+		Ehhez a feladathoz már csak az utasítás listát kell elküldeni "commands" és "newShips", más adat nem kell a szervernek. A "feedback" rész közli a játék végén elért pontszámot és a raktár mennyiséget is.
+	</body>
+</html>
+
