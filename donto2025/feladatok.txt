@@ -1,0 +1,77 @@
+
+3. feladat: Mozgás és bányászás
+Most átnézzük, hogy miként lehet egy hajót irányítani. Itt is 4 egyforma feladat van csak más adatokkal. A feladat megoldása nem kötelező, de segíthet tesztelni a parancsok helyes összeállítását.
+A távolságokhoz használni kell a 2. feladatban meghatározott távolság mátrixot (persze újból ki kell számolni)!
+Először is, a bemeneti adatok kibővültek új adatokkal: Minden pozícióhoz tároljuk, hogy ott milyen típusú objektum található. Ez jelenleg lehet "Base", ami a bázist jelöli, vagy "Asteroid", ami egy aszteroidát. Egyelőre csak egy bázis van, de később lehet majd több is. Az aszteroidákhoz ezen felül tartozik egy mennyiség, hogy mennyi ércet lehet belőlük kibányászni.
+A feladatokban egyelőre egy hajónk van, amelyik a bázisról indul. Ezt lehet a pozíciók közötti mozgásra, valamint bányászásra utasítani. A parancsokat a válaszban a "commands" kulcs alatt kell elküldeni. A "commands" tömbök tömbje. Jelen feladatban csak 1 irányítandó hajó van, azonban a későbbiekben lesz több is. Így a "commands" minden hajóhoz megadja az utasítások, parancsok tömbjét. Minden parancs egy objektum, amelyben "command" kulccsal jelölve szerepel a parancs típusa, valamint az egyes típusoknak lehetnek saját magadandó adataik.
+Egyelőre három fajta parancsunk van:
+
+    Kezdő pozíció megadása ("STARTFROM"): Minden hajó számára ez az első utasítás, amegy egy "position" paraméterrel megadja, hogy melyik heéyszínről indul a hajó. Fontos, hogy a hajónak bázisról kell indulnia! Ez a parancs nem vesz el kört.
+    Mozgás ("MOVE"): Ezzel lehet a hajót mozgásra utasítani. Meg kell neki adni egy "position" paramétert is, amely a célpont helyszín indexe a pozíció listában.
+    Bányászás ("MINE"): Amennyiben a hajó aszteroidán van, ezzel a parancsal tud bányászni. Hogy ne kelljen túl sokszor kiadni, van egy másik paramétere: "rounds", amivel meg kell adni, hogy hány körig bányásszon.
+
+Például a következő utasítás sorozattal adható meg, hogy a hajó a 4. helyszínről induljon, menjen a 2. indexű helyre, ott bányásszon 3 körig, majd menjen az 1. indexű helyre, ott is bányásszon 2 körig, majd menjen a 4. indexű helyre (ez egy bázis, tehát itt le is lakra a rakományát), majd onnan tovább a 0. indexűre:
+
+		[
+		{"command":"STARTFROM","position":4},
+		{"command":"MOVE","position":2},
+		{"command":"MINE","rounds":3},
+		{"command":"MOVE","position":1},
+		{"command":"MINE","rounds":2},
+		{"command":"MOVE","position":4},
+		{"command":"MOVE","position":0},
+		]
+		
+
+
+A feladat (nem kötelező megoldást beküldeni, de lehet vele tesztelni az alap parancsok logikáját): utasítsátok a hajót arra, hogy minden aszteroidát teljesen bányásszon ki, és minden ércet vigyen vissza a bázisra. A parancsok sorozatán kívül még két információt kell ellenőrzés véljából megadni: "totalRounds" kulccsal el kell küldeni, hogy a kiadott parancsok összesen mennyi körig tartanak, valamint "totalMined" kulccsal azt is, hogy összesen mennyi ércet sikerült kibányászni.
+További információk:
+
+    Ha a hajó a bázisra lép, akkor minden nála lévő ércet lerak, ez nem kerül időbe (nem annyiba, hogy foglalkozzunk vele).
+    A hajónak van egy kapacitása. Ez jelenleg 25, de később lehet majd fejleszteni. A bányászással nem tud e fölé menni.
+    A hajónak van egy mozgási sebessége, ami jelenleg 10. Ez azt jelenti, hogy egy kör alatt ennyi távolságot tesz meg (tehát ha a mátrix 36-ot ír távolságnak, akkor 4 kör alatt ér oda.
+    A hajónak van egy bányászási sebessége is, vagyis, hogy egy környi bányászással mennyi ércet tud felvenni (feltéve, hogy még nem fogyott ki az aszteroida, és a hajó sincs tele). Ez az érték jelenleg 15.
+    A végrehajtás során felmerült problémákat a szerver a "feedback" mezőben adja vissza. Amennyiben valami olyan hiba van a parancsokban, ami semmiképp sem lehetne jó (pl. bázison akarunk bányászni, vagy érvénytelen pozícióra megyünk), akkor ezt egy hibával jelzi, és a későbbi parancsokat ki sem értékeli. Amennyiben a parancssban lévő hiba csak szituációs (pl. bányászni akarunk, de már tele a hajó vagy üres a bánya), akkor csak megjegyzést ír róla, és a hajónak az a köre elveszik, de a szimuláció folytatódik.
+
+
+
+4. feladat: Fejlesztések
+Ez a feladat azt ismerteti, hogy miként lehet a hajók 3 tulajdonságát (mozgási sebesség, kapacitás, bányászási sebesség) fejleszteni. A feladat megoldása nem kötelező, de segíthet tesztelni a fejlesztések helyes implementálását.
+A távolságokhoz használni kell a 2. feladatban meghatározott távolság mátrixot (persze újból ki kell számolni)! Ezen felül célszerű ismerni a 3. feladatból az utasítások szerkezetét, hiszen itt azt bővítjük ki egy új utasítással.
+Ahhoz, hogy egy hajót fejlesszünk, annak a hajónak egy bázison kell lennie, és kiadnia az "UPGRADE" utasítást, amely mellé az "attribute" paraméterrel megadja, hogy melyik tulajdonságot szeretné fejleszteni: "move_speed", "capacity" vagy "mining_speed". Pl.: {"command": "UPGRADE", "attribute": "capacity"}. A fejlesztés minden esetben 1 kört vesz el.
+További feltétel, hogy rendelkezni kell elég raktárban lévő érccel. Amikor egy hajó bázisra lép, leteszi a nála lévő érceket raktárba. Az ércek tárolását nem kell bázisokra bontani, mehet az egész egy közös kupacba (az érceket a bázisok könnyen tudják egymás között küldözgetni).
+További információk:
+
+    Minden tulajdonságot maximum 5 alkalommal lehet egy hajón fejleszteni.
+    A hajók mozgási sebessége alapból 10. Minden fejlesztés 70 ércbe kerül és 4 értékkel növeli a sebességet.
+    A hajók kapacitása alapból 25. Minden fejlesztés 100 ércbe kerül és 15 értékkel növeli a kapacitást.
+    A hajók bányászási sebessége alapból 15. Minden fejlesztés 35 ércbe kerül és 8 értékkel növeli a sebességet.
+
+A feladat, hogy a hajó mindhárom tulajdonságát a maximum értékre fejlesszétek. Az utasítás sorozat mellé küldjétek el az össze bányászott ércet és a körök számát (ahogy a 3. feladetban is), valamint "stockQuantity" kulccsal a raktárban lévő ércek számát is, ami a teljes végrehajtás után ott marad.
+ 
+
+5. feladat: Több hajó
+Az utolsó mechanika, amivel számolni kell a feladat során, hogy egyszerre több hajót is lehet irányítani, és van lehetőség új hajók beszerzésére is. A feladat megoldása nem kötelező, de érdemes rá figyelmet fordítani, mert egyszerre több hajó parancsait megtervezni jelentősen nehezebb, mint csak egy hajóval számolni. Illetve az érdekesség kedvéért itt kettő bázis is van.
+Habár több hajót kezelni logikailag jóval nehezebb, mint egyet, a parancsok átadása a szervernek nem nehéz. Ahogy a 3. feladat is leírta, az elküldött "commands" tömb minden hajóhoz tartalmazza az utasítások tömbjét. Tehát ha 3 hajó van, akkor 3 elemű lesz a tömb, ahol minden elem egy tömb az adott hajó utasításaival.
+Mi a helyzet a hajók számával? Lehet, hogy más feladatoknál feltűnt, hogy a szerver a paraméterek között küld egy "shipCount" paramétert is. Ez adja meg, hogy kezdetben mennyi hajóval indulunk. Ezen felül azonban extra hajókat is lehet venni. Ez olyan utasítás, amit nem meglévő hajók hajtanak végre, hanem a bázisok. Ezért az új hajók vásárlásait nem a "commands"-ban található utasítások közé kell tenni, hanem egy külön "newShips" tömbben kell elküldeni. A tömb minden eleme csak egy szám, amik azt mondják meg, hogy melyik körökben veszünk új hajót. FONTOS! hogy a körök számozása a játék elején 0-tól kezdődik! Az új hajók saját sort kapnak a "commands" tömbben, ugyanúgy, mint az eleve meglévő hajók is. Az ő utasítás soruzatukat is a kezdő bázis megadásával ("STARTFROM" utasítás) kell kezdeni, így látszólag semmi eltérés nem lesz a többi hajóhoz képest (kivéve, hogy a végrehajtási sor csak azután kezdődik el, miután a hajót megvettük). További információk:
+
+    Minden új hajó költsége 300 érc.
+    Az új hajó vásárlása mindig az adott kör legelső lépése, mielőtt bármelyik hajó cselekedne. A hajó megépítése 1 körig tart. Így ha a 150. körben veszünk egy új hajót, akkor az a 149. kör végi raktárkészletből költekezik, a 150 körben még nem elérhető (akkor épül), és a 151. körtől kezdve használható (akkor kerül az első utasítása által adott bázisra, majd hajtja végre az első utasítását.
+    Egy körben akár több hajó is vehető.
+    A hajók utasítása a hajók sorrendjében történnek. Így például, ha két hajó ugyanazon az aszteroidán bányászik ugyanabban a körben, akkor a kisebb indexű hajó hajtja ezt végre először. Ezt azt is jelenti, hogy ha nincs már elég érc mindkettőnek, akkor az első tud sikeresen bányászni, a második már csak időt pazarol. Az új hajók mindig a sor végére kerülnek.
+
+Ebben a feladatban 2 hajóval indultok, és a cél, hogy az utasítás sorozat végén legyen legalább 10. Minden más lényegtelen. Ellenőrzésképp küldjétek el a körök számát, valamint a végén raktárban maradt ércek mennyiségét is ("totalRounds" és "stockQuantity", ahogy més feladatokban is). 
+
+
+6. feladat: Véletlen térkép
+Ennél a feladatnál már csak egy új információ van: a feladat paraméterei tartalmaznak egy "roundLimit" értéket is, ami maximálisan rendelkezésre álló körök számát jelenti. Ennyi körre elegendő ellátmánya van az expedíciónak. Amint ez a kör mennyiség letelik, a játék véget ér, és a pontszám az éppen raktáron lévő érc mennyiségéből jön. Fontos tehát, hogy nem az az érc számít, amit kibányászunk, hanem, ami raktáron van a játék végén!
+Azért, hogy ne legyen túl nagy különbség az egyes pályákból kapható pontok között, a pontszámot a rendszer mindig skálázza. A tényleges pontszámot az adja, hogy a teljes pályán rendelkezésre álló érc hány százalékát sikerül a végén elszállítani. Így elvileg minden feladat maximum 100 pontot érhet, de valójában ennél jóval kevesebb lesz a tényleges pontszám (és a pályától is függ).
+Egyébként ez a feladat sem ér még pontot, és ezt sem kell megoldani. Ennek a lényege, hogy véletlenszerű pályákat generáljon, feldolgozza a Tőletek kapott utasítás sorozatot, és visszaadja visszajelzésként, hogy mennyi lenne az elért pontszám. Ez tesztelésre használható.
+Ehhez a feladathoz már csak az utasítás listát kell elküldeni "commands" és "newShips", más adat nem kell a szervernek. A "feedback" rész közli a játék végén elért pontszámot és a raktár mennyiséget is.
+
+
+
+7-20 feladatok: Pontszerzés
+A 7-20 feladatokhoz ugyanaz a leírás tartozik, mivel a feladat maga ugyanaz: minél több érccel kell rendelkezni, amikor az idő lejár. Természetesen a hatékonyság növeléséhez célszerű menet közben valamennyi ércet a fejlődésre, hatékonyság növelésre költeni, de a végén csak az aktuális raktár számít. Az sem számít, ha a hajókban van valamennyi, csak az, ami a raktárban van.
+A 7-16 feladatok az egész verseny során elérhetőek. Mivel a pályák nem változnak, ezért a szerver minden alkalommal ugyanazokat a paramétereket fogja visszaadni, így nem is kell a válaszok előtt újból lekérni. A pályák között komolyabb eltérések is lehetnek. Vannak pályák ahol sok az aszteroida, vannak, ahol kevés. A távolságok is változók, a kiindulási paraméterek is eltérhetnek, valamint a rendelkezésre álló körök száma is más.
+A 17-20 feladatok csak a verseny utolsó 10 percében érhetőek el, az alatt az idő alatt kell minél jobb megoldást adni rájuk. Ezeknél is lehet többször próbálkozni, az egyetlen korlát az idő.

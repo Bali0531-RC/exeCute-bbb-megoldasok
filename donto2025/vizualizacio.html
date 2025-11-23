@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bányászat Vizualizáció - BBB Döntő 2025</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="vizualizacio.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="top-nav">
+            <button id="backButton" class="nav-btn">
+                <span class="icon">🏠</span>
+                Vissza a döntőhöz
+            </button>
+            <h1 class="app-title">🎬 Vizualizáció</h1>
+            <button id="themeToggle" class="nav-btn">
+                <span class="icon">🌙</span>
+            </button>
+        </nav>
+
+        <main class="main-content viz-layout">
+            <div class="viz-sidebar">
+                <div class="viz-control-panel">
+                    <h3>⚙️ Vezérlés</h3>
+                    
+                    <div class="control-group">
+                        <button id="kodBeallitasBtn" class="btn btn-primary btn-full">
+                            <span class="icon">🔑</span>
+                            Csapat kód beállítása
+                        </button>
+                    </div>
+
+                    <div class="control-divider"></div>
+                    
+                    <div class="control-group">
+                        <label>Feladat betöltése:</label>
+                        <select id="feladatSelect" class="control-input">
+                            <option value="">Válassz feladatot...</option>
+                        </select>
+                        <button id="betoltesBtn" class="btn btn-primary btn-full">
+                            <span class="icon">📥</span>
+                            Betöltés
+                        </button>
+                    </div>
+
+                    <div class="control-divider"></div>
+
+                    <div class="control-group">
+                        <label>Animáció sebesség:</label>
+                        <input type="range" id="sebessegSlider" min="1" max="10" value="5" class="slider">
+                        <span id="sebessegLabel">5x</span>
+                    </div>
+
+                    <div class="playback-controls">
+                        <button id="playBtn" class="btn btn-secondary" disabled>
+                            <span class="icon">▶️</span>
+                        </button>
+                        <button id="pauseBtn" class="btn btn-secondary" disabled>
+                            <span class="icon">⏸️</span>
+                        </button>
+                        <button id="resetBtn" class="btn btn-secondary" disabled>
+                            <span class="icon">⏮️</span>
+                        </button>
+                    </div>
+
+                    <div class="control-divider"></div>
+
+                    <div class="stats-panel">
+                        <h4>📊 Statisztikák</h4>
+                        <div class="stat-item">
+                            <span>Kör:</span>
+                            <span id="statKor">0 / 0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Raktár:</span>
+                            <span id="statRaktar">0 érc</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Hajók:</span>
+                            <span id="statHajok">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Fejlesztések:</span>
+                            <span id="statFejlesztesek">0/0/0</span>
+                        </div>
+                        <div class="stat-item highlight">
+                            <span>Összegyűjtött %:</span>
+                            <span id="statSzazalek">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ship-list">
+                    <h4>🚢 Hajók</h4>
+                    <div id="hajokLista" class="ships-container">
+                        <p class="placeholder-text">Nincs betöltött feladat</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="viz-main">
+                <div class="canvas-container">
+                    <canvas id="gameCanvas" width="800" height="600"></canvas>
+                    <div id="canvasOverlay" class="canvas-overlay"></div>
+                </div>
+
+                <div class="command-log">
+                    <h4>📜 Parancs napló</h4>
+                    <div id="parancsLog" class="log-content"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="solver.js"></script>
+    <script src="vizualizacio.js"></script>
+</body>
+</html>
