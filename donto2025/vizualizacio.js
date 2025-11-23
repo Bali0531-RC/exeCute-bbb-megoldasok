@@ -6,6 +6,9 @@ class VizualizacioApp {
         
         this.feladatData = null;
         this.megoldas = null;
+        this.offlineMod = false;
+        this.offlineAdatok = null;
+        this.offlineReszletek = new Map();
         this.animacioState = {
             kor: 0,
             maxKor: 0,
@@ -152,16 +155,28 @@ class VizualizacioApp {
         if (kod && kod.trim()) {
             api.setTeamcode(kod.trim());
             this.feladatokBetoltese();
+            this.offlineMod = false;
+            this.offlineAdatok = null;
+            this.offlineReszletek = new Map();
+            this.frissitOfflineOverlay();
         }
     }
 
     async feladatokBetoltese() {
         const select = document.getElementById('feladatSelect');
-        
-        if (!api.getTeamcode()) {
-            select.innerHTML = '<option value="">🔒 Kérlek állítsd be a csapat kódot!</option>';
+        const vanKod = Boolean(api.getTeamcode());
+        if (!vanKod) {
+            this.offlineMod = true;
+            if (select) {
+                select.innerHTML = '<option value="">📦 Offline feladatok betöltése...</option>';
+            }
+            await this.offlineFeladatokBetoltese(select);
+            this.frissitOfflineOverlay('Offline mód: a feladatok a mentett állományból érkeznek.');
             return;
         }
+
+        this.offlineMod = false;
+        this.frissitOfflineOverlay();
 
         try {
             const response = await api.osszesFeladatLekerdezes();
@@ -180,6 +195,7 @@ class VizualizacioApp {
             });
         } catch (error) {
             console.error('Hiba a feladatok betöltésekor:', error);
+            this.frissitOfflineOverlay('Nem sikerült kapcsolódni a szerverhez. Adj meg csapat kódot vagy használd az offline módot.');
         }
     }
 
@@ -193,6 +209,32 @@ class VizualizacioApp {
         }
 
         try {
+            if (this.offlineMod) {
+                await this.betoltOfflineSnapshot();
+                const offlineTask = this.offlineReszletek.get(Number(taskId)) || this.offlineReszletek.get(taskId);
+                if (!offlineTask || !offlineTask.data) {
+                    alert('A kiválasztott feladat nincs benne az offline csomagban.');
+                    return;
+                }
+
+                this.feladatData = JSON.parse(JSON.stringify(offlineTask.data));
+                const kerdesOffline = this.feladatData.questions?.[0];
+                if (!kerdesOffline || !kerdesOffline.params) {
+                    alert('Hibás offline feladat struktúra!');
+                    return;
+                }
+
+                megoldo.feladatBetoltes(this.feladatData, offlineTask.hash || '');
+                this.megoldas = megoldo.tobbHajoMegoldas(kerdesOffline.params);
+                this.initAnimacio(kerdesOffline.params);
+                this.render();
+                document.getElementById('playBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = false;
+                document.getElementById('resetBtn').disabled = false;
+                this.logParancs('Offline feladat betöltve', '📼');
+                return;
+            }
+
             const response = await api.feladatLekerdezes(taskId);
             this.feladatData = response.data;
             
@@ -216,6 +258,71 @@ class VizualizacioApp {
         } catch (error) {
             console.error('Hiba a feladat betöltésekor:', error);
             alert('Hiba történt: ' + error.message);
+        }
+    }
+
+    async offlineFeladatokBetoltese(select) {
+        try {
+            await this.betoltOfflineSnapshot();
+            const feladatok = this.offlineAdatok?.taskList || [];
+            const elerheto = feladatok.filter(f => {
+                const azonosito = Number(f.ID);
+                return this.offlineReszletek.has(azonosito) || this.offlineReszletek.has(f.ID);
+            });
+            if (!elerheto.length) {
+                if (select) {
+                    select.innerHTML = '<option value="">❌ Nincs mentett feladat</option>';
+                }
+                return;
+            }
+
+            if (select) {
+                select.innerHTML = '<option value="">Válassz offline feladatot...</option>';
+            }
+
+            elerheto.forEach(f => {
+                if (select) {
+                    const option = document.createElement('option');
+                    option.value = f.ID;
+                    option.textContent = `Feladat ${f.ID} (offline)`;
+                    select.appendChild(option);
+                }
+            });
+        } catch (error) {
+            console.error('Offline feladatlista hiba:', error);
+            if (select) {
+                select.innerHTML = '<option value="">❌ Offline adatok nem érhetők el</option>';
+            }
+        }
+    }
+
+    async betoltOfflineSnapshot() {
+        if (this.offlineAdatok) {
+            return;
+        }
+        const response = await fetch('offline-tasks.json');
+        if (!response.ok) {
+            throw new Error('offline-tasks.json nem található');
+        }
+        this.offlineAdatok = await response.json();
+        this.offlineReszletek = new Map();
+        (this.offlineAdatok.tasks || []).forEach(task => {
+            const azonosito = Number(task.ID);
+            this.offlineReszletek.set(Number.isNaN(azonosito) ? task.ID : azonosito, task);
+        });
+    }
+
+    frissitOfflineOverlay(uzenet = '') {
+        const overlay = document.getElementById('canvasOverlay');
+        if (!overlay) {
+            return;
+        }
+        if (this.offlineMod) {
+            overlay.classList.add('active');
+            overlay.textContent = uzenet || 'Offline mód aktív. A vizualizáció a mentett adatokból fut.';
+        } else {
+            overlay.classList.remove('active');
+            overlay.textContent = '';
         }
     }
 
